@@ -86,7 +86,7 @@ export default function CajaNegraScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -96,7 +96,7 @@ export default function CajaNegraScreen() {
 
   if (sesiones.length < 3) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16 pt-8">
+      <main className="u-page pb-16 pt-8">
         <Vacio titulo="Todavía no hay suficiente historia">
           <p>
             La Caja Negra compara tus sesiones entre sí para ver si el mismo ritmo te va costando
@@ -115,7 +115,7 @@ export default function CajaNegraScreen() {
   const estado = explicarEstado(homeostasis.estado);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-block pb-16 pt-8">
       <header>
         <span className="u-label">Caja negra</span>
         <h1 className="u-title mt-unit">

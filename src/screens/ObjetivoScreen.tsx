@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { crearObjetivo, guardarPlan } from '@/data';
+import { actualizarPerfil, crearObjetivo, guardarPlan } from '@/data';
 import {
   DEFAULT_MESOCYCLE_SCHEME,
   MACROCYCLE_TABLE,
@@ -8,12 +8,15 @@ import {
   feasibilidadObjetivo,
   generarMacrociclo,
   nivelPorObjetivo,
+  normalizarDiasDisponibles,
   semanasEntre,
+  validarDiasDisponibles,
 } from '@/domain';
 import type { MesocycleScheme, RaceDistance } from '@/domain/types';
 import { useSession } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
 import { Chips, Field } from '@/components/ui/field';
+import SelectorDias from '@/components/SelectorDias';
 import { Aviso, ErrorMensaje } from '@/components/ui/feedback';
 import { formatearTiempo, hoyIso, parsearTiempo } from '@/lib/format';
 
@@ -36,6 +39,7 @@ export default function ObjetivoScreen() {
   const navigate = useNavigate();
   const usuario = useSession((s) => s.usuario);
   const perfil = useSession((s) => s.perfil);
+  const setPerfil = useSession((s) => s.setPerfil);
   const setObjetivo = useSession((s) => s.setObjetivo);
   const setPlan = useSession((s) => s.setPlan);
 
@@ -43,9 +47,15 @@ export default function ObjetivoScreen() {
   const [tiempo, setTiempo] = useState('');
   const [fechaCarrera, setFechaCarrera] = useState('');
   const [esquema, setEsquema] = useState<MesocycleScheme>(DEFAULT_MESOCYCLE_SCHEME);
+  // Se precarga con la preferencia del perfil; si no hay, con lunes/miércoles/
+  // viernes/domingo, que es el reparto más común para cuatro días.
+  const [dias, setDias] = useState<number[]>(() =>
+    perfil?.diasEntrenamiento?.length ? normalizarDiasDisponibles(perfil.diasEntrenamiento) : [0, 2, 4, 6],
+  );
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const diasValidos = validarDiasDisponibles(dias).valido;
   const inicio = hoyIso();
   const tiempoSeg = parsearTiempo(tiempo);
   const tiempoIncompleto = tiempo.trim() !== '' && tiempoSeg === null;
@@ -62,6 +72,7 @@ export default function ObjetivoScreen() {
       return null;
     }
     if (fechaCarrera < inicio) return null;
+    if (!diasValidos) return null;
 
     const nivel = nivelPorObjetivo(distancia, tiempoSeg);
     const semanas = semanasEntre(inicio, fechaCarrera);
@@ -74,10 +85,11 @@ export default function ObjetivoScreen() {
       volumenActualKm: perfil.volumenSemanalKm,
       ritmoBase: perfil.ritmoBase,
       scheme: esquema,
+      diasDisponibles: dias,
     });
 
     return { nivel, semanas, feasibilidad, macrociclo };
-  }, [distancia, tiempoSeg, fechaCarrera, esquema, perfil, inicio]);
+  }, [distancia, tiempoSeg, fechaCarrera, esquema, perfil, inicio, dias, diasValidos]);
 
   const faltaPerfil = !perfil?.ritmoBase || !perfil.volumenSemanalKm;
   const puedeGuardar = preview !== null && !enviando && !faltaPerfil;
@@ -98,10 +110,20 @@ export default function ObjetivoScreen() {
 
       const plan = await guardarPlan(usuario.id, objetivo.id, preview.macrociclo, {
         esquema,
-        diasPorSemana: preview.nivel.diasRecomendados,
+        // Los días elegidos mandan: el plan se generó con ellos.
+        diasPorSemana: dias.length,
+        diasEntrenamiento: dias,
         ritmoBase: perfil.ritmoBase,
         volumenInicialKm: perfil.volumenSemanalKm,
       });
+
+      // La selección queda como preferencia para el próximo plan. Si falla, no
+      // se rompe el alta: el plan ya está guardado y es lo que importa.
+      try {
+        setPerfil(await actualizarPerfil(usuario.id, { diasEntrenamiento: dias }));
+      } catch {
+        /* la preferencia es un extra, no un requisito */
+      }
 
       setObjetivo(objetivo);
       setPlan(plan);
@@ -114,7 +136,7 @@ export default function ObjetivoScreen() {
 
   if (faltaPerfil) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16">
+      <main className="u-page pb-16">
         <div className="u-section">
           <h1 className="u-title">Falta un paso antes</h1>
           <p className="u-sub mt-3">
@@ -129,7 +151,7 @@ export default function ObjetivoScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-edge pb-16">
+    <main className="u-page pb-16">
       <header className="u-section">
         <p className="u-label">Paso 3 de 3</p>
         <h1 className="mt-6 u-title">Tu objetivo</h1>
@@ -170,6 +192,15 @@ export default function ObjetivoScreen() {
             hint={`El plan ideal para ${distancia} usa ${MACROCYCLE_TABLE[distancia].totalWeeks} semanas.`}
           />
 
+          <div>
+            <span className="u-label">Qué días podés entrenar</span>
+            <p className="u-sub mt-2">
+              El plan pone las sesiones sólo en estos días. Elegí los que realmente tenés libres:
+              un plan que cae en días imposibles es un plan que se abandona.
+            </p>
+            <SelectorDias valor={dias} onChange={setDias} className="mt-4" />
+          </div>
+
           <Chips
             label="Cómo tolerás la carga"
             value={esquema}
@@ -193,7 +224,7 @@ export default function ObjetivoScreen() {
                 <p className="u-label mt-2">Semanas</p>
               </div>
               <div>
-                <p className="font-hero text-hero-sm">{preview.nivel.diasRecomendados}</p>
+                <p className="font-hero text-hero-sm">{dias.length}</p>
                 <p className="u-label mt-2">Días/semana</p>
               </div>
               <div>

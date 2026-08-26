@@ -90,7 +90,7 @@ export default function SemanaScreen() {
 
   if (!plan || !semana) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16">
+      <main className="u-page pb-16">
         <Vacio titulo="No encontramos esa semana">
           <Button asChild variant="outline" size="block" className="mt-6">
             <Link to="/plan">Volver al plan</Link>
@@ -127,7 +127,7 @@ export default function SemanaScreen() {
   const progreso = semana.totalKm > 0 ? Math.min(1, kmReales / semana.totalKm) : 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-6">
+    <main className="u-page flex flex-col gap-section pb-16 pt-6">
       {/* Cabecera: nombre a la izquierda, volumen en hero a la derecha. */}
       <section className="flex flex-col gap-unit">
         <div className="mb-1 flex items-baseline justify-between gap-3">

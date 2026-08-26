@@ -36,6 +36,7 @@ export type ProfileRow = {
   weight_kg: number | null;
   base_pace_level: BasePaceLevel | null;
   current_weekly_km: number | null;
+  training_days: number[];
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;
@@ -73,6 +74,7 @@ export type PlanRow = {
   goal_id: string;
   scheme: MesocycleScheme;
   days_per_week: number;
+  training_days: number[];
   base_pace_level: BasePaceLevel;
   initial_weekly_km: number;
   base_weeks: number;

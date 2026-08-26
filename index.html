@@ -12,6 +12,29 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      El tema se resuelve ANTES de que pinte React. Si esperáramos al primer
+      render, quien elige claro vería un flash oscuro en cada carga, que es
+      justo lo que arruina la sensación de app nativa.
+      La lógica está duplicada a propósito con src/store/theme.store.ts: acá no
+      hay módulos todavía, y meter un import bloquearía el pintado.
+    -->
+    <script>
+      (function () {
+        try {
+          var guardado = localStorage.getItem('umbral:tema');
+          var tema =
+            guardado === 'dark' || guardado === 'light'
+              ? guardado
+              : window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.dataset.theme = tema;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

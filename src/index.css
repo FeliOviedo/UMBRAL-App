@@ -26,10 +26,47 @@
     --accent: 77 100% 65%; /* #CDFF4F */
     --accent-dim: 72 71% 50%; /* #A7D626 */
     --accent-foreground: 218 27% 6%; /* texto sobre lima */
+    --glow: 205 255 79; /* rgb del acento, para el halo */
+    --glow-strength: 0.5;
+    --glow-strength-soft: 0.4;
+  }
+
+  /*
+   * Tema claro, medido de las pantallas `*_claro` de `design-reference/`.
+   *
+   * Dos diferencias que NO son un capricho y conviene no "corregir":
+   *
+   * 1. El acento del tema claro es el lima APAGADO (#A7D626), no el lima
+   *    brillante. Sobre blanco, #CDFF4F queda en 1.4:1 contra el fondo —
+   *    ilegible. Stitch usa `ui-accent: #A7D626` en todas las pantallas claras
+   *    por exactamente esa razón.
+   * 2. El halo (`shadow-glow`) casi desaparece en claro. En oscuro el lima
+   *    brilla sobre el fondo; sobre blanco un halo lima se lee como una mancha
+   *    sucia. Se baja la opacidad en lugar de sacarlo, para que el acento siga
+   *    teniendo el mismo gesto en los dos temas.
+   */
+  :root[data-theme='light'] {
+    --bg: 0 0% 98%; /* #f9f9f9 */
+    --surface: 0 0% 93%; /* #eeeeee */
+    --surface-high: 0 0% 89%; /* #e2e2e2 */
+    --border: 0 0% 89%; /* #e2e2e2 */
+    --fg: 0 0% 11%; /* #1b1b1b */
+    --fg-muted: 0 0% 28%; /* #474747 */
+    --outline: 353 4% 48%; /* #7e7576 */
+    --accent: 72 71% 50%; /* #A7D626 — el lima apagado, ver arriba */
+    --accent-dim: 72 71% 42%;
+    --accent-foreground: 0 0% 100%; /* texto sobre lima en claro */
+    --glow: 167 214 38;
+    --glow-strength: 0.22;
+    --glow-strength-soft: 0.16;
   }
 
   html {
     color-scheme: dark;
+  }
+
+  html[data-theme='light'] {
+    color-scheme: light;
   }
 
   body {
@@ -60,7 +97,7 @@
   }
 
   .u-hero-lg {
-    @apply font-hero text-hero-lg text-fg;
+    @apply font-hero text-hero-lg text-fg lg:text-hero-xl;
   }
 
   .u-hero-sm {
@@ -114,6 +151,29 @@
    */
   .u-section {
     @apply mt-section first:mt-0;
+  }
+
+  /* ── Contenedor de página ───────────────────────────────────────────────
+   * En móvil, la columna de 448px del diseño original. En desktop se suelta
+   * hasta 1280px para aprovechar la pantalla, con más aire lateral.
+   *
+   * Es una clase y no un `max-w-md` suelto en cada pantalla para que cambiar
+   * el ancho de la app sea tocar un solo lugar, igual que la metodología vive
+   * toda en config.ts.
+   */
+  .u-page {
+    @apply mx-auto w-full max-w-md px-edge lg:max-w-[1280px] lg:px-10;
+  }
+
+  /* Grilla de dos columnas que colapsa a una en móvil. El dato protagonista
+   * va en la primera; lo secundario, al costado en desktop y abajo en móvil. */
+  .u-cols {
+    @apply grid grid-cols-1 gap-section lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10;
+  }
+
+  /* Grilla de tarjetas/bloques que se despliega en desktop. */
+  .u-grid {
+    @apply grid grid-cols-1 gap-section md:grid-cols-2 lg:gap-8;
   }
 
   /* Fila de lista (un día del microciclo, un split). Sin fondo ni radio. */

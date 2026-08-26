@@ -91,7 +91,7 @@ export default function AjustesPlanScreen() {
   if (propuestas === null && !error) return <Cargando mensaje="Buscando ajustes…" />;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-section pb-16 pt-8">
       <header>
         <span className="u-label">Ajustes del plan</span>
         <h1 className="u-title mt-unit">

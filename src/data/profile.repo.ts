@@ -17,6 +17,8 @@ export interface Perfil {
   pesoKg: number | null;
   ritmoBase: BasePaceLevel | null;
   volumenSemanalKm: number | null;
+  /** Días de la semana que suele tener libres (0 = lunes). */
+  diasEntrenamiento: number[];
   onboardingCompleto: boolean;
 }
 
@@ -28,6 +30,7 @@ function aDominio(row: ProfileRow): Perfil {
     pesoKg: row.weight_kg,
     ritmoBase: row.base_pace_level,
     volumenSemanalKm: row.current_weekly_km,
+    diasEntrenamiento: row.training_days ?? [],
     onboardingCompleto: row.onboarding_completed,
   };
 }
@@ -55,6 +58,7 @@ export interface DatosPerfil {
   pesoKg?: number | null;
   ritmoBase?: BasePaceLevel | null;
   volumenSemanalKm?: number | null;
+  diasEntrenamiento?: number[];
   onboardingCompleto?: boolean;
 }
 
@@ -67,6 +71,7 @@ export async function actualizarPerfil(userId: string, datos: DatosPerfil): Prom
   if (datos.pesoKg !== undefined) patch.weight_kg = datos.pesoKg;
   if (datos.ritmoBase !== undefined) patch.base_pace_level = datos.ritmoBase;
   if (datos.volumenSemanalKm !== undefined) patch.current_weekly_km = datos.volumenSemanalKm;
+  if (datos.diasEntrenamiento !== undefined) patch.training_days = datos.diasEntrenamiento;
   if (datos.onboardingCompleto !== undefined) {
     patch.onboarding_completed = datos.onboardingCompleto;
   }

@@ -29,7 +29,7 @@ export default function PlanScreen() {
 
   if (!plan || !objetivo) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16">
+      <main className="u-page pb-16">
         <Vacio titulo="Todavía no tenés un plan">
           <p>Definí tu objetivo y lo armamos con tu umbral y tu volumen actual.</p>
           <Button asChild size="block" className="mt-8">
@@ -49,7 +49,7 @@ export default function PlanScreen() {
   const mesociclos = agruparPorMesociclo(plan.semanas);
 
   return (
-    <main className="mx-auto w-full max-w-md px-edge pb-16">
+    <main className="u-page pb-16">
       <header className="u-section">
         <p className="u-label">Mi plan</p>
         <h1 className="mt-6 u-hero">

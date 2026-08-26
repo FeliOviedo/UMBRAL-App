@@ -19,6 +19,7 @@ import {
 } from './config';
 import { proyectarVolumen, type Agresividad } from './progression';
 import { repararMicrociclo, validarSecuencia } from './rules';
+import { normalizarDiasDisponibles, plantillaParaDias } from './trainingDays';
 import type {
   BasePaceLevel,
   LoadWeek,
@@ -132,6 +133,14 @@ export interface ObjetivoPlan {
   scheme?: MesocycleScheme;
   /** Días de entrenamiento por semana. Por defecto, lo que dice la Tabla 3. */
   diasPorSemana?: number;
+  /**
+   * Días de la semana en los que el corredor puede entrenar (0 = lunes).
+   *
+   * Cuando se pasan, mandan sobre `diasPorSemana`: la cantidad de sesiones sale
+   * de cuántos días eligió. Es la restricción más dura del plan — un plan que
+   * cae en días imposibles no se cumple.
+   */
+  diasDisponibles?: readonly number[];
   hayFatigaExterna?: boolean;
   agresividad?: Agresividad;
 }
@@ -177,7 +186,39 @@ export function generarMacrociclo(objetivo: ObjetivoPlan): Macrocycle {
 
   const scheme = objetivo.scheme ?? DEFAULT_MESOCYCLE_SCHEME;
   const nivel = nivelPorObjetivo(objetivo.distance, objetivo.targetSeconds);
-  const diasPorSemana = objetivo.diasPorSemana ?? nivel.diasRecomendados;
+
+  // Los días elegidos mandan sobre la Tabla 3: si el corredor dijo que puede
+  // cuatro días, el plan es de cuatro días aunque la tabla recomiende cinco.
+  const diasElegidos = objetivo.diasDisponibles
+    ? normalizarDiasDisponibles(objetivo.diasDisponibles)
+    : null;
+  const diasPorSemana =
+    diasElegidos && diasElegidos.length > 0
+      ? diasElegidos.length
+      : (objetivo.diasPorSemana ?? nivel.diasRecomendados);
+
+  let plantilla: readonly TrainingType[] | undefined;
+  if (diasElegidos && diasElegidos.length > 0) {
+    const resultado = plantillaParaDias(diasElegidos);
+    plantilla = resultado.plantilla;
+
+    if (!resultado.respetaDiasElegidos) {
+      warnings.push(
+        'Con los días que elegiste no hay forma de ordenar la semana sin romper las reglas del ' +
+          'microciclo (nunca dos Específicos seguidos, ni un Específico después del Largo). ' +
+          'El plan se generó con la distribución estándar de la tabla: vas a tener que mover ' +
+          'alguna sesión a mano desde el calendario.',
+      );
+    }
+
+    if (diasPorSemana < nivel.daysMin) {
+      warnings.push(
+        `Elegiste ${diasPorSemana} días por semana y para tu objetivo la Tabla 3 recomienda ` +
+          `entre ${nivel.daysMin} y ${nivel.daysMax}. El plan se genera igual, pero el volumen ` +
+          'se reparte en menos sesiones: cada una va a ser más larga de lo habitual.',
+      );
+    }
+  }
 
   const cargas = secuenciaDeCargas(scheme, totalWeeks);
   const volumenes = proyectarVolumen(
@@ -195,6 +236,7 @@ export function generarMacrociclo(objetivo: ObjetivoPlan): Macrocycle {
       load,
       diasPorSemana,
       volumenObjetivoKm: volumenes[i]!,
+      ...(plantilla ? { plantilla } : {}),
     }),
   );
 

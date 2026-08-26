@@ -65,7 +65,7 @@ export default function VolumenScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -75,7 +75,7 @@ export default function VolumenScreen() {
 
   if (!plan) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16 pt-8">
+      <main className="u-page pb-16 pt-8">
         <Vacio titulo="Todavía no tenés un plan">
           <p>El progreso de volumen compara lo que corriste contra lo que estaba planificado.</p>
           <Button asChild size="block" className="mt-8">
@@ -97,7 +97,7 @@ export default function VolumenScreen() {
   const descargas = datos.filter((d) => d.esDescarga && d.real !== null);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-block pb-16 pt-8">
       <header>
         <span className="u-label">Progreso de volumen</span>
         <h1 className="mt-unit u-hero">

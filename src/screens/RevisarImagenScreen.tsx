@@ -127,14 +127,14 @@ export default function RevisarImagenScreen() {
 
   if (sesion === null) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <p className="u-sub">No se encontró esa sesión.</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-section pb-16 pt-8">
       <header>
         <span className="u-label">Captura del reloj</span>
         <h1 className="u-title mt-unit">Datos que el archivo no trae</h1>

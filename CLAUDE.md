@@ -68,6 +68,8 @@ Reglas que sostienen esto:
 | `src/domain/rules.ts` | `validarMicrociclo`, `repararMicrociclo`, `reordenarPorSesionOmitida`. Las reglas R1-R4. |
 | `src/domain/progression.ts` | Tabla 7: `calcularIncrementoSemanal`, `aplicarProgresion`, `proyectarVolumen`. |
 | `src/domain/planner.ts` | `generarMacrociclo`, `generarMesociclo`, `generarMicrociclo`, `nivelPorObjetivo`, `feasibilidadObjetivo`. |
+| `src/domain/trainingDays.ts` | Días entrenables elegidos por el corredor: acomoda las sesiones de la Tabla 4 sobre esos días respetando R1-R4. |
+| `src/domain/planEdit.ts` | Edición manual del plan: mover/intercambiar una sesión y adelantar un mesociclo. |
 | `src/domain/calendar.ts` | `calendarizarPlan`: aterriza la numeración abstracta del plan en fechas reales. |
 | `src/domain/sessionAnalysis.ts` | Carga metabólica, distribución por zona y comparación plan vs. real. |
 | `src/domain/homeostasis.ts` | Modelo de fatiga/forma y estado de supercompensación. |
@@ -111,12 +113,19 @@ Entre las dos cosas son ~275 kB que no tienen por qué estar en el arranque
 | `/sesion/:id/imagen` | Captura | Adjuntar la foto del reloj y confirmar lo detectado. |
 | `/analisis` | Caja Negra | Los cinco gráficos de progreso. Lazy. |
 | `/volumen` | Volumen | Planificado vs. corrido, tendencia y descargas. Lazy. |
-| `/calendario` | Calendario | Heatmap mensual por tipo de entreno. Lazy. |
+| `/calendario` | Calendario | Heatmap mensual navegable. Se arrastra para mover entrenos y se saltean desde acá. Lazy. |
 | `/onboarding`, `/config` | Perfil | Datos del corredor. |
 
 La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan,
 Análisis, Perfil): en mobile, una barra con más de cuatro íconos se vuelve imposible de
-acertar con el pulgar.
+acertar con el pulgar. En desktop (md+) esa barra desaparece y la reemplaza una
+**sidebar fija de 256px**, que no tiene esa restricción: ahí entran también
+Calendario y Volumen.
+
+Fuera de las rutas raíz, el layout muestra un **botón de volver**
+(`BotonVolver`): en el app bar en móvil y sobre el contenido en desktop. Si no
+hay historial propio —se entró por link directo— cae al padre que la ruta
+declara, en vez de sacar al usuario de la app.
 
 ---
 
@@ -305,12 +314,72 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 
 ---
 
+## Fase 6 — desktop, tema claro y plan editable
+
+Lo que agregó esta fase, y las decisiones que conviene no revertir sin pensarlas:
+
+**Layout de dos formas.** Móvil sigue igual (app bar + barra inferior de cuatro
+destinos). En md+ aparece una sidebar fija y el contenido se suelta hasta
+1280px. El ancho de página vive en **una sola clase**, `.u-page`: cambiarlo es
+tocar un lugar, no dieciocho pantallas.
+
+**Tema claro.** Segundo juego de tokens bajo `:root[data-theme='light']`, con
+el tema resuelto por un script inline en `index.html` **antes** del primer
+pintado — si se esperara a React, cada carga arrancaría con un flash oscuro.
+Dos cosas que parecen inconsistencias y no lo son:
+
+- El acento del tema claro es el lima **apagado** (`#A7D626`), no el brillante.
+  Sobre blanco, `#CDFF4F` da 1.4:1 contra el fondo. Es lo que hacen todas las
+  pantallas `*_claro` de `design-reference/`.
+- El halo (`shadow-glow`) baja de 0.5 a 0.22 de opacidad en claro. Sobre blanco
+  un halo lima fuerte se lee como una mancha, no como brillo. Sale de
+  `--glow-strength`, así que el gesto sigue siendo el mismo en los dos temas.
+
+**Días de entrenamiento elegibles** (`trainingDays.ts`). El corredor dice qué
+días tiene libres y el plan pone las sesiones **sólo ahí**. Se respeta la
+COMPOSICIÓN de la Tabla 4 (cuántas E, cuántas R, una F) y se negocia el ORDEN,
+por backtracking sobre el multiconjunto de tipos. Nunca devuelve una semana que
+viole R1-R4: si no hay orden legal, cae a la plantilla de tabla y **lo avisa**.
+
+El techo es 6 días y no 7 por R4, no por la Tabla 4: la semana necesita un
+Descanso absoluto, así que entrenar los siete días es inexpresable en esta
+metodología. Los días elegidos mandan sobre la Tabla 3; si son menos de los que
+la tabla recomienda, se genera igual y se avisa.
+
+**Plan editable** (`planEdit.ts`), con dos operaciones y una regla común —el
+plan nunca cambia en silencio:
+
+| Operación | Qué hace |
+| --- | --- |
+| Mover una sesión | Arrastrar en el calendario. Si el destino está ocupado, las dos se **intercambian**: así mover no puede cambiar la carga de la semana por accidente. |
+| Saltear una sesión | Es el caso "sesión omitida" del motor de adaptación, no lógica nueva: reordena lo que queda usando los R como comodines. |
+| Adelantar un mesociclo | Saltea sus semanas **que todavía no arrancaron** y corre el resto hacia atrás, sin dejar hueco. Lo ya vivido no se toca. |
+
+Mover **valida pero no prohíbe**: el resultado trae las violaciones de R1-R4
+que provoque, explicadas, y la persona decide con el botón "Mover igual". El
+motor automático sigue sin poder publicar una semana inválida; una persona que
+sabe lo que hace, sí — pero enterándose. Adelantar avisa que saltea carga
+acumulada.
+
+**Calendario**: navegable sin tope hacia adelante (antes no dejaba ver el plan
+futuro, que es la mitad de para qué existe) y en desktop el mes entra **entero**
+en pantalla — la grilla toma la altura disponible y reparte seis filas iguales,
+en vez de usar celdas de proporción fija que cortaban la última semana.
+
+**Migración pendiente en Supabase.** Esta fase agrega dos columnas
+(`profiles.training_days` y `plans.training_days`). Están en `schema.sql` con
+`alter table … add column if not exists`, así que **hay que volver a correr
+`schema.sql` en el SQL Editor** para que la selección de días funcione contra
+una base ya creada.
+
+---
+
 ## Comandos
 
 ```bash
 npm install
 npm run dev         # servidor de desarrollo
-npm test            # 323 tests (dominio + utilidades)
+npm test            # 370 tests (dominio + utilidades)
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build de producción
 ```
@@ -326,6 +395,7 @@ npm run build       # typecheck + build de producción
 | **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ✅ **Completa** |
 | **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ✅ **Completa** |
 | **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ✅ **Completa** |
+| **6** | Layout desktop + tema claro + días de entrenamiento elegibles + calendario editable (mover/saltear) + navegación entre mesociclos y hacia atrás | ✅ **Completa** |
 
 ### Lo que la Fase 5 dejó listo
 
