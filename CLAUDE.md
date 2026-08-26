@@ -34,12 +34,16 @@ por usuario lo da RLS.
 Tres capas, con una sola dirección de dependencias:
 
 ```
-UI (componentes React)
+UI (screens + components)                    ← src/screens/, src/components/
   ↓ importa
-Dominio (funciones puras, sin I/O)          ← src/domain/
+Dominio (funciones puras, sin I/O)           ← src/domain/
   ↑ no importa nada de UI ni de datos
-Datos (repositorios hacia Supabase)          ← src/data/ (Fase 2)
+Datos (repositorios hacia Supabase)          ← src/data/
 ```
+
+El estado de sesión vive en Zustand (`src/store/session.store.ts`) y es la única
+fuente de verdad sobre el usuario actual: las pantallas leen de ahí en lugar de
+consultar Supabase por su cuenta.
 
 Reglas que sostienen esto:
 
@@ -64,9 +68,55 @@ Reglas que sostienen esto:
 | `src/domain/rules.ts` | `validarMicrociclo`, `repararMicrociclo`, `reordenarPorSesionOmitida`. Las reglas R1-R4. |
 | `src/domain/progression.ts` | Tabla 7: `calcularIncrementoSemanal`, `aplicarProgresion`, `proyectarVolumen`. |
 | `src/domain/planner.ts` | `generarMacrociclo`, `generarMesociclo`, `generarMicrociclo`, `nivelPorObjetivo`, `feasibilidadObjetivo`. |
+| `src/domain/calendar.ts` | `calendarizarPlan`: aterriza la numeración abstracta del plan en fechas reales. |
+| `src/domain/sessionAnalysis.ts` | Carga metabólica, distribución por zona y comparación plan vs. real. |
+| `src/domain/homeostasis.ts` | Modelo de fatiga/forma y estado de supercompensación. |
+| `src/domain/analysis.ts` | Caja negra (progreso a igual pace) y serie de balance. |
+| `src/domain/adaptation.ts` | **Motor de adaptación.** Los casos de la metodología, con su explicación. |
+| `src/domain/vision.ts` | Interfaz conectable para leer capturas del reloj. |
 | `src/domain/import/` | Parsers TCX/GPX/KML, Haversine, splits, cadencia, reconciliación de distancia. |
+| `supabase/schema.sql` | Tablas, tipos, RLS, trigger de alta de perfil y bucket de Storage. |
+| `src/data/` | Repositorios hacia Supabase. Traducen filas ↔ dominio y los errores al español. |
+| `src/store/session.store.ts` | Estado de sesión: usuario, perfil, umbral, objetivo y plan. |
+| `src/screens/` | Pantallas. |
+| `src/lib/format.ts` | Formateo y parseo de tiempos, paces y fechas. |
 | `src/index.css` | Tokens de color del design system (variables CSS) y clases base. |
-| `tailwind.config.ts` | Tipografías, escala hero, colores de zona, radios. |
+| `tailwind.config.ts` | Tipografías, escala hero, colores de zona, radios. Medido de `design-reference/`. |
+| `design-reference/` | **Los HTML y PNG de Stitch.** La fuente de verdad del diseño. |
+
+**El barrel de dominio (`src/domain/index.ts`) NO reexporta `./import`** a
+propósito: arrastra el parser de XML, que sólo hace falta en las pantallas de
+importación. Quien lo necesite importa de `@/domain/import`.
+
+Por la misma razón, **`RegistrarScreen` y `SesionDetalleScreen` se cargan con
+`lazy()`** en el router: son las dos que arrastran el parser de XML y Leaflet.
+Entre las dos cosas son ~275 kB que no tienen por qué estar en el arranque
+(bundle principal: 757 kB si se importan directo, 495 kB con el corte).
+
+### Pantallas y rutas
+
+| Ruta | Pantalla | Qué hace |
+| --- | --- | --- |
+| `/hoy` | Dashboard | Sesión de hoy, anillo de progreso semanal, próximo reto. |
+| `/plan` | Macrociclo | El plan completo, agrupado por mesociclo. |
+| `/plan/mesociclo/:index` | Mesociclo | Las semanas de un mesociclo con su carga. |
+| `/plan/semana/:numero` | Microciclo | Los 7 días de la semana; se usa entrenando. |
+| `/registrar` | Registro | Importar TCX/GPX/KML o cargar a mano. RPE protagonista. |
+| `/sesion/:id` | Detalle | Mapa, splits, cadencia, distribución por zona. |
+| `/zonas` | Mis Zonas | Las 7 zonas con RPE, pace y FC. |
+| `/umbral` | Umbral | Test o carga directa. |
+| `/objetivo` | Objetivo | Definir objetivo y generar el plan. |
+| `/ajustes` | Re-calibración | Los ajustes del motor, con el diff antes/después. |
+| `/complementaria` | Complementaria | Fuerza, fútbol, bici: carga que no es correr. |
+| `/sesion/:id/imagen` | Captura | Adjuntar la foto del reloj y confirmar lo detectado. |
+| `/analisis` | Caja Negra | Los cinco gráficos de progreso. Lazy. |
+| `/volumen` | Volumen | Planificado vs. corrido, tendencia y descargas. Lazy. |
+| `/calendario` | Calendario | Heatmap mensual por tipo de entreno. Lazy. |
+| `/onboarding`, `/config` | Perfil | Datos del corredor. |
+
+La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan,
+Análisis, Perfil): en mobile, una barra con más de cuatro íconos se vuelve imposible de
+acertar con el pulgar.
 
 ---
 
@@ -86,6 +136,9 @@ Todas en `src/domain/config.ts`.
 | Tabla 7 | `PROGRESSION_TABLE` | Km a sumar por semana según ritmo base y distancia. |
 | RPE / sensación | `RPE_SCALE`, `FEELING_SCALE` | Escalas 1-10 y 1-5. |
 | Calibración | `RPE_CALIBRATION_PROTOCOL` | Bloques guiados de sensibilización de RPE. |
+| Adaptación | `ADAPTATION_CONFIG` | Umbrales que disparan cada caso del motor. |
+| Homeostasis | `HOMEOSTASIS_CONFIG` | Constantes de fatiga y forma, y umbrales de estado. |
+| Complementarias | `COMPLEMENTARY_ACTIVITIES` | Actividades y su factor de carga. |
 
 ### Reglas inquebrantables del microciclo (`rules.ts`)
 
@@ -115,46 +168,115 @@ explícitamente y cubiertos por tests:
 
 ---
 
-## Multidisciplina: los cimientos ya están
+## Base de datos
+
+Siete tablas en `supabase/schema.sql`, todas con Row Level Security:
+
+| Tabla | Qué guarda |
+| --- | --- |
+| `profiles` | Perfil del corredor. La crea sola el trigger `handle_new_user`. |
+| `thresholds` | **Historial** de umbral. El vigente es el de `tested_at` más reciente. |
+| `goals` | Objetivos de carrera. Índice parcial: uno solo activo por usuario. |
+| `plans` | Plan generado. Guarda los parámetros de entrada además del resultado. |
+| `plan_weeks` | Microciclos, con su lunes en `starts_on`. |
+| `plan_days` | Días planificados, con su fecha en `scheduled_on`. |
+| `sessions` | **Lo que realmente pasó.** Genérica, con `discipline`. |
+| `adaptations` | Decisiones del motor, con el antes y el después de la semana. |
+
+Decisiones que conviene no revertir sin pensarlo:
+
+- **RLS no es una capa de más, es LA capa.** No hay backend propio: el navegador
+  habla directo con Postgres con una clave pública. Las políticas se generan en
+  un bucle sobre la lista de tablas para que ninguna quede sin cubrir.
+- **Las zonas no se guardan.** Se derivan del umbral en el dominio. Persistirlas
+  sería duplicar la metodología en la base y arriesgarse a que quedaran
+  desincronizadas al recalibrar `config.ts`.
+- **El plan se marca `is_active` al final.** No hay transacciones desde el
+  navegador, así que un guardado interrumpido queda invisible en lugar de
+  aparecer a medias.
+- **Plan y realidad viven separados.** `plan_days` es lo planificado, `sessions`
+  lo que pasó, y se vinculan por `sessions.plan_day_id`. De esa comparación vive
+  el motor de adaptación.
+
+### Multidisciplina: los cimientos ya están
 
 No hay features de gimnasio en el MVP, pero el modelo no las excluye:
 
 - La entidad base es una **sesión genérica** con `discipline: 'running' |
   'strength' | 'other'`. El MVP sólo implementa `'running'`.
-- La **carga metabólica es un concepto unificado**: cualquier sesión, de
-  cualquier disciplina, aporta al modelo de homeostasis y recuperación. Las
-  actividades complementarias (fuerza, fútbol) entran por ese mismo mecanismo.
-- El esquema de Supabase (Fase 2) usa una tabla `sessions` con `discipline`, no
-  una tabla cerrada `runs`.
+- La **carga metabólica es un concepto unificado** (`sessions.metabolic_load`):
+  cualquier sesión, de cualquier disciplina, aporta al modelo de homeostasis y
+  recuperación. Las actividades complementarias entran por ese mismo mecanismo.
+- La tabla se llama `sessions`, no `runs`, y todas sus columnas de running son
+  nullable. Cuando llegue el módulo de fuerza **no hace falta migrar nada**: se
+  agrega una tabla hija `strength_sets` que referencia `sessions`. El lugar
+  exacto está marcado con un comentario en el SQL.
 
 ---
 
 ## Identidad visual
 
-Modo oscuro por defecto, UI en español, estilo sobrio: **menos cajas, más aire**.
+**La fuente de verdad es `design-reference/`**, no este resumen ni el brief
+original. Son los HTML y los PNG que exportó Stitch. Cuando haya que decidir un
+tamaño, un espaciado o un radio, se mide del HTML correspondiente — sobre todo
+de `dashboard_minimalista`, `esta_semana_minimalista` y
+`registro_actividad_minimalista_claro`, que son las tres pantallas contra las
+que se calibró el sistema.
 
-**Colores** — fondo `#0B0E13`, superficie `#151A22`, borde `#232B36`, texto
-`#F4F6F8` / secundario `#9AA7B4`, acento lima `#CDFF4F`.
+Modo oscuro por defecto, UI en español.
+
+### Tipografías
+
+| Uso | Familia | Tamaño |
+| --- | --- | --- |
+| Números protagonistas | Archivo Black | 40 / 56 / **96** px, `-0.04em` |
+| Títulos y nombres de sesión | **Archivo Black** | 28px (`u-title`), 18px (`u-title-sm`) |
+| Wordmark y botón principal | Space Grotesk | 24px, 700, `tracking-tighter` |
+| Labels | **JetBrains Mono** | 11px, `0.1em`, 600, mayúscula |
+| Datos numéricos | JetBrains Mono | 18px / 14px, 500 |
+| Cuerpo | Inter | 14px / 16px |
+
+Dos diferencias con el brief textual de la Fase 1, tomadas del diseño real:
+
+- **Los títulos son Archivo Black, no Space Grotesk.** Space Grotesk queda para
+  el wordmark y el botón principal, nada más.
+- **La mono es JetBrains Mono, no IBM Plex Mono.** Es la que usan las dos
+  pantallas oscuras de referencia, que definen el tema por defecto.
+
+### Composición
+
+- **Casi no hay cajas.** Los bloques no llevan fondo ni borde: se separan con
+  32px de aire (`gap-section`) y 48px entre bloques grandes del dashboard
+  (`gap-block`). `u-panel` existe pero casi no se usa.
+- **Los únicos bordes** son el `border-b` que separa filas de una lista
+  (`u-row`) y el del app bar.
+- **Radio de 8px como máximo**, y buena parte de los controles no lleva radio:
+  el botón principal, los chips y los botones de sensación son rectángulos. El
+  "16px" del brief textual no coincidía con el diseño.
+- **Margen lateral de 20px** (`px-edge`).
+- **Jerarquía de dos niveles**: un dato hero grande + un texto secundario chico.
+- **Un solo acento por pantalla.** El lima siempre viene con halo
+  (`shadow-glow`): barras de progreso, la barra vertical de la sesión dura, el
+  badge del tipo de entrenamiento. Es la única decoración del sistema.
+
+### Colores
+
+Fondo `#0B0E13` · superficie `#151A22` · superficie alta `#252A33` · borde
+`#232B36` · texto `#F4F6F8` · secundario `#9AA7B4` · **outline `#8E937C`** (el
+gris verdoso de las labels) · acento `#CDFF4F` · acento apagado `#A7D626`.
+
 Zonas: Z1 `#5B6B7A` · Z2 `#2FB6C4` · Z3 `#54C48A` · Z4 `#F2B43D` ·
 Z5a `#F58A3C` · Z5b `#EF5F3C` · Z5c `#E23B4E`.
 
-**Tipografías** (Google Fonts) — `Archivo Black` para números protagonistas
-(distancia, pace, cronómetro), `Space Grotesk` para títulos de sección, `Inter`
-para cuerpo y etiquetas, `IBM Plex Mono` con números tabulares para tablas de
-datos.
+### Utilidades
 
-**Reglas de composición:**
+En `src/index.css`: `.u-hero` / `.u-hero-lg` / `.u-hero-sm`, `.u-unit`,
+`.u-title` / `.u-title-sm`, `.u-wordmark`, `.u-label`, `.u-sub`, `.u-data` /
+`.u-data-sm`, `.u-section`, `.u-row`, `.u-panel`, `.u-bar` / `.u-bar-fill`.
 
-- Jerarquía de **dos niveles**: un dato hero grande + un texto secundario chico.
-  Nunca 3-4 niveles compitiendo.
-- 1-2 datos protagonistas por pantalla; el resto va como texto secundario.
-- Separar secciones con espacio, no con bordes ni fondos de tarjeta.
-- Labels en mayúscula: chicas y discretas, nunca como títulos de sección.
-- Un solo acento de color a la vez. Iconografía outline 2px, radio 16px en los
-  pocos contenedores con fondo.
-
-Clases utilitarias en `src/index.css`: `.u-hero`, `.u-sub`, `.u-label`,
-`.u-section-title`, `.u-section`, `.u-panel`, `.u-table`.
+**Los encabezados de sección van con `.u-label`**, no con `.u-title-sm`: en
+Stitch son labels en mono mayúscula. Archivo Black queda para el dato o el
+nombre protagonista.
 
 ---
 
@@ -188,7 +310,7 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 ```bash
 npm install
 npm run dev         # servidor de desarrollo
-npm test            # 178 tests de dominio
+npm test            # 323 tests (dominio + utilidades)
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build de producción
 ```
@@ -200,10 +322,164 @@ npm run build       # typecheck + build de producción
 | Fase | Alcance | Estado |
 | --- | --- | --- |
 | **1** | Scaffolding + design system + `config.ts` con todas las tablas + módulos de dominio (zones, import, planner, rules, progression) + tests | ✅ **Completa** |
-| **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ⬜ Pendiente |
-| **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ⬜ Pendiente |
-| **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ⬜ Pendiente |
-| **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ⬜ Pendiente |
+| **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ✅ **Completa** |
+| **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ✅ **Completa** |
+| **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ✅ **Completa** |
+| **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ✅ **Completa** |
+
+### Lo que la Fase 5 dejó listo
+
+**Sistema de gráficos** (`src/lib/chart.ts`). Todos los gráficos salen de ahí:
+tokens de eje/grilla/tooltip, la rampa de intensidad, la regresión lineal y el
+normalizador de `ValueType` de Recharts. Reglas que la Fase 5 fijó y que hay que
+respetar al agregar cualquier gráfico nuevo:
+
+- **Un solo eje Y.** Nunca dos escalas en el mismo gráfico. Pace y FC son dos
+  gráficos separados, no uno con doble eje.
+- **La rampa `INTENSIDAD` está validada** (un hue, spread 3°, luminosidad
+  monótona, ΔL ≥ 0.06, extremo bajo 2.01:1 sobre el fondo). Si se toca un color
+  hay que volver a validarla con el script del skill de dataviz — no alcanza con
+  que "se vea bien".
+- **Codificación compuesta en el calendario**: el color dice magnitud, la letra
+  dentro de la celda dice identidad. Ninguno de los dos hace los dos trabajos, y
+  por eso el heatmap se lee sin distinguir colores.
+
+**Caja Negra** (`/analisis`): Pace vs. RPE como gráfico principal, Pace vs. FC
+como secundario y explícitamente recesivo (gris, más chico, con la advertencia
+de que sólo hay que creerle si el reloj da números coherentes), curva de
+supercompensación, producción de energía semanal y dispersión volumen vs.
+esfuerzo.
+
+**Registro de propuestas descartadas**: `descartarPropuesta` ya no borra la fila
+— marca `dismissed_at`. Una propuesta que existió queda registrada aunque no se
+haya aplicado, para poder explicar más adelante por qué una semana quedó como
+quedó. El esquema tiene un check que hace excluyentes `applied_at` y
+`dismissed_at`.
+
+**Corrección de calibración del modelo de homeostasis.** El estado se clasifica
+comparando el ratio fatiga/forma contra `RATIO_EQUILIBRIO`, que es el
+estacionario del modelo **con la ventana truncada** —`τ × (1 − e^(−ventana/τ))`
+en cada exponencial—, no contra constantes absolutas. Antes, un corredor con
+nueve semanas de entrenamiento sostenido salía "sobre-descansado": con carga
+constante la normalización daba 4.0 contra un umbral de 0.8, así que el estado
+estacionario **nunca** podía leerse como "listo". El truncado no es un detalle:
+con ventana de 42 días la fatiga (τ=7) ya llegó a su asíntota pero la forma
+(τ=42) va por el 63% de la suya, y usar el equilibrio de horizonte infinito daría
+1.57 para alguien que entrena perfectamente parejo. El desentrenamiento se
+chequea aparte —ritmo de carga de las últimas dos semanas contra el ritmo
+habitual— porque no es un punto de la misma escala: quien dejó de entrenar tiene
+poca fatiga, igual que quien está en pico, y lo que los distingue no es el ratio
+sino si sigue habiendo carga.
+
+**Deploy**: `vercel.json` con el rewrite de SPA, y el README documenta el
+proceso completo asumiendo que el repositorio no está conectado.
+
+**`scripts/verificar-rls.mjs`** (`npm run verify:rls`): crea dos usuarios, los
+hace escribir datos y comprueba desde uno que no puede leer, modificar, borrar
+ni suplantar al otro, en las ocho tablas y en Storage. **Nunca se ejecutó contra
+un proyecto real** —el entorno donde se escribió no tenía credenciales de
+Supabase—, así que sigue siendo el paso pendiente antes de publicar.
+
+### Lo que la Fase 4 dejó listo
+
+**Motor de adaptación** (`adaptation.ts`) con los casos de la metodología. Dos
+invariantes que no se pueden romper y están cubiertos por tests:
+
+1. **Toda semana propuesta pasa por `validarMicrociclo`.** Si una adaptación
+   dejara la semana violando R1-R4, se descarta y se explica por qué en lugar de
+   aplicarla.
+2. **Toda decisión viene con su explicación en español.** El motor nunca cambia
+   el plan en silencio, ni siquiera cuando decide no cambiar nada.
+
+| Caso | Qué hace |
+| --- | --- |
+| Sesión omitida | Reordena lo que queda usando los R como comodines. No comprime el calendario: si se perdió un día, se perdió. |
+| Carga externa | Degrada la sesión exigente que caiga dentro de la ventana de recuperación (E/F → R, nunca a D). |
+| Feedback pobre | Mete una Recuperación antes del próximo Específico. |
+| Buena adaptación | Confirma el progreso **sin tocar el plan**. |
+| Re-test de mesociclo | Avisa que las zonas quedaron viejas. |
+
+**Modelo de homeostasis** (`homeostasis.ts`): dos exponenciales tipo Banister —
+fatiga corta, forma larga— y su diferencia normalizada por la carga media, para
+que el estado no dependa del volumen absoluto del corredor. La carga externa
+entra por la misma puerta que cualquier sesión: no hay parámetro aparte para
+las complementarias, y eso es la característica.
+
+**Caja negra** (`analysis.ts`): compara el RPE a igual pace entre las sesiones
+antiguas y las recientes. La FC entra sólo como confirmación; si contradice al
+RPE, se ignora.
+
+**`vision.ts`**: interfaz conectable con tres reglas — lo detectado nunca se
+guarda solo, cada campo trae su confianza, y la app funciona sin proveedor
+configurado. Hoy el proveedor por defecto es "no configurado" y falla con un
+mensaje que ofrece cargar a mano.
+
+**Pantallas nuevas**: `/ajustes` (re-calibración con el diff antes/después),
+`/complementaria` (actividades que no son correr) y `/sesion/:id/imagen`
+(captura del reloj con campos editables). El dashboard suma el estado de
+recuperación y el aviso de ajustes pendientes.
+
+**323 tests.** Los nuevos incluyen un test de integración que corre los tres
+casos que tocan el plan sobre **todas** las semanas que produce el generador,
+para cada día posible: es donde aparecen las combinaciones que uno no pensó al
+escribir el caso.
+
+### Lo que la Fase 4 NO incluye (a propósito)
+
+Caja Negra como pantalla con gráficos, progreso de volumen, calendario heatmap y
+deploy. Fase 5. Un proveedor de visión real: la interfaz está, la
+implementación se enchufa cuando haya una API configurada.
+
+### Lo que la Fase 3 dejó listo
+
+- **Importación real** de TCX/GPX/KML desde la pantalla de registro: el archivo
+  autocompleta distancia, tiempo, FC media y cadencia, y guarda la traza.
+- **Mapa Leaflet** (`RouteMap`) sobre OpenStreetMap, sin API key.
+- **Registro de sesión** con el RPE como slider protagonista y la sensación en
+  caritas. El archivo sólo llena los campos objetivos: el RPE y la sensación los
+  escribe siempre la persona.
+- **Detalle de sesión**: mapa, RPE/sensación primero, datos objetivos después,
+  distribución por zona y tabla de splits.
+- **Navegación del plan** en tres niveles: macrociclo (`/plan`) → mesociclo
+  (`/plan/mesociclo/:index`) → microciclo (`/plan/semana/:numero`).
+- **Dashboard** (`/hoy`): sesión de hoy, anillo de progreso semanal y próximo reto.
+- `sessionAnalysis.ts`: carga metabólica, distribución por zona y comparación
+  plan vs. real.
+- **253 tests.** Los 24 nuevos cubren `zonaPorPace`, `sessionAnalysis` y un test
+  de integración del pipeline completo (importar → derivar → analizar) sobre el
+  TCX real de Xiaomi, que es donde aparecen los desajustes de unidades que
+  ningún test unitario ve.
+
+Verificado en navegador con Playwright: las siete pantallas renderizan sin
+errores JS, y subir el TCX real autocompleta los cinco campos y dibuja la ruta.
+
+### Lo que la Fase 3 NO incluye (a propósito)
+
+Motor de adaptación, re-calibración, actividades complementarias, carga por
+imagen, Caja Negra, calendario heatmap y deploy. Fases 4 y 5.
+
+### Lo que la Fase 2 dejó listo
+
+- `supabase/schema.sql` completo: 7 tablas, tipos, RLS, trigger de perfil y
+  bucket de Storage. Idempotente.
+- Repositorios en `src/data/`: auth, perfil, umbral, objetivos y planes, con los
+  errores de Postgres y de Auth ya traducidos al español.
+- Estado de sesión en Zustand, con las cuatro consultas del arranque en paralelo.
+- Pantallas: login/registro, onboarding, umbral, mis zonas, objetivo y plan,
+  más configuración y navegación inferior.
+- La pantalla de objetivo **previsualiza el plan real** corriendo el dominio en
+  vivo: lo que se ve antes de confirmar es exactamente lo que se guarda.
+- `README.md` con los pasos para crear el proyecto Supabase, correr el SQL,
+  setear las variables y levantar la app.
+- **229 tests.** Los 51 nuevos cubren `calendarizarPlan` (donde puede colarse un
+  off-by-one al aterrizar el plan en fechas) y el formateo/parseo de tiempos,
+  paces y fechas.
+
+### Lo que la Fase 2 NO incluye (a propósito)
+
+Importación de archivos en la UI, registro de sesiones, mapa, dashboard,
+adaptación, gráficos y deploy. Todo eso llega en las fases 3-5. La tabla
+`sessions` ya existe en la base, pero todavía no la escribe nadie.
 
 ### Lo que la Fase 1 dejó listo
 
@@ -212,26 +488,27 @@ npm run build       # typecheck + build de producción
 - `config.ts` con las 7 zonas Friel (con RPE y test del habla) y las Tablas 3-7.
 - Módulos de dominio puros: `zones`, `rules`, `progression`, `planner`,
   `import/` (TCX, GPX, KML).
-- **178 tests** en verde, incluido el caso TCX real de Xiaomi.
-- `src/App.tsx` es sólo una verificación visual del design system sobre datos
-  reales del dominio — **no** es una pantalla del producto. Se reemplaza en la
-  Fase 2.
+- 178 tests, incluido el caso TCX real de Xiaomi.
+- `src/App.tsx` era una verificación visual del design system sobre datos reales
+  del dominio. La Fase 2 lo reemplazó por el router.
 
 ### Lo que la Fase 1 NO incluye (a propósito)
 
-Supabase, Auth, repositorios, pantallas de producto, routing, Zustand en uso,
-Recharts, Leaflet, `vercel.json`, README de deploy, `vision.ts`, `analysis.ts` y
-`adaptation.ts`. Todo eso llega en las fases 2-5.
+Supabase, Auth, repositorios, pantallas de producto y routing — todo eso llegó
+en la Fase 2. Siguen pendientes Recharts, Leaflet, `vercel.json`, el deploy,
+`vision.ts`, `analysis.ts` y `adaptation.ts`.
 
-### Módulos de dominio todavía por escribir
+### Módulos de dominio
 
-- `analysis.ts` (Fase 4) — `cajaNegra`, `estadoSupercompensacion`. `feasibilidadObjetivo`
-  ya está, en `planner.ts`.
-- `adaptation.ts` (Fase 4) — los 7 casos del motor de adaptación. Sus umbrales ya
-  están en `ADAPTATION_CONFIG`.
-- `vision.ts` (Fase 4) — interfaz para el modelo de visión que lee la captura del
-  reloj. Los datos detectados **siempre** se muestran editables y nunca se
-  guardan solos.
+Todos escritos. Los tres que faltaban al cerrar la Fase 3:
+
+- `analysis.ts` — `cajaNegra`, `estadoSupercompensacion`, `cargaEnVentana`,
+  `serieDeBalance`.
+- `adaptation.ts` — los casos del motor de adaptación, con sus umbrales en
+  `ADAPTATION_CONFIG`.
+- `vision.ts` — interfaz para el modelo de visión que lee la captura del reloj.
+  Los datos detectados **siempre** se muestran editables y nunca se guardan
+  solos. Falta enchufar un proveedor real.
 
 ---
 

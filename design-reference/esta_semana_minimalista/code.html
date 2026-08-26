@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Umbral - Plan Semanal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "primary": "#cdff4f",
+              "on-primary": "#2b3c00",
+              "primary-container": "#b0f200",
+              "on-primary-container": "#354800",
+              "primary-fixed": "#c4f828",
+              "primary-fixed-dim": "#a2d800",
+              "on-primary-fixed": "#253300",
+              "on-primary-fixed-variant": "#2e4000",
+              "secondary": "#aee399",
+              "on-secondary": "#153805",
+              "secondary-container": "#90c67c",
+              "on-secondary-container": "#204a0b",
+              "secondary-fixed": "#c9ffb2",
+              "secondary-fixed-dim": "#aee399",
+              "on-secondary-fixed": "#0c2800",
+              "on-secondary-fixed-variant": "#1d4408",
+              "tertiary": "#8de3dc",
+              "on-tertiary": "#003734",
+              "tertiary-container": "#6fc5bf",
+              "on-tertiary-container": "#004743",
+              "tertiary-fixed": "#a9fffa",
+              "tertiary-fixed-dim": "#8de3dc",
+              "on-tertiary-fixed": "#00201e",
+              "on-tertiary-fixed-variant": "#002f2c",
+              "error": "#ffb4ab",
+              "on-error": "#690005",
+              "error-container": "#93000a",
+              "on-error-container": "#ffb4ab",
+              "outline": "#8b9380",
+              "background": "#111319",
+              "on-background": "#e2e2e9",
+              "surface": "#111319",
+              "on-surface": "#e2e2e9",
+              "surface-variant": "#43493e",
+              "on-surface-variant": "#c3c8bc",
+              "inverse-surface": "#e2e2e9",
+              "inverse-on-surface": "#2e3135",
+              "inverse-primary": "#516f00",
+              "surface-dim": "#111319",
+              "surface-bright": "#36393f",
+              "surface-container-lowest": "#0b0e13",
+              "surface-container-low": "#191c21",
+              "surface-container": "#1d2025",
+              "surface-container-high": "#282a30",
+              "surface-container-highest": "#33353b"
+            },
+            "borderRadius": {
+              "none": "0",
+              "sm": "0",
+              "DEFAULT": "0",
+              "md": "0",
+              "lg": "0",
+              "xl": "0",
+              "2xl": "0",
+              "3xl": "0",
+              "full": "9999px"
+            },
+            "spacing": {
+              "stack-sm": "8px",
+              "unit": "4px",
+              "container-margin": "20px",
+              "gutter": "16px",
+              "stack-lg": "32px",
+              "stack-md": "16px"
+            },
+            "fontFamily": {
+              "label-caps": ["JetBrains Mono"],
+              "body-sm": ["Inter"],
+              "display-metrics": ["Archivo Black"],
+              "headline-lg-mobile": ["Space Grotesk"],
+              "headline-lg": ["Space Grotesk"],
+              "headline-md": ["Space Grotesk"],
+              "body-lg": ["Inter"],
+              "data-tabular": ["JetBrains Mono"]
+            },
+            "fontSize": {
+              "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+              "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+              "display-metrics": ["64px", {"lineHeight": "64px", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+              "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+              "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+              "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+              "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+              "data-tabular": ["18px", {"lineHeight": "24px", "fontWeight": "500"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .font-variation-fill { font-variation-settings: 'FILL' 1; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .small-caps { font-variant: small-caps; }
+  </style>
+</head>
+<body class="bg-background dark:bg-background text-on-background dark:text-on-background min-h-screen flex flex-col font-body-sm selection:bg-primary-container selection:text-on-primary-container relative">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-surface-variant dark:border-surface-variant bg-background dark:bg-background transition-colors duration-200">
+<div class="flex justify-between items-center px-container-margin h-16 w-full max-w-7xl mx-auto">
+<button class="text-primary dark:text-primary hover:bg-surface-container dark:hover:bg-surface-container p-2 -ml-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary tracking-tighter uppercase">UMBRAL</h1>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-surface-variant">
+<img alt="user_profile_avatar" class="w-full h-full object-cover" data-alt="Close up rendering of a highly focused athlete in profile. The lighting is dramatic, high contrast tech noir, with a deep black background and a sharp rim light highlighting the jawline. Minimalist and intense." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWkPjWHlJR5LDrdNYzMxM3wAbJrUUsrspSUCE-4SX31SvmiPw0boypLfEXdg2-3uzDEFaNVQygXFF0DpOmXMVPVxZtyb1w4MpNn1t1wAzIv3R3dOg-vTrKDbZ6FM-5TOOUEQlA4zocl39UqXlnE-pdh2vbHjrwDhE8HecpPX_GLSqiKvXcZqkudj2orBeeKrpGjY1uPTmEmxkHw664PqTZ3T2bnyxbZuPKOLfwLormHo4d5IMe1bBHIw"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-16 mb-20 px-container-margin w-full max-w-7xl mx-auto flex flex-col gap-stack-lg pt-6">
+<!-- Weekly Progress -->
+<section class="flex flex-col gap-unit">
+<div class="flex justify-between items-baseline mb-1">
+<h2 class="font-headline-md text-headline-md text-on-background small-caps">Microciclo 12</h2>
+<div class="font-display-metrics text-display-metrics text-primary-fixed leading-none">42<span class="text-outline text-headline-md font-headline-md leading-none">/55km</span></div>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high overflow-hidden">
+<div class="h-full bg-primary-fixed w-[76%] shadow-[0_0_8px_rgba(205,255,79,0.4)]"></div>
+</div>
+</section>
+<!-- Day Selector (Top Row) -->
+<section class="w-full border-b border-surface-variant pb-4">
+<div class="flex justify-between items-center p-1.5">
+<!-- Lunes -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">L</span>
+<span class="font-data-tabular text-[13px] mt-1">10</span>
+</button>
+<!-- Martes (Current Day Highlight) -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] border-b-2 border-primary-fixed text-primary-fixed relative overflow-hidden">
+<span class="font-label-caps text-[10px] uppercase relative z-10 text-primary-fixed">M</span>
+<span class="font-data-tabular text-[13px] mt-1 relative z-10">11</span>
+</button>
+<!-- Miercoles -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">M</span>
+<span class="font-data-tabular text-[13px] mt-1">12</span>
+</button>
+<!-- Jueves -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">J</span>
+<span class="font-data-tabular text-[13px] mt-1">13</span>
+</button>
+<!-- Viernes -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">V</span>
+<span class="font-data-tabular text-[13px] mt-1">14</span>
+</button>
+<!-- Sabado -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">S</span>
+<span class="font-data-tabular text-[13px] mt-1">15</span>
+</button>
+<!-- Domingo -->
+<button class="flex flex-col items-center justify-center w-[13%] aspect-[3/4] text-outline hover:bg-surface-container transition-colors">
+<span class="font-label-caps text-[10px] uppercase">D</span>
+<span class="font-data-tabular text-[13px] mt-1">16</span>
+</button>
+</div>
+</section>
+<!-- Daily Training Cards -->
+<section class="flex flex-col gap-stack-md pb-8">
+<!-- Lunes: Descanso -->
+<div class="py-4 border-b border-surface-variant flex flex-col gap-2 justify-center opacity-60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">bed</span>
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-widest small-caps">Descanso Total</span>
+</div>
+</div>
+<!-- Martes: Específico (Lima) -->
+<div class="py-4 border-b border-surface-variant flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-fixed shadow-[0_0_8px_rgba(205,255,79,0.5)]"></div>
+<div class="flex justify-between items-start pl-4">
+<div class="flex flex-col gap-1 w-full">
+<div class="flex items-center justify-between w-full">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 flex items-center justify-center bg-primary-fixed text-on-primary-fixed font-label-caps text-[10px] font-bold">E</span>
+<span class="font-label-caps text-[10px] text-primary-fixed uppercase tracking-wider small-caps">Específico</span>
+</div>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<div class="flex justify-between items-baseline mt-2">
+<h3 class="font-headline-md text-headline-md text-on-background leading-tight">Intervalos de Umbral</h3>
+<div class="font-display-metrics text-display-metrics text-on-background text-opacity-80 text-[40px] leading-none text-right">60<span class="text-[20px] font-headline-md">min</span></div>
+</div>
+<div class="flex items-center gap-1.5 font-data-tabular text-outline mt-1">
+<span class="material-symbols-outlined text-[16px]">speed</span>
+<span class="text-[14px] text-primary-fixed">Zonas Z4/Z2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Miércoles: Recuperación (Teal) -->
+<div class="py-4 border-b border-surface-variant flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<div class="flex justify-between items-start pl-4">
+<div class="flex flex-col gap-1 w-full">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 flex items-center justify-center bg-tertiary/20 text-tertiary border border-tertiary/50 font-label-caps text-[10px] font-bold">R</span>
+<span class="font-label-caps text-[10px] text-tertiary uppercase tracking-wider small-caps">Recuperación</span>
+</div>
+<div class="flex justify-between items-baseline mt-2">
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Rodaje Suave</h3>
+<div class="font-display-metrics text-display-metrics text-on-background text-opacity-80 text-[40px] leading-none text-right">45<span class="text-[20px] font-headline-md">min</span></div>
+</div>
+<div class="flex items-center gap-1.5 font-data-tabular text-outline mt-1">
+<span class="material-symbols-outlined text-[16px]">speed</span>
+<span class="text-[14px]">Zona Z1</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Jueves: Específico (Lima) -->
+<div class="py-4 border-b border-surface-variant flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-fixed"></div>
+<div class="flex justify-between items-start pl-4">
+<div class="flex flex-col gap-1 w-full">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 flex items-center justify-center bg-primary-fixed/20 text-primary-fixed border border-primary-fixed/50 font-label-caps text-[10px] font-bold">E</span>
+<span class="font-label-caps text-[10px] text-primary-fixed uppercase tracking-wider small-caps">Específico</span>
+</div>
+<div class="flex justify-between items-baseline mt-2">
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Tempo Run</h3>
+<div class="font-display-metrics text-display-metrics text-on-background text-opacity-80 text-[40px] leading-none text-right">50<span class="text-[20px] font-headline-md">min</span></div>
+</div>
+<div class="flex items-center gap-1.5 font-data-tabular text-outline mt-1">
+<span class="material-symbols-outlined text-[16px]">speed</span>
+<span class="text-[14px] text-primary-fixed">Zona Z3</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sábado: Largo (Gris) -->
+<div class="py-4 border-b border-surface-variant flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline"></div>
+<div class="flex justify-between items-start pl-4">
+<div class="flex flex-col gap-1 w-full">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 flex items-center justify-center bg-surface-variant text-on-surface-variant border border-outline/30 font-label-caps text-[10px] font-bold">F</span>
+<span class="font-label-caps text-[10px] text-outline uppercase tracking-wider small-caps">Fondo</span>
+</div>
+<div class="flex justify-between items-baseline mt-2">
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Tirada Larga</h3>
+<div class="font-display-metrics text-display-metrics text-on-background text-opacity-80 text-[40px] leading-none text-right">120<span class="text-[20px] font-headline-md">min</span></div>
+</div>
+<div class="flex items-center gap-1.5 font-data-tabular text-outline mt-1">
+<span class="material-symbols-outlined text-[16px]">speed</span>
+<span class="text-[14px]">Zona Z2</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 bg-surface-container-low dark:bg-surface-container-low border-t border-surface-variant dark:border-surface-variant z-50 pb-safe">
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">dashboard</span>
+<span class="font-label-caps text-label-caps small-caps">Dashboard</span>
+</a>
+<!-- Active Tab: Plan -->
+<a class="flex flex-col items-center justify-center text-primary-fixed dark:text-primary-fixed px-4 py-1 active:scale-95 transition-transform duration-150 relative" href="#">
+<div class="absolute inset-0 bg-primary-fixed/10 -z-10"></div>
+<span class="material-symbols-outlined mb-1 text-[24px] font-variation-fill">event_note</span>
+<span class="font-label-caps text-label-caps small-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">monitoring</span>
+<span class="font-label-caps text-label-caps small-caps">Análisis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span class="font-label-caps text-label-caps small-caps">Perfil</span>
+</a>
+</nav>
+</body></html>

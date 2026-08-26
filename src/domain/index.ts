@@ -9,4 +9,13 @@ export * from './zones';
 export * from './rules';
 export * from './progression';
 export * from './planner';
-export * from './import';
+export * from './calendar';
+export * from './sessionAnalysis';
+export * from './homeostasis';
+export * from './analysis';
+export * from './adaptation';
+export * from './vision';
+
+// `./import` NO se reexporta acá a propósito: arrastra el parser de XML, que
+// pesa lo suyo y sólo hace falta en las pantallas de importación. Quien lo
+// necesite lo importa de '@/domain/import' y el bundler lo separa solo.

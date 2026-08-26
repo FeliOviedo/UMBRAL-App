@@ -1,5 +1,9 @@
-/* Tipografías del design system. */
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/*
+ * Tipografías del design system, tal como las carga Stitch.
+ * JetBrains Mono reemplazó a IBM Plex Mono: es la que usan las dos pantallas
+ * oscuras de referencia, que son las que definen el tema por defecto.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,10 +18,13 @@
   :root {
     --bg: 218 27% 6%; /* #0B0E13 */
     --surface: 217 24% 11%; /* #151A22 */
+    --surface-high: 218 17% 17%; /* #252A33 — bloques con fondo, poco usados */
     --border: 215 21% 17%; /* #232B36 */
     --fg: 210 22% 96%; /* #F4F6F8 */
     --fg-muted: 210 15% 65%; /* #9AA7B4 */
+    --outline: 68 8% 56%; /* #8E937C — labels y texto de menor jerarquía */
     --accent: 77 100% 65%; /* #CDFF4F */
+    --accent-dim: 72 71% 50%; /* #A7D626 */
     --accent-foreground: 218 27% 6%; /* texto sobre lima */
   }
 
@@ -26,8 +33,7 @@
   }
 
   body {
-    @apply bg-bg text-fg font-sans antialiased;
-    /* Mobile-first: el layout arranca en una columna angosta y crece. */
+    @apply bg-bg text-fg font-sans text-body antialiased;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -44,38 +50,88 @@
 }
 
 @layer components {
-  /* Dato protagonista: un solo número grande por bloque. */
+  /* ── Números protagonistas ──────────────────────────────────────────────
+   * Tres tamaños, todos Archivo Black. `u-hero` (56px) es el dato principal de
+   * una pantalla; `u-hero-lg` (96px) el del anillo del dashboard y la cabecera
+   * del microciclo; `u-hero-sm` (40px) el de cada fila de sesión.
+   */
   .u-hero {
     @apply font-hero text-hero text-fg;
   }
 
-  /* Texto secundario que acompaña al dato hero (segundo y último nivel). */
-  .u-sub {
-    @apply text-sm text-fg-muted;
+  .u-hero-lg {
+    @apply font-hero text-hero-lg text-fg;
   }
 
-  /* Label discreta en mayúscula. Nunca se usa como título de sección. */
+  .u-hero-sm {
+    @apply font-hero text-hero-sm text-fg;
+  }
+
+  /* Unidad que acompaña a un número hero: mucho más chica y en gris. */
+  .u-unit {
+    @apply font-title text-title-sm text-outline;
+  }
+
+  /* ── Texto ──────────────────────────────────────────────────────────────── */
+
+  /* Título de sección o nombre de sesión. Archivo Black, no Space Grotesk. */
+  .u-title {
+    @apply font-title text-title text-fg;
+  }
+
+  .u-title-sm {
+    @apply font-title text-title-sm text-fg;
+  }
+
+  /* Wordmark de la app. Es el único uso de Space Grotesk. */
+  .u-wordmark {
+    @apply font-wordmark text-wordmark uppercase text-fg;
+  }
+
+  /* Label discreta en mayúscula. Mono, nunca como título de sección. */
   .u-label {
-    @apply font-sans text-label uppercase text-fg-muted;
+    @apply font-mono text-label uppercase text-outline;
   }
 
-  /* Título de sección. */
-  .u-section-title {
-    @apply font-display text-lg font-semibold text-fg;
+  /* Texto secundario que acompaña al dato hero. */
+  .u-sub {
+    @apply font-sans text-body text-fg-muted;
   }
 
-  /* Separación entre secciones por espacio, no por bordes. */
+  /* Dato numérico en línea (mono). */
+  .u-data {
+    @apply font-mono text-data tabular-nums text-fg;
+  }
+
+  .u-data-sm {
+    @apply font-mono text-data-sm tabular-nums text-fg;
+  }
+
+  /* ── Estructura ─────────────────────────────────────────────────────────
+   * Stitch separa por espacio, no por cajas: entre secciones no hay bordes ni
+   * fondos, sólo 32px de aire. Los únicos bordes del sistema son el `border-b`
+   * que separa las filas de una lista y el del app bar.
+   */
   .u-section {
-    @apply py-section;
+    @apply mt-section first:mt-0;
   }
 
-  /* Contenedor con fondo: se usa con moderación. */
+  /* Fila de lista (un día del microciclo, un split). Sin fondo ni radio. */
+  .u-row {
+    @apply border-b border-border py-4;
+  }
+
+  /* Contenedor con fondo. Se usa muy poco: casi todo va sin caja. */
   .u-panel {
-    @apply rounded-lg bg-surface p-5;
+    @apply rounded-md bg-surface p-4;
   }
 
-  /* Tabla de datos numéricos (splits, zonas). */
-  .u-table {
-    @apply font-mono text-sm tabular-nums;
+  /* Barra de progreso fina. La de acento lleva halo. */
+  .u-bar {
+    @apply h-1.5 w-full overflow-hidden bg-surface-high;
+  }
+
+  .u-bar-fill {
+    @apply h-full bg-accent shadow-glow-soft;
   }
 }

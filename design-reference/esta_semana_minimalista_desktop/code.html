@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBRAL - Esta Semana</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@500;600&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "zone-7": "#C06C84",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "tertiary-fixed-dim": "#d6c0d0",
+                        "secondary-container": "#454747",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#c2f344",
+                        "ui-subtle": "#2C3139",
+                        "zone-4": "#FFD166",
+                        "on-error": "#690005",
+                        "surface": "#111319",
+                        "on-tertiary": "#3b2c38",
+                        "on-tertiary-fixed-variant": "#52424f",
+                        "zone-3": "#D1FFAD",
+                        "tertiary": "#ffffff",
+                        "surface-tint": "#a7d626",
+                        "error-container": "#93000a",
+                        "on-secondary-container": "#b4b5b5",
+                        "primary-fixed-dim": "#a7d626",
+                        "on-surface": "#e1e2ea",
+                        "surface-dim": "#111319",
+                        "secondary": "#c6c6c7",
+                        "on-primary-fixed-variant": "#394d00",
+                        "zone-6": "#FF595E",
+                        "tertiary-container": "#f3dced",
+                        "text-muted": "#8E937C",
+                        "on-primary-container": "#526d00",
+                        "surface-bright": "#36393f",
+                        "surface-container-lowest": "#0b0e13",
+                        "on-tertiary-fixed": "#241723",
+                        "on-surface-variant": "#c4c9af",
+                        "on-tertiary-container": "#715f6d",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-container-highest": "#32353b",
+                        "zone-5": "#FF8C42",
+                        "inverse-primary": "#4d6700",
+                        "primary": "#ffffff",
+                        "inverse-on-surface": "#2e3036",
+                        "on-background": "#e1e2ea",
+                        "zone-1": "#4ECDC4",
+                        "error": "#ffb4ab",
+                        "primary-container": "#c2f344",
+                        "on-primary-fixed": "#151f00",
+                        "surface-container": "#1d2025",
+                        "tertiary-fixed": "#f3dced",
+                        "zone-2": "#86E3CE",
+                        "surface-container-high": "#272a30",
+                        "on-secondary": "#2f3131",
+                        "surface-variant": "#32353b",
+                        "surface-container-low": "#191c21",
+                        "on-secondary-fixed-variant": "#454747",
+                        "outline": "#8e937c",
+                        "outline-variant": "#444935",
+                        "on-primary": "#273500",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "background": "#111319",
+                        "inverse-surface": "#e1e2ea"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "64px",
+                        "component-gap": "12px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "margin-edge": "24px"
+                    },
+                    "fontFamily": {
+                        "display-hero-mobile": ["Archivo Black"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Archivo Black"],
+                        "data-tabular-sm": ["IBM Plex Mono"],
+                        "display-hero": ["Archivo Black"],
+                        "label-caps": ["Inter"],
+                        "data-tabular-lg": ["IBM Plex Mono"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-hero-mobile": ["56px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "400" }],
+                        "data-tabular-sm": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "display-hero": ["80px", { "lineHeight": "80px", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700" }],
+                        "data-tabular-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0B0E13; color: #ffffff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-primary antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (JSON based) -->
+<nav class="bg-surface-container-lowest dark:bg-surface-container-lowest text-primary-fixed dark:text-primary-fixed font-label-caps text-label-caps h-screen w-64 fixed left-0 top-0 border-r border-ui-subtle flex flex-col py-section-gap z-50">
+<div class="px-6 mb-12">
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tighter">VELOCITY</h1>
+<div class="mt-8 flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover grayscale" data-alt="A highly detailed close-up portrait of an elite athlete in minimalist high-contrast lighting, looking intensely focused. Dark background with subtle rim lighting highlighting facial features. Professional sports photography aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZJYvG86xcQ_h-_Q9bKU_7YoFr-kFnyr5TD231XQGG0hA7brDQ8vIQWIkSmnr9O-LwUeuKAbkJku_Iet05XHpK6lU4qVOYK1Qdj5aXvtZGLQsKFKqLyvd9f75pwvHep3obowcob-W8gpdjKx3m8iNiR7DdFFQmhjh2QSm2UEpo97WHkfHcVPtARlFjn4yjD45y8FoWsvo-ictCszj9uZqAD1WWJt3CgZ5D1BVyUk9RPssQGM9Fy8LSMw"/>
+<div>
+<div class="font-body-md text-body-md text-primary">Performance</div>
+<div class="font-label-caps text-label-caps text-text-muted">Elite Tier</div>
+</div>
+</div>
+</div>
+<ul class="flex-1 flex flex-col gap-2 w-full">
+<li class="w-full">
+<a class="flex items-center gap-4 text-text-muted hover:text-on-surface pl-4 py-3 transition-all duration-200 ease-in-out hover:bg-ui-subtle w-full" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-4 text-primary-fixed border-l-4 border-primary-fixed bg-ui-subtle pl-4 py-3 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span>Training Plans</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-4 text-text-muted hover:text-on-surface pl-4 py-3 transition-all duration-200 ease-in-out hover:bg-ui-subtle w-full" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Caja Negra</span>
+</a>
+</li>
+<li class="w-full">
+<a class="flex items-center gap-4 text-text-muted hover:text-on-surface pl-4 py-3 transition-all duration-200 ease-in-out hover:bg-ui-subtle w-full" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</a>
+</li>
+</ul>
+<div class="px-6 mt-auto">
+<button class="w-full bg-primary-fixed text-surface-container-lowest font-label-caps text-label-caps py-4 transition-transform active:scale-95">START RUN</button>
+</div>
+<ul class="mt-8 w-full">
+<li class="w-full">
+<a class="flex items-center gap-4 text-text-muted hover:text-on-surface pl-4 py-3 transition-all duration-200 ease-in-out hover:bg-ui-subtle w-full" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span>Support</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 h-screen overflow-y-auto p-margin-edge flex flex-col gap-section-gap">
+<!-- Header Section -->
+<header class="flex justify-between items-end">
+<div>
+<h2 class="font-label-caps text-label-caps text-text-muted uppercase mb-2">Esta Semana</h2>
+<h1 class="font-display-hero text-display-hero text-primary tracking-tighter">Microciclo 12</h1>
+</div>
+<div class="text-right">
+<h2 class="font-label-caps text-label-caps text-text-muted uppercase mb-2">Volumen Semanal</h2>
+<div class="font-headline-lg text-headline-lg text-primary-fixed"><span class="text-primary">42</span> / 55km</div>
+</div>
+</header>
+<!-- Main Layout: 7-Day Calendar (Left) + Today Details (Right) -->
+<div class="flex gap-margin-edge h-full pb-12">
+<!-- 7-Day Horizontal Grid -->
+<div class="w-2/3 flex flex-col gap-component-gap">
+<div class="grid grid-cols-7 gap-component-gap h-full">
+<!-- Day 1 (Past) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">LUN</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between opacity-50">
+<div class="font-label-caps text-label-caps text-text-muted">Descanso</div>
+<span class="material-symbols-outlined text-text-muted self-end">check_circle</span>
+</div>
+</div>
+<!-- Day 2 (Past) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">MAR</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between opacity-50">
+<div>
+<div class="font-label-caps text-label-caps text-primary mb-1">Base Aeróbica</div>
+<div class="font-data-tabular-sm text-data-tabular-sm text-text-muted">45m / Z2</div>
+</div>
+<span class="material-symbols-outlined text-zone-2 self-end">check_circle</span>
+</div>
+</div>
+<!-- Day 3 (Active/Today) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-primary-fixed">MIE</div>
+<div class="flex-1 border-2 border-primary-fixed bg-ui-subtle p-4 flex flex-col justify-between shadow-[0_0_15px_rgba(194,243,68,0.1)]">
+<div>
+<div class="font-label-caps text-label-caps text-primary mb-1">Intervalos Umbral</div>
+<div class="font-data-tabular-sm text-data-tabular-sm text-primary-fixed">60m / Z4</div>
+</div>
+<div class="w-full h-1 bg-surface mt-4 relative">
+<div class="absolute left-0 top-0 h-full w-1/3 bg-zone-4"></div>
+</div>
+</div>
+</div>
+<!-- Day 4 (Future) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">JUE</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between">
+<div>
+<div class="font-label-caps text-label-caps text-primary mb-1">Recuperación</div>
+<div class="font-data-tabular-sm text-data-tabular-sm text-text-muted">30m / Z1</div>
+</div>
+</div>
+</div>
+<!-- Day 5 (Future) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">VIE</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between">
+<div class="font-label-caps text-label-caps text-text-muted">Descanso Activo</div>
+</div>
+</div>
+<!-- Day 6 (Future) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">SAB</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between">
+<div>
+<div class="font-label-caps text-label-caps text-primary mb-1">Tempo Contínuo</div>
+<div class="font-data-tabular-sm text-data-tabular-sm text-text-muted">75m / Z3</div>
+</div>
+</div>
+</div>
+<!-- Day 7 (Future) -->
+<div class="flex flex-col gap-4">
+<div class="text-center font-data-tabular-sm text-data-tabular-sm text-text-muted">DOM</div>
+<div class="flex-1 border border-ui-subtle p-4 flex flex-col justify-between">
+<div>
+<div class="font-label-caps text-label-caps text-primary mb-1">Tirada Larga</div>
+<div class="font-data-tabular-sm text-data-tabular-sm text-text-muted">120m / Z2</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Today's Session Details (Right Sidebar) -->
+<div class="w-1/3 bg-surface-container h-full p-8 flex flex-col">
+<div class="flex justify-between items-start mb-12">
+<div>
+<div class="font-label-caps text-label-caps text-zone-4 mb-2">ZONA 4 INTENSIDAD</div>
+<h3 class="font-headline-lg text-headline-lg text-primary tracking-tight">Intervalos<br/>Umbral</h3>
+</div>
+<span class="material-symbols-outlined text-4xl text-primary-fixed">bolt</span>
+</div>
+<div class="flex flex-col gap-8 flex-1">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="font-label-caps text-label-caps text-text-muted mb-1">DURACIÓN</div>
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">1h 00m</div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-text-muted mb-1">CARGA (TSS)</div>
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">75</div>
+</div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-text-muted mb-4 border-b border-ui-subtle pb-2">ESTRUCTURA</div>
+<ul class="flex flex-col gap-3 font-data-tabular-sm text-data-tabular-sm">
+<li class="flex justify-between text-text-muted">
+<span>Calentamiento</span>
+<span>15m Z1-Z2</span>
+</li>
+<li class="flex justify-between text-primary-fixed font-bold">
+<span>4x (5m Umbral)</span>
+<span>Z4</span>
+</li>
+<li class="flex justify-between text-text-muted">
+<span>Descanso activo</span>
+<span>2m Z1 entre reps</span>
+</li>
+<li class="flex justify-between text-text-muted">
+<span>Enfriamiento</span>
+<span>15m Z1</span>
+</li>
+</ul>
+</div>
+</div>
+<button class="w-full bg-primary-fixed text-surface-container-lowest font-label-caps text-label-caps py-4 mt-8 transition-transform active:scale-95">INICIAR SESIÓN</button>
+</div>
+</div>
+</main>
+</body></html>
