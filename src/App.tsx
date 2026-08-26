@@ -26,6 +26,11 @@ import ComplementariaScreen from '@/screens/ComplementariaScreen';
 const RegistrarScreen = lazy(() => import('@/screens/RegistrarScreen'));
 const SesionDetalleScreen = lazy(() => import('@/screens/SesionDetalleScreen'));
 const RevisarImagenScreen = lazy(() => import('@/screens/RevisarImagenScreen'));
+// Las tres pantallas de gráficos comparten Recharts (~90 kB). Fuera del
+// arranque: sólo se descarga al entrar a Análisis.
+const CajaNegraScreen = lazy(() => import('@/screens/CajaNegraScreen'));
+const VolumenScreen = lazy(() => import('@/screens/VolumenScreen'));
+const CalendarioScreen = lazy(() => import('@/screens/CalendarioScreen'));
 
 export default function App() {
   const inicializar = useSession((s) => s.inicializar);
@@ -106,6 +111,30 @@ function Rutas() {
           element={
             <Suspense fallback={<Cargando mensaje="Abriendo la captura…" />}>
               <RevisarImagenScreen />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/analisis"
+          element={
+            <Suspense fallback={<Cargando mensaje="Cargando el análisis…" />}>
+              <CajaNegraScreen />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/volumen"
+          element={
+            <Suspense fallback={<Cargando mensaje="Cargando el volumen…" />}>
+              <VolumenScreen />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/calendario"
+          element={
+            <Suspense fallback={<Cargando mensaje="Cargando el calendario…" />}>
+              <CalendarioScreen />
             </Suspense>
           }
         />

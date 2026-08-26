@@ -73,18 +73,44 @@ describe('modelo de homeostasis', () => {
     expect(grande.estado).toBe(chico.estado);
   });
 
+  it('entrenar de forma sostenida da "listo", no "sobre-descansado"', () => {
+    // Éste es el caso que rompía el modelo anterior: nueve semanas de plan
+    // parejo salían clasificadas como si la persona hubiera dejado de correr.
+    const sostenido = Array.from({ length: 24 }, (_, i) => ({
+      diasAtras: i * 2 + 1,
+      carga: 250,
+    }));
+    const h = calcularHomeostasis(sostenido);
+
+    expect(h.ratioRelativo).toBeCloseTo(1, 1);
+    expect(h.estado).toBe('listo');
+  });
+
   it('clasifica los cuatro estados', () => {
-    // Machaque reciente → fatigado.
-    const machacado = calcularHomeostasis(
-      Array.from({ length: 6 }, (_, i) => ({ diasAtras: i, carga: 400 })),
-    );
+    // Machaque reciente sobre una base normal → fatigado.
+    const machacado = calcularHomeostasis([
+      ...Array.from({ length: 18 }, (_, i) => ({ diasAtras: i * 2 + 8, carga: 200 })),
+      ...Array.from({ length: 6 }, (_, i) => ({ diasAtras: i, carga: 500 })),
+    ]);
     expect(machacado.estado).toBe('fatigado');
 
-    // Cargas de hace semanas, nada reciente → la forma sobrevive a la fatiga.
-    const descansado = calcularHomeostasis(
+    // Base sostenida y una semana suave encima → la fatiga se fue, la forma quedó.
+    const enPico = calcularHomeostasis(
+      Array.from({ length: 18 }, (_, i) => ({ diasAtras: i * 2 + 8, carga: 300 })).concat([
+        { diasAtras: 3, carga: 80 },
+        { diasAtras: 6, carga: 80 },
+      ]),
+    );
+    expect(enPico.estado).toBe('pico');
+
+    // Cargas viejas y nada en las últimas dos semanas → dejó de entrenar.
+    const parado = calcularHomeostasis(
       Array.from({ length: 6 }, (_, i) => ({ diasAtras: 25 + i, carga: 400 })),
     );
-    expect(['pico', 'sobre-descansado']).toContain(descansado.estado);
+    expect(parado.estado).toBe('sobre-descansado');
+
+    // Sin historia suficiente tampoco hay nada que sostener.
+    expect(calcularHomeostasis([]).estado).toBe('sobre-descansado');
   });
 
   it('cada estado tiene su explicación', () => {

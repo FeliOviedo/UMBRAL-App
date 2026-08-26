@@ -51,6 +51,12 @@ export default function ConfigScreen() {
 
         <div className="mt-8 space-y-3">
           <Button asChild variant="outline" size="block">
+            <Link to="/zonas">Ver mis zonas</Link>
+          </Button>
+          <Button asChild variant="outline" size="block">
+            <Link to="/ajustes">Ajustes del plan</Link>
+          </Button>
+          <Button asChild variant="outline" size="block">
             <Link to="/onboarding">Editar mi perfil</Link>
           </Button>
           <Button asChild variant="outline" size="block">

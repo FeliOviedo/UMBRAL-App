@@ -32,11 +32,37 @@ export interface Homeostasis {
   balance: number;
   /**
    * Balance normalizado por la carga diaria media del período. Es lo que hace
-   * comparable a alguien que corre 20 km/semana con alguien que corre 80.
+   * comparable a alguien que corre 20 km/semana con alguien que corre 80, y es
+   * la serie que se dibuja como curva de supercompensación.
    */
   balanceNormalizado: number;
+  /**
+   * Ratio fatiga/forma medido en múltiplos del equilibrio.
+   *
+   * 1.0 es exactamente el estado estacionario de alguien que entrena de forma
+   * sostenida; por encima hay más fatiga de la habitual y por debajo, menos.
+   * Es el número que se clasifica.
+   */
+  ratioRelativo: number;
   estado: EstadoHomeostasis;
 }
+
+/**
+ * Ratio fatiga/forma al que converge el modelo con carga constante.
+ *
+ * Sale de integrar las dos exponenciales sobre la ventana que el modelo mira
+ * de verdad: cada una acumula τ × (1 − e^(−ventana/τ)). El truncado NO es un
+ * detalle despreciable — con ventana de 42 días la fatiga (τ=7) ya llegó a su
+ * asíntota pero la forma (τ=42) apenas alcanzó el 63% de la suya, así que
+ * usar el equilibrio de horizonte infinito daría 1.57 para alguien que entrena
+ * perfectamente parejo. La referencia tiene que ser el estacionario de lo que
+ * el código calcula, no el de la fórmula ideal.
+ */
+export const RATIO_EQUILIBRIO = (() => {
+  const { factorFatiga, fatigaTauDias, formaTauDias, ventanaDias } = HOMEOSTASIS_CONFIG;
+  const acumulado = (tau: number) => tau * (1 - Math.exp(-ventanaDias / tau));
+  return (factorFatiga * acumulado(fatigaTauDias)) / acumulado(formaTauDias);
+})();
 
 /**
  * Calcula el estado a partir de las cargas de las últimas semanas.
@@ -50,12 +76,14 @@ export function calcularHomeostasis(cargas: readonly CargaPuntual[]): Homeostasi
   let fatiga = 0;
   let forma = 0;
   let cargaTotal = 0;
+  let cargaReciente = 0;
 
   for (const { diasAtras, carga } of cargas) {
     if (diasAtras < 0 || diasAtras > ventanaDias || carga <= 0) continue;
     fatiga += carga * factorFatiga * Math.exp(-diasAtras / fatigaTauDias);
     forma += carga * Math.exp(-diasAtras / formaTauDias);
     cargaTotal += carga;
+    if (diasAtras < HOMEOSTASIS_CONFIG.ventanaDesentrenamientoDias) cargaReciente += carga;
   }
 
   const balance = forma - fatiga;
@@ -67,15 +95,50 @@ export function calcularHomeostasis(cargas: readonly CargaPuntual[]): Homeostasi
     HOMEOSTASIS_CONFIG.cargaMinimaSignificativa / ventanaDias,
   );
   const balanceNormalizado = balance / (cargaDiariaMedia * fatigaTauDias);
+  const ratioRelativo = forma > 0 ? fatiga / forma / RATIO_EQUILIBRIO : 0;
 
-  return { fatiga, forma, balance, balanceNormalizado, estado: clasificar(balanceNormalizado) };
+  return {
+    fatiga,
+    forma,
+    balance,
+    balanceNormalizado,
+    ratioRelativo,
+    estado: clasificar(ratioRelativo, cargaTotal, cargaReciente),
+  };
 }
 
-function clasificar(balanceNormalizado: number): EstadoHomeostasis {
-  const { umbralFatigado, umbralPico, umbralSobreDescansado } = HOMEOSTASIS_CONFIG;
-  if (balanceNormalizado < umbralFatigado) return 'fatigado';
-  if (balanceNormalizado > umbralSobreDescansado) return 'sobre-descansado';
-  if (balanceNormalizado > umbralPico) return 'pico';
+/**
+ * Clasifica el estado comparando contra el equilibrio, no contra constantes.
+ *
+ * El desentrenamiento se chequea aparte y primero, porque no es un punto de la
+ * misma escala: alguien que dejó de entrenar tiene poca fatiga —igual que
+ * alguien en supercompensación— pero está perdiendo forma, no listo para
+ * rendir. Lo que los distingue no es el ratio sino si sigue habiendo carga.
+ */
+function clasificar(
+  ratioRelativo: number,
+  cargaTotal: number,
+  cargaReciente: number,
+): EstadoHomeostasis {
+  const {
+    umbralFatigado,
+    umbralPico,
+    umbralSobreDescansado,
+    ventanaDias,
+    ventanaDesentrenamientoDias,
+    cargaMinimaSignificativa,
+  } = HOMEOSTASIS_CONFIG;
+
+  if (cargaTotal < cargaMinimaSignificativa) return 'sobre-descansado';
+
+  // Ritmo reciente contra el ritmo de toda la ventana: si cayó por debajo de la
+  // fracción configurada, la persona dejó de entrenar.
+  const ritmoReciente = cargaReciente / ventanaDesentrenamientoDias;
+  const ritmoHabitual = cargaTotal / ventanaDias;
+  if (ritmoReciente < umbralSobreDescansado * ritmoHabitual) return 'sobre-descansado';
+
+  if (ratioRelativo > umbralFatigado) return 'fatigado';
+  if (ratioRelativo < umbralPico) return 'pico';
   return 'listo';
 }
 

@@ -534,12 +534,24 @@ export const HOMEOSTASIS_CONFIG = {
   /** Ventana de días hacia atrás que mira el modelo. Más allá el aporte es ruido. */
   ventanaDias: 42,
   /**
-   * Umbrales del estado, sobre el balance (forma − fatiga) normalizado por la
-   * carga media de las últimas semanas.
+   * Umbrales del estado, como MÚLTIPLOS del ratio fatiga/forma de equilibrio.
+   *
+   * El equilibrio no es un número elegido: con carga constante, el modelo
+   * converge a fatiga/forma = (factorFatiga × fatigaTau) / formaTau, que con
+   * los valores de arriba da 0.33. Comparar contra ese valor —y no contra una
+   * constante— es lo que hace que un corredor entrenando de forma sostenida
+   * salga "listo" en lugar de "sobre-descansado", y que los umbrales sigan
+   * teniendo sentido si se recalibran las constantes de tiempo.
    */
-  umbralFatigado: -0.35,
-  umbralPico: 0.25,
-  umbralSobreDescansado: 0.8,
+  umbralFatigado: 1.3,
+  umbralPico: 0.7,
+  /**
+   * Fracción de la carga habitual por debajo de la cual, en las últimas dos
+   * semanas, se considera que la persona dejó de entrenar.
+   */
+  umbralSobreDescansado: 0.3,
+  /** Días que mira el chequeo de desentrenamiento. */
+  ventanaDesentrenamientoDias: 14,
   /**
    * Carga metabólica por debajo de la cual una semana se considera vacía. Sirve
    * para no dividir por cero al normalizar en las primeras semanas.

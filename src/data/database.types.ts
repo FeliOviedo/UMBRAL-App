@@ -153,6 +153,7 @@ export type AdaptationRow = {
   trigger_session_id: string | null;
   applied: boolean;
   applied_at: string | null;
+  dismissed_at: string | null;
   created_at: string;
 };
 

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { CalendarRange, Gauge, LayoutGrid, User } from 'lucide-react';
+import { BarChart3, CalendarRange, LayoutGrid, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 const DESTINOS = [
   { to: '/hoy', label: 'Hoy', Icon: LayoutGrid },
   { to: '/plan', label: 'Plan', Icon: CalendarRange },
-  { to: '/zonas', label: 'Zonas', Icon: Gauge },
+  { to: '/analisis', label: 'Análisis', Icon: BarChart3 },
   { to: '/config', label: 'Perfil', Icon: User },
 ] as const;
 

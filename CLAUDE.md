@@ -109,10 +109,13 @@ Entre las dos cosas son ~275 kB que no tienen por qué estar en el arranque
 | `/ajustes` | Re-calibración | Los ajustes del motor, con el diff antes/después. |
 | `/complementaria` | Complementaria | Fuerza, fútbol, bici: carga que no es correr. |
 | `/sesion/:id/imagen` | Captura | Adjuntar la foto del reloj y confirmar lo detectado. |
+| `/analisis` | Caja Negra | Los cinco gráficos de progreso. Lazy. |
+| `/volumen` | Volumen | Planificado vs. corrido, tendencia y descargas. Lazy. |
+| `/calendario` | Calendario | Heatmap mensual por tipo de entreno. Lazy. |
 | `/onboarding`, `/config` | Perfil | Datos del corredor. |
 
-La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan, Zonas,
-Perfil): en mobile, una barra con más de cuatro íconos se vuelve imposible de
+La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan,
+Análisis, Perfil): en mobile, una barra con más de cuatro íconos se vuelve imposible de
 acertar con el pulgar.
 
 ---
@@ -322,7 +325,60 @@ npm run build       # typecheck + build de producción
 | **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ✅ **Completa** |
 | **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ✅ **Completa** |
 | **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ✅ **Completa** |
-| **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ⬜ Pendiente |
+| **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ✅ **Completa** |
+
+### Lo que la Fase 5 dejó listo
+
+**Sistema de gráficos** (`src/lib/chart.ts`). Todos los gráficos salen de ahí:
+tokens de eje/grilla/tooltip, la rampa de intensidad, la regresión lineal y el
+normalizador de `ValueType` de Recharts. Reglas que la Fase 5 fijó y que hay que
+respetar al agregar cualquier gráfico nuevo:
+
+- **Un solo eje Y.** Nunca dos escalas en el mismo gráfico. Pace y FC son dos
+  gráficos separados, no uno con doble eje.
+- **La rampa `INTENSIDAD` está validada** (un hue, spread 3°, luminosidad
+  monótona, ΔL ≥ 0.06, extremo bajo 2.01:1 sobre el fondo). Si se toca un color
+  hay que volver a validarla con el script del skill de dataviz — no alcanza con
+  que "se vea bien".
+- **Codificación compuesta en el calendario**: el color dice magnitud, la letra
+  dentro de la celda dice identidad. Ninguno de los dos hace los dos trabajos, y
+  por eso el heatmap se lee sin distinguir colores.
+
+**Caja Negra** (`/analisis`): Pace vs. RPE como gráfico principal, Pace vs. FC
+como secundario y explícitamente recesivo (gris, más chico, con la advertencia
+de que sólo hay que creerle si el reloj da números coherentes), curva de
+supercompensación, producción de energía semanal y dispersión volumen vs.
+esfuerzo.
+
+**Registro de propuestas descartadas**: `descartarPropuesta` ya no borra la fila
+— marca `dismissed_at`. Una propuesta que existió queda registrada aunque no se
+haya aplicado, para poder explicar más adelante por qué una semana quedó como
+quedó. El esquema tiene un check que hace excluyentes `applied_at` y
+`dismissed_at`.
+
+**Corrección de calibración del modelo de homeostasis.** El estado se clasifica
+comparando el ratio fatiga/forma contra `RATIO_EQUILIBRIO`, que es el
+estacionario del modelo **con la ventana truncada** —`τ × (1 − e^(−ventana/τ))`
+en cada exponencial—, no contra constantes absolutas. Antes, un corredor con
+nueve semanas de entrenamiento sostenido salía "sobre-descansado": con carga
+constante la normalización daba 4.0 contra un umbral de 0.8, así que el estado
+estacionario **nunca** podía leerse como "listo". El truncado no es un detalle:
+con ventana de 42 días la fatiga (τ=7) ya llegó a su asíntota pero la forma
+(τ=42) va por el 63% de la suya, y usar el equilibrio de horizonte infinito daría
+1.57 para alguien que entrena perfectamente parejo. El desentrenamiento se
+chequea aparte —ritmo de carga de las últimas dos semanas contra el ritmo
+habitual— porque no es un punto de la misma escala: quien dejó de entrenar tiene
+poca fatiga, igual que quien está en pico, y lo que los distingue no es el ratio
+sino si sigue habiendo carga.
+
+**Deploy**: `vercel.json` con el rewrite de SPA, y el README documenta el
+proceso completo asumiendo que el repositorio no está conectado.
+
+**`scripts/verificar-rls.mjs`** (`npm run verify:rls`): crea dos usuarios, los
+hace escribir datos y comprueba desde uno que no puede leer, modificar, borrar
+ni suplantar al otro, en las ocho tablas y en Storage. **Nunca se ejecutó contra
+un proyecto real** —el entorno donde se escribió no tenía credenciales de
+Supabase—, así que sigue siendo el paso pendiente antes de publicar.
 
 ### Lo que la Fase 4 dejó listo
 
@@ -442,16 +498,17 @@ Supabase, Auth, repositorios, pantallas de producto y routing — todo eso lleg�
 en la Fase 2. Siguen pendientes Recharts, Leaflet, `vercel.json`, el deploy,
 `vision.ts`, `analysis.ts` y `adaptation.ts`.
 
-### Módulos de dominio todavía por escribir
+### Módulos de dominio
 
-- `analysis.ts` (Fase 4/5) — `cajaNegra`, `estadoSupercompensacion`.
-  `feasibilidadObjetivo` ya está en `planner.ts`, y la carga metabólica y la
-  distribución por zona en `sessionAnalysis.ts`.
-- `adaptation.ts` (Fase 4) — los 7 casos del motor de adaptación. Sus umbrales ya
-  están en `ADAPTATION_CONFIG`.
-- `vision.ts` (Fase 4) — interfaz para el modelo de visión que lee la captura del
-  reloj. Los datos detectados **siempre** se muestran editables y nunca se
-  guardan solos.
+Todos escritos. Los tres que faltaban al cerrar la Fase 3:
+
+- `analysis.ts` — `cajaNegra`, `estadoSupercompensacion`, `cargaEnVentana`,
+  `serieDeBalance`.
+- `adaptation.ts` — los casos del motor de adaptación, con sus umbrales en
+  `ADAPTATION_CONFIG`.
+- `vision.ts` — interfaz para el modelo de visión que lee la captura del reloj.
+  Los datos detectados **siempre** se muestran editables y nunca se guardan
+  solos. Falta enchufar un proveedor real.
 
 ---
 

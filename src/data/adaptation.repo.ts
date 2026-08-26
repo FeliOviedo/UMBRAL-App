@@ -28,6 +28,8 @@ export interface AdaptacionGuardada {
   sesionDisparadora: string | null;
   aplicada: boolean;
   aplicadaEn: string | null;
+  /** Cuándo el usuario la rechazó. Excluyente con `aplicada`. */
+  descartadaEn: string | null;
   creadaEn: string;
 }
 
@@ -44,6 +46,7 @@ function aDominio(row: AdaptationRow): AdaptacionGuardada {
     sesionDisparadora: row.trigger_session_id,
     aplicada: row.applied,
     aplicadaEn: row.applied_at,
+    descartadaEn: row.dismissed_at,
     creadaEn: row.created_at,
   };
 }
@@ -89,9 +92,19 @@ export async function marcarComoAplicada(adaptacionId: string): Promise<void> {
   if (error) throw traducirError(error, 'confirmar el ajuste');
 }
 
-/** Descarta una propuesta que el usuario no quiso aplicar. */
+/**
+ * Descarta una propuesta que el usuario no quiso aplicar.
+ *
+ * Marca, no borra. Que el motor haya propuesto algo y la persona haya dicho que
+ * no es información: dentro de tres meses es lo único que puede explicar por qué
+ * una semana quedó como quedó. Deja de aparecer entre las pendientes, pero sigue
+ * en el historial.
+ */
 export async function descartarPropuesta(adaptacionId: string): Promise<void> {
-  const { error } = await supabase.from('adaptations').delete().eq('id', adaptacionId);
+  const { error } = await supabase
+    .from('adaptations')
+    .update({ dismissed_at: new Date().toISOString() })
+    .eq('id', adaptacionId);
   if (error) throw traducirError(error, 'descartar el ajuste');
 }
 
@@ -104,13 +117,19 @@ export async function listarPropuestasPendientes(
     .select('*')
     .eq('user_id', userId)
     .eq('applied', false)
+    .is('dismissed_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw traducirError(error, 'cargar los ajustes propuestos');
   return (data ?? []).map(aDominio);
 }
 
-/** Historial completo. Alimenta el registro de "por qué el plan es así". */
+/**
+ * Historial completo: aplicadas, descartadas y pendientes.
+ *
+ * Es el registro de por qué el plan es como es. Incluye lo que se rechazó, que
+ * suele ser lo más informativo de los tres.
+ */
 export async function listarAdaptaciones(
   userId: string,
   limite = 50,

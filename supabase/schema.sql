@@ -424,7 +424,15 @@ create table if not exists adaptations (
   -- false mientras está propuesta; true cuando el usuario la confirmó.
   applied boolean not null default false,
   applied_at timestamptz,
-  created_at timestamptz not null default now()
+  -- Cuándo el usuario la rechazó. Una propuesta descartada NO se borra: queda
+  -- como registro de que el motor la vio y la persona decidió otra cosa. Sin
+  -- esto, dentro de tres meses no habría forma de explicar por qué una semana
+  -- quedó como quedó.
+  dismissed_at timestamptz,
+  created_at timestamptz not null default now(),
+  -- Aplicada y descartada son excluyentes: son las dos formas de resolverla.
+  constraint adaptations_resolucion_unica
+    check (not (applied and dismissed_at is not null))
 );
 
 comment on table adaptations is
@@ -432,6 +440,10 @@ comment on table adaptations is
 
 create index if not exists adaptations_user_created_idx
   on adaptations (user_id, created_at desc);
+-- Las pendientes son las que no están ni aplicadas ni descartadas.
+create index if not exists adaptations_pendientes_idx
+  on adaptations (user_id, created_at desc)
+  where not applied and dismissed_at is null;
 create index if not exists adaptations_week_idx on adaptations (plan_week_id);
 
 -- ───────────────────────────────────────────────────────────────────────────
@@ -535,6 +547,16 @@ create policy "session-images: leer lo propio" on storage.objects
 drop policy if exists "session-images: subir lo propio" on storage.objects;
 create policy "session-images: subir lo propio" on storage.objects
   for insert with check (
+    bucket_id = 'session-images' and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- Sin esta política, reemplazar la captura de una sesión ya cargada falla: el
+-- upsert del cliente necesita UPDATE además de INSERT.
+drop policy if exists "session-images: reemplazar lo propio" on storage.objects;
+create policy "session-images: reemplazar lo propio" on storage.objects
+  for update using (
+    bucket_id = 'session-images' and (storage.foldername(name))[1] = auth.uid()::text
+  ) with check (
     bucket_id = 'session-images' and (storage.foldername(name))[1] = auth.uid()::text
   );
 
