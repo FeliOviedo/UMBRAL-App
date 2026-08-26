@@ -1,78 +1,107 @@
-import { formatearPace, generarZonasFC, generarZonasPace } from './domain';
+import { useEffect } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { supabaseConfigurado } from '@/lib/supabase';
+import { useSession } from '@/store/session.store';
+import AppLayout from '@/components/AppLayout';
+import { Cargando, ErrorMensaje } from '@/components/ui/feedback';
+import LoginScreen from '@/screens/LoginScreen';
+import OnboardingScreen from '@/screens/OnboardingScreen';
+import UmbralScreen from '@/screens/UmbralScreen';
+import ZonasScreen from '@/screens/ZonasScreen';
+import ObjetivoScreen from '@/screens/ObjetivoScreen';
+import PlanScreen from '@/screens/PlanScreen';
+import ConfigScreen from '@/screens/ConfigScreen';
 
-/**
- * Pantalla única de la Fase 1: una verificación visual del design system.
- *
- * No es una pantalla del producto — las pantallas reales llegan en la Fase 2 en
- * adelante. Sirve para ver las tipografías, la escala hero y los colores de zona
- * sobre datos reales que salen del dominio, no maquetados a mano.
- */
 export default function App() {
-  // Valores de ejemplo: la LTHR y el pace umbral que produciría un test real.
-  const lthr = 168;
-  const paceUmbral = 300; // 5:00 /km
-  const hrZones = generarZonasFC(lthr);
-  const paceZones = generarZonasPace(paceUmbral);
+  const inicializar = useSession((s) => s.inicializar);
+
+  useEffect(() => inicializar(), [inicializar]);
+
+  if (!supabaseConfigurado) return <FaltaConfiguracion />;
 
   return (
-    <main className="mx-auto min-h-dvh w-full max-w-md px-6 pb-16">
-      <header className="u-section">
-        <p className="u-label">Umbral</p>
-        <h1 className="mt-6 u-hero">
-          {formatearPace(paceUmbral)}
-          <span className="ml-2 font-sans text-base font-medium text-fg-muted">/km</span>
-        </h1>
-        <p className="u-sub mt-2">Pace umbral · {lthr} ppm de LTHR</p>
-      </header>
-
-      <section className="u-section border-t border-border">
-        <h2 className="u-section-title">Mis zonas</h2>
-        <p className="u-sub mt-1">
-          El RPE manda. La frecuencia cardíaca acompaña sólo cuando el reloj mide bien.
-        </p>
-
-        <ul className="mt-8 space-y-6">
-          {hrZones.map((zone, i) => {
-            const pace = paceZones[i]!;
-            return (
-              <li key={zone.id} className="flex gap-4">
-                <span
-                  aria-hidden
-                  className="mt-1 h-10 w-1 shrink-0 rounded-sm"
-                  style={{ backgroundColor: zone.color }}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="font-display text-base font-semibold">
-                      {zone.id} · {zone.name}
-                    </span>
-                    <span className="u-table shrink-0 text-fg-muted">
-                      RPE {zone.rpeMin === zone.rpeMax ? zone.rpeMin : `${zone.rpeMin}-${zone.rpeMax}`}
-                    </span>
-                  </div>
-                  <p className="u-table mt-1 text-fg-muted">
-                    {formatearRangoFC(zone.bpmMin, zone.bpmMax)} ·{' '}
-                    {formatearRangoPace(pace.secPerKmFast, pace.secPerKmSlow)}
-                  </p>
-                  <p className="u-sub mt-1">{zone.talkTest}</p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    </main>
+    <BrowserRouter>
+      <Rutas />
+    </BrowserRouter>
   );
 }
 
-function formatearRangoFC(min: number | null, max: number | null): string {
-  if (min === null && max !== null) return `<${max} ppm`;
-  if (min !== null && max === null) return `>${min} ppm`;
-  return `${min}-${max} ppm`;
+function Rutas() {
+  const usuario = useSession((s) => s.usuario);
+  const perfil = useSession((s) => s.perfil);
+  const cargandoDatos = useSession((s) => s.cargandoDatos);
+  const error = useSession((s) => s.error);
+  const recargarDatos = useSession((s) => s.recargarDatos);
+
+  // undefined = todavía no sabemos si hay sesión. Mostrar el login acá haría
+  // parpadear la pantalla de entrada en cada recarga.
+  if (usuario === undefined) return <Cargando mensaje="Abriendo Umbral…" />;
+
+  if (usuario === null) {
+    return (
+      <Routes>
+        <Route path="*" element={<LoginScreen />} />
+      </Routes>
+    );
+  }
+
+  if (cargandoDatos && perfil === null) return <Cargando mensaje="Cargando tus datos…" />;
+
+  if (error) {
+    return (
+      <main className="mx-auto w-full max-w-md px-6 py-section">
+        <ErrorMensaje mensaje={error} onReintentar={() => void recargarDatos()} />
+      </main>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* El onboarding vive fuera del layout: no hay a dónde navegar todavía. */}
+      <Route path="/onboarding" element={<OnboardingScreen />} />
+
+      <Route element={<AppLayout />}>
+        <Route path="/umbral" element={<UmbralScreen />} />
+        <Route path="/zonas" element={<ZonasScreen />} />
+        <Route path="/objetivo" element={<ObjetivoScreen />} />
+        <Route path="/plan" element={<PlanScreen />} />
+        <Route path="/config" element={<ConfigScreen />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to={destinoInicial(perfil?.onboardingCompleto)} replace />} />
+    </Routes>
+  );
 }
 
-function formatearRangoPace(fast: number | null, slow: number | null): string {
-  if (fast === null && slow !== null) return `+${formatearPace(slow)}`;
-  if (fast !== null && slow === null) return `-${formatearPace(fast)}`;
-  return `${formatearPace(fast!)}-${formatearPace(slow!)}`;
+/** A dónde mandar a alguien que entra sin ruta: al onboarding o al plan. */
+function destinoInicial(onboardingCompleto: boolean | undefined): string {
+  return onboardingCompleto ? '/plan' : '/onboarding';
+}
+
+/**
+ * Pantalla de "falta configurar Supabase".
+ *
+ * Sin esto, alguien que clona el repo y corre `npm run dev` se come un error de
+ * red sin explicación. Es el primer tropiezo de cualquiera que arranca.
+ */
+function FaltaConfiguracion() {
+  return (
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6">
+      <p className="u-label">Umbral</p>
+      <h1 className="mt-6 font-display text-2xl font-semibold">Falta conectar Supabase</h1>
+      <p className="u-sub mt-4">
+        Copiá <code className="font-mono text-fg">.env.example</code> a{' '}
+        <code className="font-mono text-fg">.env</code> y completá las dos variables con los datos
+        de tu proyecto:
+      </p>
+      <ul className="mt-4 space-y-1">
+        <li className="u-table text-fg">VITE_SUPABASE_URL</li>
+        <li className="u-table text-fg">VITE_SUPABASE_ANON_KEY</li>
+      </ul>
+      <p className="u-sub mt-6">
+        Los pasos completos están en el <code className="font-mono text-fg">README.md</code>.
+        Después reiniciá el servidor de desarrollo.
+      </p>
+    </main>
+  );
 }

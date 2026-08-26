@@ -34,12 +34,16 @@ por usuario lo da RLS.
 Tres capas, con una sola dirección de dependencias:
 
 ```
-UI (componentes React)
+UI (screens + components)                    ← src/screens/, src/components/
   ↓ importa
-Dominio (funciones puras, sin I/O)          ← src/domain/
+Dominio (funciones puras, sin I/O)           ← src/domain/
   ↑ no importa nada de UI ni de datos
-Datos (repositorios hacia Supabase)          ← src/data/ (Fase 2)
+Datos (repositorios hacia Supabase)          ← src/data/
 ```
+
+El estado de sesión vive en Zustand (`src/store/session.store.ts`) y es la única
+fuente de verdad sobre el usuario actual: las pantallas leen de ahí en lugar de
+consultar Supabase por su cuenta.
 
 Reglas que sostienen esto:
 
@@ -64,9 +68,20 @@ Reglas que sostienen esto:
 | `src/domain/rules.ts` | `validarMicrociclo`, `repararMicrociclo`, `reordenarPorSesionOmitida`. Las reglas R1-R4. |
 | `src/domain/progression.ts` | Tabla 7: `calcularIncrementoSemanal`, `aplicarProgresion`, `proyectarVolumen`. |
 | `src/domain/planner.ts` | `generarMacrociclo`, `generarMesociclo`, `generarMicrociclo`, `nivelPorObjetivo`, `feasibilidadObjetivo`. |
+| `src/domain/calendar.ts` | `calendarizarPlan`: aterriza la numeración abstracta del plan en fechas reales. |
 | `src/domain/import/` | Parsers TCX/GPX/KML, Haversine, splits, cadencia, reconciliación de distancia. |
+| `supabase/schema.sql` | Tablas, tipos, RLS, trigger de alta de perfil y bucket de Storage. |
+| `src/data/` | Repositorios hacia Supabase. Traducen filas ↔ dominio y los errores al español. |
+| `src/store/session.store.ts` | Estado de sesión: usuario, perfil, umbral, objetivo y plan. |
+| `src/screens/` | Pantallas. |
+| `src/lib/format.ts` | Formateo y parseo de tiempos, paces y fechas. |
 | `src/index.css` | Tokens de color del design system (variables CSS) y clases base. |
 | `tailwind.config.ts` | Tipografías, escala hero, colores de zona, radios. |
+
+**El barrel de dominio (`src/domain/index.ts`) NO reexporta `./import`** a
+propósito: arrastra el parser de XML, que sólo hace falta en las pantallas de
+importación. Quien lo necesite importa de `@/domain/import` y el bundler lo
+separa solo (son ~87 kB de diferencia en el bundle principal).
 
 ---
 
@@ -115,17 +130,48 @@ explícitamente y cubiertos por tests:
 
 ---
 
-## Multidisciplina: los cimientos ya están
+## Base de datos
+
+Siete tablas en `supabase/schema.sql`, todas con Row Level Security:
+
+| Tabla | Qué guarda |
+| --- | --- |
+| `profiles` | Perfil del corredor. La crea sola el trigger `handle_new_user`. |
+| `thresholds` | **Historial** de umbral. El vigente es el de `tested_at` más reciente. |
+| `goals` | Objetivos de carrera. Índice parcial: uno solo activo por usuario. |
+| `plans` | Plan generado. Guarda los parámetros de entrada además del resultado. |
+| `plan_weeks` | Microciclos, con su lunes en `starts_on`. |
+| `plan_days` | Días planificados, con su fecha en `scheduled_on`. |
+| `sessions` | **Lo que realmente pasó.** Genérica, con `discipline`. |
+
+Decisiones que conviene no revertir sin pensarlo:
+
+- **RLS no es una capa de más, es LA capa.** No hay backend propio: el navegador
+  habla directo con Postgres con una clave pública. Las políticas se generan en
+  un bucle sobre la lista de tablas para que ninguna quede sin cubrir.
+- **Las zonas no se guardan.** Se derivan del umbral en el dominio. Persistirlas
+  sería duplicar la metodología en la base y arriesgarse a que quedaran
+  desincronizadas al recalibrar `config.ts`.
+- **El plan se marca `is_active` al final.** No hay transacciones desde el
+  navegador, así que un guardado interrumpido queda invisible en lugar de
+  aparecer a medias.
+- **Plan y realidad viven separados.** `plan_days` es lo planificado, `sessions`
+  lo que pasó, y se vinculan por `sessions.plan_day_id`. De esa comparación vive
+  el motor de adaptación.
+
+### Multidisciplina: los cimientos ya están
 
 No hay features de gimnasio en el MVP, pero el modelo no las excluye:
 
 - La entidad base es una **sesión genérica** con `discipline: 'running' |
   'strength' | 'other'`. El MVP sólo implementa `'running'`.
-- La **carga metabólica es un concepto unificado**: cualquier sesión, de
-  cualquier disciplina, aporta al modelo de homeostasis y recuperación. Las
-  actividades complementarias (fuerza, fútbol) entran por ese mismo mecanismo.
-- El esquema de Supabase (Fase 2) usa una tabla `sessions` con `discipline`, no
-  una tabla cerrada `runs`.
+- La **carga metabólica es un concepto unificado** (`sessions.metabolic_load`):
+  cualquier sesión, de cualquier disciplina, aporta al modelo de homeostasis y
+  recuperación. Las actividades complementarias entran por ese mismo mecanismo.
+- La tabla se llama `sessions`, no `runs`, y todas sus columnas de running son
+  nullable. Cuando llegue el módulo de fuerza **no hace falta migrar nada**: se
+  agrega una tabla hija `strength_sets` que referencia `sessions`. El lugar
+  exacto está marcado con un comentario en el SQL.
 
 ---
 
@@ -188,7 +234,7 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 ```bash
 npm install
 npm run dev         # servidor de desarrollo
-npm test            # 178 tests de dominio
+npm test            # 229 tests (dominio + utilidades)
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build de producción
 ```
@@ -200,10 +246,33 @@ npm run build       # typecheck + build de producción
 | Fase | Alcance | Estado |
 | --- | --- | --- |
 | **1** | Scaffolding + design system + `config.ts` con todas las tablas + módulos de dominio (zones, import, planner, rules, progression) + tests | ✅ **Completa** |
-| **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ⬜ Pendiente |
+| **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ✅ **Completa** |
 | **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ⬜ Pendiente |
 | **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ⬜ Pendiente |
 | **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ⬜ Pendiente |
+
+### Lo que la Fase 2 dejó listo
+
+- `supabase/schema.sql` completo: 7 tablas, tipos, RLS, trigger de perfil y
+  bucket de Storage. Idempotente.
+- Repositorios en `src/data/`: auth, perfil, umbral, objetivos y planes, con los
+  errores de Postgres y de Auth ya traducidos al español.
+- Estado de sesión en Zustand, con las cuatro consultas del arranque en paralelo.
+- Pantallas: login/registro, onboarding, umbral, mis zonas, objetivo y plan,
+  más configuración y navegación inferior.
+- La pantalla de objetivo **previsualiza el plan real** corriendo el dominio en
+  vivo: lo que se ve antes de confirmar es exactamente lo que se guarda.
+- `README.md` con los pasos para crear el proyecto Supabase, correr el SQL,
+  setear las variables y levantar la app.
+- **229 tests.** Los 51 nuevos cubren `calendarizarPlan` (donde puede colarse un
+  off-by-one al aterrizar el plan en fechas) y el formateo/parseo de tiempos,
+  paces y fechas.
+
+### Lo que la Fase 2 NO incluye (a propósito)
+
+Importación de archivos en la UI, registro de sesiones, mapa, dashboard,
+adaptación, gráficos y deploy. Todo eso llega en las fases 3-5. La tabla
+`sessions` ya existe en la base, pero todavía no la escribe nadie.
 
 ### Lo que la Fase 1 dejó listo
 
@@ -212,16 +281,15 @@ npm run build       # typecheck + build de producción
 - `config.ts` con las 7 zonas Friel (con RPE y test del habla) y las Tablas 3-7.
 - Módulos de dominio puros: `zones`, `rules`, `progression`, `planner`,
   `import/` (TCX, GPX, KML).
-- **178 tests** en verde, incluido el caso TCX real de Xiaomi.
-- `src/App.tsx` es sólo una verificación visual del design system sobre datos
-  reales del dominio — **no** es una pantalla del producto. Se reemplaza en la
-  Fase 2.
+- 178 tests, incluido el caso TCX real de Xiaomi.
+- `src/App.tsx` era una verificación visual del design system sobre datos reales
+  del dominio. La Fase 2 lo reemplazó por el router.
 
 ### Lo que la Fase 1 NO incluye (a propósito)
 
-Supabase, Auth, repositorios, pantallas de producto, routing, Zustand en uso,
-Recharts, Leaflet, `vercel.json`, README de deploy, `vision.ts`, `analysis.ts` y
-`adaptation.ts`. Todo eso llega en las fases 2-5.
+Supabase, Auth, repositorios, pantallas de producto y routing — todo eso llegó
+en la Fase 2. Siguen pendientes Recharts, Leaflet, `vercel.json`, el deploy,
+`vision.ts`, `analysis.ts` y `adaptation.ts`.
 
 ### Módulos de dominio todavía por escribir
 
