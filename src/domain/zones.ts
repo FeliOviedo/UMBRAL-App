@@ -130,6 +130,33 @@ export function zonaPorFC(bpm: number, lthr: number): ZoneDefinition {
   return zone;
 }
 
+/**
+ * Devuelve la zona que corresponde a un pace, dadas las zonas de pace ya
+ * generadas.
+ *
+ * Camino SECUNDARIO de apoyo, igual que la FC, pero más confiable que ella: el
+ * GPS no tiene el ruido de un sensor óptico de muñeca.
+ *
+ * Los `PACE_ZONE_FACTORS` son contiguos por construcción (el `fast` de una zona
+ * es exactamente el `slow` de la siguiente, antes de redondear), así que en el
+ * valor exacto del borde hay que decidir a quién se lo lleva. Se lo lleva la
+ * zona más EXIGENTE — el pace más rápido —, en espejo de `zonaPorFC`, donde el
+ * valor de borde también cae del lado de más intensidad: cada zona reclama su
+ * borde lento (`p <= slow`, inclusive) y cede su borde rápido a la zona
+ * siguiente (`p > fast`, exclusivo).
+ */
+export function zonaPorPace(paceSecPerKm: number, paceZones: readonly PaceZone[]): PaceZone {
+  const zone = paceZones.find(
+    (z) =>
+      (z.secPerKmFast === null || paceSecPerKm > z.secPerKmFast) &&
+      (z.secPerKmSlow === null || paceSecPerKm <= z.secPerKmSlow),
+  );
+  if (!zone) {
+    throw new Error(`No se pudo ubicar el pace ${paceSecPerKm} s/km en ninguna zona.`);
+  }
+  return zone;
+}
+
 /** Busca la definición de una zona por id. */
 export function zonaPorId(id: ZoneId): ZoneDefinition {
   const zone = ZONES.find((z) => z.id === id);

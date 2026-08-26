@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBRAL - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "zone-7": "#C06C84",
+                      "secondary-fixed-dim": "#c6c6c7",
+                      "tertiary-fixed-dim": "#d6c0d0",
+                      "secondary-container": "#454747",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed": "#c2f344",
+                      "ui-subtle": "#2C3139",
+                      "zone-4": "#FFD166",
+                      "on-error": "#690005",
+                      "surface": "#111319",
+                      "on-tertiary": "#3b2c38",
+                      "on-tertiary-fixed-variant": "#52424f",
+                      "zone-3": "#D1FFAD",
+                      "tertiary": "#ffffff",
+                      "surface-tint": "#a7d626",
+                      "error-container": "#93000a",
+                      "on-secondary-container": "#b4b5b5",
+                      "primary-fixed-dim": "#a7d626",
+                      "on-surface": "#e1e2ea",
+                      "surface-dim": "#111319",
+                      "secondary": "#c6c6c7",
+                      "on-primary-fixed-variant": "#394d00",
+                      "zone-6": "#FF595E",
+                      "tertiary-container": "#f3dced",
+                      "text-muted": "#8E937C",
+                      "on-primary-container": "#526d00",
+                      "surface-bright": "#36393f",
+                      "surface-container-lowest": "#0b0e13",
+                      "on-tertiary-fixed": "#241723",
+                      "on-surface-variant": "#c4c9af",
+                      "on-tertiary-container": "#715f6d",
+                      "secondary-fixed": "#e2e2e2",
+                      "surface-container-highest": "#32353b",
+                      "zone-5": "#FF8C42",
+                      "inverse-primary": "#4d6700",
+                      "primary": "#ffffff",
+                      "inverse-on-surface": "#2e3036",
+                      "on-background": "#e1e2ea",
+                      "zone-1": "#4ECDC4",
+                      "error": "#ffb4ab",
+                      "primary-container": "#c2f344",
+                      "on-primary-fixed": "#151f00",
+                      "surface-container": "#1d2025",
+                      "tertiary-fixed": "#f3dced",
+                      "zone-2": "#86E3CE",
+                      "surface-container-high": "#272a30",
+                      "on-secondary": "#2f3131",
+                      "surface-variant": "#32353b",
+                      "surface-container-low": "#191c21",
+                      "on-secondary-fixed-variant": "#454747",
+                      "outline": "#8e937c",
+                      "outline-variant": "#444935",
+                      "on-primary": "#273500",
+                      "on-secondary-fixed": "#1a1c1c",
+                      "background": "#111319",
+                      "inverse-surface": "#e1e2ea"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "section-gap": "64px",
+                      "component-gap": "12px",
+                      "unit": "4px",
+                      "gutter": "16px",
+                      "margin-edge": "24px"
+              },
+              "fontFamily": {
+                      "display-hero-mobile": [
+                              "Archivo Black"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Archivo Black"
+                      ],
+                      "data-tabular-sm": [
+                              "IBM Plex Mono"
+                      ],
+                      "display-hero": [
+                              "Archivo Black"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "data-tabular-lg": [
+                              "IBM Plex Mono"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero-mobile": [
+                              "56px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-tabular-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-hero": [
+                              "80px",
+                              {
+                                      "lineHeight": "80px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "data-tabular-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { background-color: #111319; color: #e1e2ea; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md flex min-h-screen antialiased">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-surface-container-lowest text-primary-fixed dark:text-primary-fixed font-label-caps text-label-caps h-screen w-64 fixed left-0 top-0 border-r border-ui-subtle flex flex-col h-full py-section-gap transition-all duration-200 ease-in-out hidden md:flex">
+<div class="px-margin-edge mb-section-gap flex items-center gap-component-gap">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-ui-subtle">
+<img alt="Athlete Avatar" class="w-full h-full object-cover" data-alt="A striking minimalist black and white headshot of an elite athlete in profile, high contrast lighting, set against a dark void background emphasizing intense focus and performance readiness." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXkEgzlAnU6Ug9CyrSDLjFnji5GfuhdFMzmsMmDYrQ1iPmauYSohN-XErqgS2Z4SbA2He1Ywyp8nsrifISGQEyst39HBFoMYE2NNFgQ9dgBOWw_DZkfWXCFm7hquT7tpfpBUiLah6PvqfmuJteOsCMzTFMVzo1h9tYtezXnRLpmDUnylqnjRmT4WdBDbxZUZ4XGoSXfuuM_edETKILytJY4SzT8mPrQrD5pTXWxcea6ylw_VczDelrgA"/>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tighter" style="font-size: 24px; line-height: 28px;">Performance</h2>
+<span class="text-text-muted font-label-caps text-label-caps block">Elite Tier</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-unit">
+<!-- Active: Dashboard -->
+<a class="text-primary-fixed border-l-4 border-primary-fixed bg-ui-subtle pl-4 py-3 transition-all flex items-center gap-gutter" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-text-muted hover:text-on-surface hover:bg-ui-subtle pl-4 py-3 transition-all flex items-center gap-gutter" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+                Training Plans
+            </a>
+<a class="text-text-muted hover:text-on-surface hover:bg-ui-subtle pl-4 py-3 transition-all flex items-center gap-gutter" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Caja Negra
+            </a>
+<a class="text-text-muted hover:text-on-surface hover:bg-ui-subtle pl-4 py-3 transition-all flex items-center gap-gutter" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                History
+            </a>
+</div>
+<div class="mt-auto px-margin-edge flex flex-col gap-margin-edge">
+<button class="w-full bg-primary-container text-on-primary-container font-label-caps text-label-caps py-4 transition-opacity hover:opacity-90">START RUN</button>
+<a class="text-text-muted hover:text-on-surface transition-all flex items-center gap-gutter mt-gutter pl-4" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-edge md:p-section-gap flex flex-col gap-section-gap">
+<!-- Hero Metrics -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-section-gap">
+<div class="flex flex-col justify-end">
+<span class="font-label-caps text-label-caps text-text-muted mb-unit uppercase">Volumen Semanal</span>
+<h1 class="font-display-hero text-display-hero text-primary tracking-tighter">42 <span class="text-secondary-container">/ 60 KM</span></h1>
+</div>
+<div class="flex flex-col justify-end items-start lg:items-end">
+<span class="font-label-caps text-label-caps text-text-muted mb-unit uppercase">Progreso Objetivo</span>
+<h1 class="font-display-hero text-display-hero text-primary-fixed tracking-tighter">70%</h1>
+</div>
+</section>
+<!-- Status & Chart Cluster -->
+<section class="grid grid-cols-1 xl:grid-cols-3 gap-margin-edge">
+<!-- Supercompensación Card (Glassmorphism/Minimal) -->
+<div class="xl:col-span-1 bg-surface-container-lowest p-margin-edge flex flex-col gap-gutter justify-between relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-zone-1/10 to-transparent opacity-50"></div>
+<div class="relative z-10 flex flex-col h-full">
+<span class="font-label-caps text-label-caps text-zone-1 uppercase mb-auto">Estado Actual</span>
+<div>
+<h3 class="font-headline-lg text-headline-lg text-primary tracking-tight mb-unit">Supercompensación</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Fatiga disipada. Listo para carga de alta intensidad.</p>
+</div>
+</div>
+</div>
+<!-- Training Load Chart (TSS) -->
+<div class="xl:col-span-2 p-margin-edge flex flex-col gap-gutter">
+<div class="flex justify-between items-end mb-gutter">
+<span class="font-label-caps text-label-caps text-text-muted uppercase">Carga de Entrenamiento (TSS)</span>
+<span class="font-data-tabular-lg text-data-tabular-lg text-primary">345 <span class="text-text-muted text-data-tabular-sm">TSS Semanal</span></span>
+</div>
+<div class="relative w-full h-64 flex items-end justify-between border-b border-ui-subtle pb-2">
+<!-- Minimalist Line Chart Representation using divs -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<polyline fill="none" points="0,80 20,60 40,90 60,30 80,40 100,20" stroke="#c2f344" stroke-width="2"></polyline>
+<!-- Intersection Points -->
+<rect fill="#c2f344" height="2" width="2" x="19" y="59"></rect>
+<rect fill="#c2f344" height="2" width="2" x="39" y="89"></rect>
+<rect fill="#c2f344" height="2" width="2" x="59" y="29"></rect>
+<rect fill="#c2f344" height="2" width="2" x="79" y="39"></rect>
+<rect fill="#c2f344" height="2" width="2" x="99" y="19"></rect>
+</svg>
+<!-- X-Axis Labels -->
+<div class="w-full flex justify-between absolute -bottom-6 font-data-tabular-sm text-data-tabular-sm text-text-muted">
+<span>LUN</span>
+<span>MAR</span>
+<span>MIE</span>
+<span>JUE</span>
+<span>VIE</span>
+<span>SAB</span>
+<span>DOM</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Umbral - Volume Progress</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@500;600&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "ui-accent": "#A7D626",
+                      "zone-7": "#C06C84",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-background": "#1b1b1b",
+                      "zone-3": "#D1FFAD",
+                      "outline-variant": "#cfc4c5",
+                      "tertiary": "#000000",
+                      "primary": "#000000",
+                      "on-primary-fixed": "#1b1b1b",
+                      "surface-bright": "#f9f9f9",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-tertiary-fixed-variant": "#474747",
+                      "surface-variant": "#e2e2e2",
+                      "tertiary-container": "#1b1b1b",
+                      "surface": "#f9f9f9",
+                      "primary-fixed": "#e2e2e2",
+                      "secondary-fixed-dim": "#c4c6cb",
+                      "background": "#f9f9f9",
+                      "on-primary-fixed-variant": "#474747",
+                      "on-secondary": "#ffffff",
+                      "surface-container": "#eeeeee",
+                      "surface-tint": "#5e5e5e",
+                      "on-surface-variant": "#4c4546",
+                      "secondary-container": "#e0e2e7",
+                      "primary-fixed-dim": "#c6c6c6",
+                      "secondary": "#5c5f63",
+                      "on-surface": "#1b1b1b",
+                      "on-secondary-fixed-variant": "#44474b",
+                      "on-primary-container": "#848484",
+                      "zone-5": "#FF8C42",
+                      "surface-container-low": "#f3f3f3",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-high": "#e8e8e8",
+                      "zone-6": "#FF595E",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#626569",
+                      "primary-container": "#1b1b1b",
+                      "secondary-fixed": "#e0e2e7",
+                      "surface-dim": "#dadada",
+                      "zone-2": "#86E3CE",
+                      "zone-1": "#4ECDC4",
+                      "on-secondary-fixed": "#191c1f",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#303030",
+                      "tertiary-fixed": "#e2e2e2",
+                      "zone-4": "#FFD166",
+                      "inverse-primary": "#c6c6c6",
+                      "on-tertiary": "#ffffff",
+                      "outline": "#7e7576",
+                      "on-tertiary-fixed": "#1b1b1b",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "margin-edge": "24px",
+                      "component-gap": "12px",
+                      "section-gap": "64px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "display-hero": [
+                              "Archivo Black"
+                      ],
+                      "data-tabular-lg": [
+                              "IBM Plex Mono"
+                      ],
+                      "display-hero-mobile": [
+                              "Archivo Black"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "data-tabular-sm": [
+                              "IBM Plex Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Archivo Black"
+                      ]
+              },
+              "fontSize": {
+                      "display-hero": [
+                              "80px",
+                              {
+                                      "lineHeight": "80px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "data-tabular-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-hero-mobile": [
+                              "56px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "900"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-tabular-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #f9f9f9;
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24 md:pb-0 font-body-md text-body-md antialiased selection:bg-ui-accent selection:text-primary">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-background dark:bg-background flat no shadows flex justify-between items-center px-margin-edge py-gutter w-full hidden md:flex">
+<div class="flex items-center gap-component-gap">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular profile picture of an athletic runner looking focused, shot in high contrast black and white with a subtle rim light. The mood is determined and intense, fitting a premium sports brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChgKPgF_Fo-Vm1wNKN9PdKMNqI6ac177sBrWyEcefvw2GqyS0mhTXe6cv3Hj6hYtj7WC9wTxfyEbNLNMS0an6419f8NLoAIl9O-82tzoau-IkiKwsmoOxspuRnhyZmFfOqlSxgTc9UYwmwtHFQJqNmsGrnjtrmjWRBpFGCXYdn-tEbk4XaZPQ0Gfo9NDklThH9f71j7Rk1PEvWpQYcj8W4PtevpH41roylZ1ZTv5cmAJyPD5VKDdlShQ"/>
+</div>
+<div class="font-display-hero text-display-hero-mobile uppercase tracking-tighter text-primary dark:text-on-background flex-1 text-center font-bold tracking-tight">
+            UMBRAL
+        </div>
+<nav class="hidden md:flex items-center gap-margin-edge">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity flex flex-col items-center gap-unit" href="#"><span class="material-symbols-outlined">speed</span><span class="font-label-caps text-label-caps">Dashboard</span></a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity flex flex-col items-center gap-unit" href="#"><span class="material-symbols-outlined">calendar_today</span><span class="font-label-caps text-label-caps">Calendar</span></a>
+<a class="text-primary dark:text-on-background border-b-2 border-ui-accent hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity flex flex-col items-center gap-unit" href="#"><span class="material-symbols-outlined">analytics</span><span class="font-label-caps text-label-caps">Volume</span></a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity flex flex-col items-center gap-unit" href="#"><span class="material-symbols-outlined">person</span><span class="font-label-caps text-label-caps">Profile</span></a>
+</nav>
+<div class="flex items-center gap-component-gap">
+<button class="text-primary dark:text-on-background hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-edge pt-section-gap space-y-section-gap">
+<!-- Hero Metric -->
+<section class="flex flex-col items-center text-center space-y-component-gap">
+<h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-primary tracking-tighter">180.4</h1>
+<p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Total Monthly Volume (KM)</p>
+<div class="flex items-center gap-gutter pt-gutter">
+<div class="flex flex-col items-center p-gutter bg-surface-container-low rounded-lg w-32">
+<span class="font-data-tabular-lg text-data-tabular-lg text-zone-1">+12%</span>
+<span class="font-label-caps text-label-caps text-secondary mt-1">Trend</span>
+</div>
+<div class="flex flex-col items-center p-gutter bg-surface-container-low rounded-lg w-32">
+<span class="font-data-tabular-lg text-data-tabular-lg text-primary">65</span>
+<span class="font-label-caps text-label-caps text-secondary mt-1">Weekly Peak</span>
+</div>
+</div>
+</section>
+<!-- Area Chart Section (Visualized with SVG inline for structure, avoiding base64 data URIs) -->
+<section class="w-full bg-surface-container-lowest p-margin-edge rounded-xl border border-outline-variant/30 flex flex-col space-y-margin-edge">
+<div class="flex justify-between items-end border-b border-outline-variant/50 pb-gutter">
+<h2 class="font-headline-lg text-headline-lg text-primary">6 Month Load</h2>
+<span class="font-label-caps text-label-caps text-secondary">JAN - JUN</span>
+</div>
+<div class="relative h-64 w-full flex items-end justify-between px-gutter pt-8">
+<!-- Y-Axis Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+<div class="border-t border-outline-variant/20 w-full"></div>
+</div>
+<!-- Area Chart Approximation (CSS based) -->
+<div class="absolute inset-x-gutter bottom-12 top-8 overflow-hidden pointer-events-none">
+<svg class="w-full h-full opacity-20" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="text-ui-accent" d="M0,100 L0,80 Q10,70 20,85 T40,60 T60,80 T80,40 T100,50 L100,100 Z" fill="currentColor"></path>
+</svg>
+<svg class="w-full h-full absolute inset-0" preserveaspectratio="none" viewbox="0 0 100 100">
+<path class="text-primary" d="M0,80 Q10,70 20,85 T40,60 T60,80 T80,40 T100,50" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+<!-- Data Points & X-Axis Labels -->
+<div class="z-10 flex flex-col items-center justify-end h-full group">
+<div class="h-2 w-2 bg-primary group-hover:bg-ui-accent group-hover:scale-150 transition-all mb-[10%]"></div>
+<span class="font-label-caps text-label-caps text-secondary mt-2">J</span>
+</div>
+<div class="z-10 flex flex-col items-center justify-end h-full group relative">
+<!-- Tooltip approximation -->
+<div class="absolute bottom-full mb-8 opacity-0 group-hover:opacity-100 transition-opacity bg-tertiary text-on-tertiary px-2 py-1 font-data-tabular-sm text-data-tabular-sm rounded whitespace-nowrap">42 km</div>
+<div class="h-2 w-2 bg-primary group-hover:bg-ui-accent group-hover:scale-150 transition-all mb-[15%]"></div>
+<span class="font-label-caps text-label-caps text-secondary mt-2">F</span>
+</div>
+<div class="z-10 flex flex-col items-center justify-end h-full group">
+<div class="h-2 w-2 bg-primary group-hover:bg-ui-accent group-hover:scale-150 transition-all mb-[40%]"></div>
+<span class="font-label-caps text-label-caps text-secondary mt-2">M</span>
+</div>
+<div class="z-10 flex flex-col items-center justify-end h-full group relative">
+<div class="absolute -top-6 bg-surface-variant text-on-surface-variant px-2 py-1 font-label-caps text-label-caps rounded-full whitespace-nowrap">Descarga</div>
+<div class="h-2 w-2 bg-primary group-hover:bg-ui-accent group-hover:scale-150 transition-all mb-[20%]"></div>
+<span class="font-label-caps text-label-caps text-secondary mt-2">A</span>
+</div>
+<div class="z-10 flex flex-col items-center justify-end h-full group">
+<div class="h-2 w-2 bg-primary group-hover:bg-ui-accent group-hover:scale-150 transition-all mb-[60%]"></div>
+<span class="font-label-caps text-label-caps text-secondary mt-2">M</span>
+</div>
+<div class="z-10 flex flex-col items-center justify-end h-full group">
+<div class="h-2 w-2 bg-ui-accent group-hover:scale-150 transition-all mb-[50%]"></div>
+<span class="font-label-caps text-label-caps text-primary mt-2">J</span>
+</div>
+</div>
+</section>
+<!-- Breakdown Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-margin-edge">
+<div class="bg-surface-container-low p-margin-edge flex flex-col space-y-component-gap">
+<span class="font-label-caps text-label-caps text-secondary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">directions_run</span> Base Aerobic</span>
+<span class="font-data-tabular-lg text-data-tabular-lg text-primary">112.5 <span class="text-data-tabular-sm text-secondary">km</span></span>
+<div class="w-full bg-surface-dim h-1 mt-auto"><div class="bg-zone-2 h-full w-[65%]"></div></div>
+</div>
+<div class="bg-surface-container-low p-margin-edge flex flex-col space-y-component-gap">
+<span class="font-label-caps text-label-caps text-secondary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">speed</span> Quality / Speed</span>
+<span class="font-data-tabular-lg text-data-tabular-lg text-primary">45.0 <span class="text-data-tabular-sm text-secondary">km</span></span>
+<div class="w-full bg-surface-dim h-1 mt-auto"><div class="bg-zone-4 h-full w-[25%]"></div></div>
+</div>
+<div class="bg-surface-container-low p-margin-edge flex flex-col space-y-component-gap">
+<span class="font-label-caps text-label-caps text-secondary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">landscape</span> Long Run</span>
+<span class="font-data-tabular-lg text-data-tabular-lg text-primary">22.9 <span class="text-data-tabular-sm text-secondary">km</span></span>
+<div class="w-full bg-surface-dim h-1 mt-auto"><div class="bg-zone-5 h-full w-[10%]"></div></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 h-20 bg-background dark:bg-background border-t border-outline-variant dark:border-outline flat no shadows flex justify-around items-center w-full px-margin-edge">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1">speed</span>
+<span class="font-label-caps text-label-caps hidden">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1">calendar_today</span>
+<span class="font-label-caps text-label-caps hidden">Calendar</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ui-accent border-t-2 border-ui-accent -mt-[1px] hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span class="font-label-caps text-label-caps hidden">Analytics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps hidden">Profile</span>
+</a>
+</nav>
+</body></html>

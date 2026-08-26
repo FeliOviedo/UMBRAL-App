@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Caja Negra - UMBRAL</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@500;600&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#000000",
+                    "on-secondary-container": "#626569",
+                    "primary-fixed": "#e2e2e2",
+                    "error-container": "#ffdad6",
+                    "zone-5": "#FF8C42",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "tertiary-fixed": "#e2e2e2",
+                    "on-error-container": "#93000a",
+                    "primary": "#000000",
+                    "zone-1": "#4ECDC4",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "surface-tint": "#5e5e5e",
+                    "on-primary-container": "#848484",
+                    "on-secondary-fixed-variant": "#44474b",
+                    "zone-2": "#86E3CE",
+                    "outline": "#7e7576",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#1b1b1b",
+                    "primary-container": "#1b1b1b",
+                    "on-error": "#ffffff",
+                    "on-surface": "#1b1b1b",
+                    "on-surface-variant": "#4c4546",
+                    "surface-container": "#eeeeee",
+                    "surface-container-high": "#e8e8e8",
+                    "secondary-container": "#e0e2e7",
+                    "secondary-fixed-dim": "#c4c6cb",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "on-background": "#1b1b1b",
+                    "surface": "#f9f9f9",
+                    "zone-7": "#C06C84",
+                    "surface-variant": "#e2e2e2",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#474747",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f1f1f1",
+                    "surface-container-low": "#f3f3f3",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "secondary": "#5c5f63",
+                    "inverse-surface": "#303030",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#cfc4c5",
+                    "zone-4": "#FFD166",
+                    "secondary-fixed": "#e0e2e7",
+                    "zone-3": "#D1FFAD",
+                    "ui-accent": "#A7D626",
+                    "inverse-primary": "#c6c6c6",
+                    "surface-bright": "#f9f9f9",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-dim": "#dadada",
+                    "surface-container-highest": "#e2e2e2",
+                    "background": "#f9f9f9",
+                    "zone-6": "#FF595E",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#848484",
+                    "on-secondary-fixed": "#191c1f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-gap": "64px",
+                    "component-gap": "12px",
+                    "margin-edge": "24px",
+                    "unit": "4px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "data-tabular-lg": [
+                            "IBM Plex Mono"
+                    ],
+                    "display-hero": [
+                            "Archivo Black"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "data-tabular-sm": [
+                            "IBM Plex Mono"
+                    ],
+                    "headline-lg": [
+                            "Archivo Black"
+                    ],
+                    "display-hero-mobile": [
+                            "Archivo Black"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "data-tabular-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-hero": [
+                            "80px",
+                            {
+                                    "lineHeight": "80px",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "900"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.08em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-tabular-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-hero-mobile": [
+                            "56px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "900"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom thin borders for light mode medical/athletic aesthetic */
+        .chart-line {
+            stroke: #000000;
+            stroke-width: 2px;
+            fill: none;
+        }
+        .chart-line-accent {
+            stroke: #A7D626;
+            stroke-width: 2px;
+            fill: none;
+        }
+        .chart-grid {
+            stroke: #e2e2e2;
+            stroke-width: 1px;
+            stroke-dasharray: 4 4;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex w-full min-h-screen overflow-x-hidden selection:bg-ui-accent selection:text-primary">
+<!-- Top Navigation (Mobile Only) -->
+<nav class="md:hidden w-full h-16 bg-background flex justify-between items-center px-margin-edge border-b border-surface-container-highest fixed top-0 z-50">
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-black text-primary tracking-tighter">VELOCITY</div>
+<div class="flex items-center space-x-gutter">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors text-text-muted">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors text-text-muted">settings</span>
+<img class="w-8 h-8 rounded-full object-cover ml-2" data-alt="Close up profile picture of a female athlete with intense focus, wearing high performance athletic gear, high contrast studio lighting on a bright white background, minimal and clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVpSYhrNl9MQKIx0j2iQuikFUoW9txIkDr4kdLBqZCPUYd5S0VShnfAgb-ZEV-w3SSixALtVidjHCxeSmuSzDUY_3nL8CtkfwQVpLbwWAF7q7mDrt0mp9jgxTXfjB2HkK4kuo4SIae6aTKxg-MS_hjJiS6QwYopR2AzaHCZGSIwK41npR5AKLIq9OinKmNpsJAI9dJum0VEOd_CBIsL7vuBinnmDTxklNhhSDDyZICLVyEn7lEDQrG9Q"/>
+</div>
+</nav>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-surface-variant transition-all duration-200 ease-in-out py-section-gap z-50">
+<div class="px-margin-edge mb-section-gap">
+<div class="font-headline-lg text-headline-lg text-primary mb-component-gap">VELOCITY</div>
+<div class="flex items-center space-x-3 mb-6">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Close up profile picture of an elite athlete looking straight ahead, intense lighting, bright background, medical precision photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWlN4vENN_-o_8O2_gfX2Z3vcNRtaDOEj2hFOTRvS04Nzq4Gwwd9LqHc7A_3mcfBPwzCWB7UzsSGiAwJO2dBnbN8jXORFph1vRYf0s8gco0_JPqS-SGSHcsx5TGXS-Ccd02pEGvc6pXtFOxrT3AfBg6HLUsisJjpZVzcJevmyYmyu2l5YbBcuo2joLWSi_LrEiRAHt1UKCVAlm3Zn5ORxhgZ7jLvcJdjIhMLvmCvAXGPdyW_JLH6da6Q"/>
+<div>
+<div class="font-body-md text-body-md text-primary font-bold">Performance</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Elite Tier</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-none font-label-caps text-label-caps tracking-widest hover:bg-surface-tint transition-colors">START RUN</button>
+</div>
+<div class="flex-grow flex flex-col space-y-2">
+<a class="flex items-center space-x-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high pl-4 py-3 transition-all font-label-caps text-label-caps mx-2" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high pl-4 py-3 transition-all font-label-caps text-label-caps mx-2" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span>Training Plans</span>
+</a>
+<a aria-current="page" class="flex items-center space-x-3 text-primary-fixed border-l-4 border-primary bg-surface-container-high pl-4 py-3 transition-all font-label-caps text-label-caps mx-2" href="#">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<span class="text-primary font-bold">Caja Negra</span>
+</a>
+<a class="flex items-center space-x-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high pl-4 py-3 transition-all font-label-caps text-label-caps mx-2" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</a>
+</div>
+<div class="px-2 mt-auto">
+<a class="flex items-center space-x-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high pl-4 py-3 transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-grow md:ml-64 pt-20 md:pt-section-gap px-margin-edge pb-section-gap">
+<!-- Header Section -->
+<header class="mb-section-gap flex flex-col md:flex-row justify-between items-start md:items-end gap-gutter">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary uppercase mb-unit">Caja Negra</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Análisis profundo de rendimiento y biomecánica en tiempo real.</p>
+</div>
+<div class="flex gap-unit">
+<button class="bg-surface-container-lowest border border-primary text-primary px-4 py-2 font-label-caps text-label-caps uppercase hover:bg-surface-container-high transition-colors">
+                    Exportar
+                </button>
+<button class="bg-primary text-on-primary px-4 py-2 font-label-caps text-label-caps uppercase hover:bg-surface-tint transition-colors">
+                    Filtros
+                </button>
+</div>
+</header>
+<!-- Hero Metrics Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-section-gap">
+<!-- Primary Power Metric -->
+<div class="md:col-span-8 bg-surface-container-lowest p-margin-edge border border-surface-variant flex flex-col justify-center">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4">POTENCIA MÁXIMA SOSTENIDA (3S)</div>
+<div class="font-display-hero text-display-hero text-primary">315<span class="font-headline-lg text-headline-lg text-on-surface-variant ml-2">W</span></div>
+<!-- Micro Chart -->
+<div class="w-full h-16 mt-8">
+<svg class="w-full h-full preserve-aspect-ratio-none" viewbox="0 0 400 50">
+<path class="chart-line-accent" d="M0,40 C50,35 100,45 150,20 C200,5 250,15 300,10 C350,25 400,15"></path>
+<rect fill="#000000" height="10" width="10" x="295" y="5"></rect>
+</svg>
+</div>
+</div>
+<!-- Secondary Energy Metric -->
+<div class="md:col-span-4 bg-surface-container-lowest p-margin-edge border border-surface-variant flex flex-col justify-between">
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">TRABAJO TOTAL</div>
+<div class="font-headline-lg text-headline-lg text-primary font-bold">15.2 <span class="text-on-surface-variant">kJ</span></div>
+</div>
+<div class="mt-8">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">DESGLOSE DE ZONAS</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-zone-1 text-primary font-data-tabular-sm text-data-tabular-sm rounded-full">Z1 45%</span>
+<span class="px-3 py-1 bg-zone-3 text-primary font-data-tabular-sm text-data-tabular-sm rounded-full">Z3 30%</span>
+<span class="px-3 py-1 bg-zone-5 text-on-primary font-data-tabular-sm text-data-tabular-sm rounded-full">Z5 25%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical Analysis Charts -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Biomechanics Card -->
+<div class="bg-surface-container-lowest p-margin-edge border border-surface-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-body-md text-body-md font-bold text-primary">Eficiencia de Pedaleo</h3>
+<span class="material-symbols-outlined text-on-surface-variant">timeline</span>
+</div>
+<div class="relative w-full h-64 bg-surface flex items-center justify-center mb-4">
+<!-- Conceptual visualization representing technical data -->
+<svg class="w-full h-full p-4" viewbox="0 0 200 200">
+<circle cx="100" cy="100" fill="none" r="80" stroke="#e2e2e2" stroke-dasharray="2 4" stroke-width="1"></circle>
+<circle cx="100" cy="100" fill="none" r="60" stroke="#e2e2e2" stroke-dasharray="2 4" stroke-width="1"></circle>
+<circle cx="100" cy="100" fill="none" r="40" stroke="#e2e2e2" stroke-dasharray="2 4" stroke-width="1"></circle>
+<!-- Radar Shape -->
+<polygon fill="rgba(167, 214, 38, 0.1)" points="100,30 160,80 140,160 60,160 40,80" stroke="#A7D626" stroke-width="2"></polygon>
+<!-- Points -->
+<rect fill="#000000" height="8" width="8" x="96" y="26"></rect>
+<rect fill="#000000" height="8" width="8" x="156" y="76"></rect>
+<rect fill="#000000" height="8" width="8" x="136" y="156"></rect>
+<rect fill="#000000" height="8" width="8" x="56" y="156"></rect>
+<rect fill="#000000" height="8" width="8" x="36" y="76"></rect>
+</svg>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">BALANCE I/D</div>
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">48 / 52</div>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">SUAVIDAD P.</div>
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">24%</div>
+</div>
+</div>
+</div>
+<!-- Heart Rate / Power Correlation -->
+<div class="bg-surface-container-lowest p-margin-edge border border-surface-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-body-md text-body-md font-bold text-primary">Correlación FC / Potencia</h3>
+<span class="material-symbols-outlined text-on-surface-variant">monitor_heart</span>
+</div>
+<div class="w-full h-64 mb-4">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 500 200">
+<!-- Grid -->
+<line class="chart-grid" x1="0" x2="500" y1="50" y2="50"></line>
+<line class="chart-grid" x1="0" x2="500" y1="100" y2="100"></line>
+<line class="chart-grid" x1="0" x2="500" y1="150" y2="150"></line>
+<!-- HR Line (Zone 6 color) -->
+<path d="M0,180 L50,160 L100,165 L150,120 L200,90 L250,95 L300,50 L350,60 L400,30 L450,40 L500,20" fill="none" stroke="#FF595E" stroke-width="2"></path>
+<!-- Power Line (Black) -->
+<path class="chart-line" d="M0,190 L50,170 L100,180 L150,100 L200,80 L250,110 L300,40 L350,70 L400,20 L450,60 L500,10"></path>
+<!-- Marker -->
+<line stroke="#000000" stroke-dasharray="2 2" stroke-width="1" x1="300" x2="300" y1="0" y2="200"></line>
+<rect fill="#000000" height="8" width="8" x="296" y="36"></rect>
+<rect fill="#FF595E" height="8" width="8" x="296" y="46"></rect>
+</svg>
+</div>
+<div class="flex items-center gap-6 mt-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-primary rounded-none"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">POTENCIA (W)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-zone-6 rounded-none"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">FREC. CARDÍACA (BPM)</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UMBRAL - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@500;600&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "ui-accent": "#A7D626",
+                        "zone-7": "#C06C84",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1b1b1b",
+                        "zone-3": "#D1FFAD",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary": "#000000",
+                        "primary": "#000000",
+                        "on-primary-fixed": "#1b1b1b",
+                        "surface-bright": "#f9f9f9",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-tertiary-fixed-variant": "#474747",
+                        "surface-variant": "#e2e2e2",
+                        "tertiary-container": "#1b1b1b",
+                        "surface": "#f9f9f9",
+                        "primary-fixed": "#e2e2e2",
+                        "secondary-fixed-dim": "#c4c6cb",
+                        "background": "#f9f9f9",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "surface-tint": "#5e5e5e",
+                        "on-surface-variant": "#4c4546",
+                        "secondary-container": "#e0e2e7",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "secondary": "#5c5f63",
+                        "on-surface": "#1b1b1b",
+                        "on-secondary-fixed-variant": "#44474b",
+                        "on-primary-container": "#848484",
+                        "zone-5": "#FF8C42",
+                        "surface-container-low": "#f3f3f3",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-tertiary-container": "#848484",
+                        "surface-container-high": "#e8e8e8",
+                        "zone-6": "#FF595E",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#626569",
+                        "primary-container": "#1b1b1b",
+                        "secondary-fixed": "#e0e2e7",
+                        "surface-dim": "#dadada",
+                        "zone-2": "#86E3CE",
+                        "zone-1": "#4ECDC4",
+                        "on-secondary-fixed": "#191c1f",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "tertiary-fixed": "#e2e2e2",
+                        "zone-4": "#FFD166",
+                        "inverse-primary": "#c6c6c6",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#7e7576",
+                        "on-tertiary-fixed": "#1b1b1b",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "margin-edge": "24px",
+                        "component-gap": "12px",
+                        "section-gap": "64px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["Archivo Black"],
+                        "data-tabular-lg": ["IBM Plex Mono"],
+                        "display-hero-mobile": ["Archivo Black"],
+                        "label-caps": ["Inter"],
+                        "body-md": ["Inter"],
+                        "data-tabular-sm": ["IBM Plex Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Archivo Black"]
+                    },
+                    "fontSize": {
+                        "display-hero": ["80px", { "lineHeight": "80px", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "data-tabular-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-hero-mobile": ["56px", { "lineHeight": "56px", "letterSpacing": "-0.04em", "fontWeight": "900" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-tabular-sm": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .circular-chart { display: block; margin: 0 auto; max-width: 80%; max-height: 250px; }
+        .circle-bg { fill: none; stroke: #F7F8F9; stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 3.8; stroke-linecap: square; animation: progress 1s ease-out forwards; }
+        @keyframes progress { 0% { stroke-dasharray: 0 100; } }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-background z-40">
+<div class="flex justify-between items-center px-margin-edge py-gutter w-full">
+<div class="flex items-center gap-4">
+<img class="w-10 h-10 rounded-full object-cover grayscale" data-alt="A close-up, high-contrast black and white portrait of a focused athlete looking slightly off-camera. The lighting is harsh and directional, emphasizing the intensity and determination on their face. The background is pure white, aligning with a clinical, minimalist aesthetic. The overall mood is serious and performance-driven." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8pUjqWb8dsuuPk180vJtz0somG7WhGm-paKvheIjUHOldrqsaD8W2Czi2PqNkbh7Wx9pQIaGk6ayv8z5RToCfsXJh3Jasx7qyU3qHnh5vzUgjsrUalw9kUoC9x2vumKQoTZ8wro-ul-D3e_WtfwcD-PRuFFlptJVSdV3CQqK8kkua9KDrd4X9_6gMEFdH0fCnpNy2XK-EYg7ZclhEYrjFFWX0twSg-8tqA24YwhUvUrQDT6v7e0Z7QA">
+<h1 class="font-display-hero text-display-hero-mobile uppercase tracking-tighter text-primary">UMBRAL</h1>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex gap-8">
+<a class="text-secondary hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity font-label-caps text-label-caps" href="#">SPEED</a>
+<a class="text-secondary hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity font-label-caps text-label-caps" href="#">CALENDAR</a>
+<a class="text-primary border-b-2 border-ui-accent hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity font-label-caps text-label-caps pb-1" href="#">ANALYTICS</a>
+<a class="text-secondary hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity font-label-caps text-label-caps" href="#">PROFILE</a>
+</nav>
+<button class="hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-grow w-full max-w-5xl mx-auto px-margin-edge py-section-gap flex flex-col gap-section-gap">
+<!-- Hero Metric -->
+<section class="flex flex-col items-center justify-center text-center min-h-[400px]">
+<h2 class="font-label-caps text-label-caps text-secondary mb-4 uppercase">Weekly Volume</h2>
+<div class="relative w-full max-w-sm aspect-square flex items-center justify-center">
+<svg class="circular-chart ui-accent w-full h-full absolute inset-0 -rotate-90" viewBox="0 0 36 36">
+<path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+<path class="circle stroke-ui-accent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="70, 100"></path>
+</svg>
+<div class="flex flex-col items-center">
+<div class="font-display-hero text-[120px] md:text-[160px] leading-none text-primary tracking-tighter">42</div>
+<div class="font-data-tabular-lg text-data-tabular-lg text-secondary mt-2">/ 60 KM</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-margin-edge">
+<!-- Supercompensación -->
+<div class="bg-surface-container-low p-margin-edge flex flex-col gap-component-gap items-start">
+<div class="flex items-center gap-2 text-zone-6 mb-2">
+<span class="material-symbols-outlined" data-icon="favorite" data-weight="fill" style="font-variation-settings: &quot;FILL&quot; 1;">favorite</span>
+<span class="font-label-caps text-label-caps uppercase">Recovery Status</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-primary">Supercompensación</h3>
+<p class="font-body-md text-body-md text-secondary max-w-sm">
+                    Optimal readiness achieved. Peak output capability detected based on heart rate variability trends.
+                </p>
+<div class="mt-4 bg-zone-3 text-tertiary px-4 py-2 font-label-caps text-label-caps uppercase rounded-full">Zone 3 Ready</div>
+</div>
+<!-- Próximo Reto -->
+<div class="bg-surface-container-low p-margin-edge flex flex-col gap-component-gap items-start">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+<span class="font-label-caps text-label-caps uppercase text-secondary">Próximo Reto</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-primary">Largo 18km</h3>
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">SUNDAY</div>
+<p class="font-body-md text-body-md text-secondary max-w-sm mt-2">
+                    Target pace: 4:45/km. Route mapped for minimal elevation gain to focus on aerobic endurance.
+                </p>
+<button class="mt-auto pt-4 font-label-caps text-label-caps uppercase text-primary border-b border-primary hover:text-ui-accent hover:border-ui-accent transition-colors duration-200">View Route Details</button>
+</div>
+</section>
+<!-- Weekly Load Chart -->
+<section class="flex flex-col gap-margin-edge">
+<h3 class="font-label-caps text-label-caps text-secondary uppercase">Weekly Load</h3>
+<div class="w-full h-48 flex items-end justify-between gap-2 md:gap-4 relative px-2">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none border-t border-b border-outline-variant py-2">
+<div class="border-t border-dashed border-outline-variant w-full h-px opacity-50"></div>
+<div class="border-t border-dashed border-outline-variant w-full h-px opacity-50"></div>
+</div>
+<!-- Bars -->
+<div class="w-full bg-surface-container-high h-[30%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary">M</span></div>
+<div class="w-full bg-surface-container-high h-[45%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary">T</span></div>
+<div class="w-full bg-ui-accent h-[80%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-20 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-primary">W</span></div>
+<div class="w-full bg-surface-container-high h-[20%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary">T</span></div>
+<div class="w-full bg-surface-container-high h-[60%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary">F</span></div>
+<div class="w-full bg-surface-container-high h-[40%] relative group"><div class="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity"></div><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary">S</span></div>
+<div class="w-full bg-surface-container-low h-0 relative"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-data-tabular-sm text-data-tabular-sm text-secondary opacity-50">S</span></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 h-20 bg-background flex justify-around items-center px-margin-edge border-t border-outline-variant">
+<a class="flex flex-col items-center justify-center text-secondary hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">Speed</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-caps text-label-caps">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ui-accent border-t-2 border-ui-accent -mt-[1px] hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 pt-2" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">You</span>
+</a>
+</nav>
+
+
+</body></html>
