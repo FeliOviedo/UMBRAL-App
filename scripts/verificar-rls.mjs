@@ -32,8 +32,8 @@ if (!URL || !ANON) {
 
 const sufijo = Date.now();
 const CUENTAS = [
-  { nombre: 'A', email: `umbral-rls-a-${sufijo}@example.com`, password: `Rls-A-${sufijo}!` },
-  { nombre: 'B', email: `umbral-rls-b-${sufijo}@example.com`, password: `Rls-B-${sufijo}!` },
+  { nombre: 'A', email: `umbral-rls-a-${sufijo}@mailinator.com`, password: `Rls-A-${sufijo}!` },
+  { nombre: 'B', email: `umbral-rls-b-${sufijo}@mailinator.com`, password: `Rls-B-${sufijo}!` },
 ];
 
 /** Tablas que tienen que quedar aisladas. El esquema las trata a todas igual. */
