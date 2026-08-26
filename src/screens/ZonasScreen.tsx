@@ -18,7 +18,7 @@ export default function ZonasScreen() {
 
   if (!umbral) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <Vacio titulo="Todavía no cargaste tu umbral">
           <p>Las zonas se derivan de él. Es un dato y sale en un test de 20 minutos.</p>
           <Button asChild size="block" className="mt-8">
@@ -33,14 +33,14 @@ export default function ZonasScreen() {
   const zonasPace = umbral.pacePorKm !== null ? generarZonasPace(umbral.pacePorKm) : null;
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Mis zonas</p>
         {umbral.pacePorKm !== null ? (
           <>
             <h1 className="mt-6 u-hero">
               {formatearPaceCorto(umbral.pacePorKm)}
-              <span className="ml-2 font-sans text-base font-medium text-fg-muted">/km</span>
+              <span className="ml-2 u-unit">/km</span>
             </h1>
             <p className="u-sub mt-2">
               Pace de umbral
@@ -51,22 +51,22 @@ export default function ZonasScreen() {
           <>
             <h1 className="mt-6 u-hero">
               {umbral.lthr}
-              <span className="ml-2 font-sans text-base font-medium text-fg-muted">ppm</span>
+              <span className="ml-2 u-unit">ppm</span>
             </h1>
             <p className="u-sub mt-2">Tu LTHR</p>
           </>
         )}
       </header>
 
-      <section className="u-section border-t border-border">
-        <h2 className="u-section-title">Cómo leerlas</h2>
+      <section className="u-section">
+        <h2 className="u-label">Cómo leerlas</h2>
         <p className="u-sub mt-2">
           El RPE es el que manda: no depende de que el reloj mida bien. El pace es la referencia
           objetiva. La frecuencia cardíaca acompaña, y sólo cuando te dé números coherentes.
         </p>
       </section>
 
-      <section className="u-section border-t border-border">
+      <section className="u-section">
         <ul className="space-y-8">
           {ZONES.map((zona, i) => (
             <FilaDeZona
@@ -80,7 +80,7 @@ export default function ZonasScreen() {
       </section>
 
       {(zonasFc === null || zonasPace === null) && (
-        <section className="u-section border-t border-border">
+        <section className="u-section">
           <p className="u-sub">
             {zonasPace === null
               ? 'Todavía no cargaste tu pace de umbral. Es la referencia más confiable de las tres.'
@@ -113,11 +113,11 @@ function FilaDeZona({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="font-display text-base font-semibold">
+          <h3 className="u-title-sm">
             {zona.id} · {zona.name}
           </h3>
           {/* El RPE es el dato protagonista de la fila: va con el acento. */}
-          <span className="u-table shrink-0 text-accent">
+          <span className="u-data-sm shrink-0 text-accent">
             RPE {zona.rpeMin === zona.rpeMax ? zona.rpeMin : `${zona.rpeMin}-${zona.rpeMax}`}
           </span>
         </div>
@@ -126,13 +126,13 @@ function FilaDeZona({
           {zonaPace && (
             <div className="flex gap-1.5">
               <dt className="u-sub">Pace</dt>
-              <dd className="u-table text-fg">{rangoPace(zonaPace)}</dd>
+              <dd className="u-data-sm text-fg">{rangoPace(zonaPace)}</dd>
             </div>
           )}
           {zonaFc && (
             <div className="flex gap-1.5">
               <dt className="u-sub">FC</dt>
-              <dd className="u-table text-fg-muted">{rangoFc(zonaFc)}</dd>
+              <dd className="u-data-sm text-fg-muted">{rangoFc(zonaFc)}</dd>
             </div>
           )}
         </dl>

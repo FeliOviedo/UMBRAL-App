@@ -153,25 +153,44 @@ export default function RegistrarScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
-      <header className="u-section">
-        <p className="u-label">Registrar</p>
-        <h1 className="mt-6 font-display text-2xl font-semibold">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+      <header className="flex flex-col items-center text-center">
+        <span className="u-label">
           {diaPlanificado ? TRAINING_TYPE_TARGETS[diaPlanificado.tipo].label : 'Nueva sesión'}
+        </span>
+        <h1 className="u-title mt-unit uppercase">
+          {actividad ? '¡Entrenamiento completado!' : 'Registrar sesión'}
         </h1>
-        {diaPlanificado && (
-          <p className="u-sub mt-2">
-            Planificado: {formatearKm(diaPlanificado.km)} km
-            {diaPlanificado.rpeObjetivo && ` · RPE ${diaPlanificado.rpeObjetivo}`}
-            {diaPlanificado.zonaObjetivo && ` · Zona ${diaPlanificado.zonaObjetivo}`}
-          </p>
-        )}
       </header>
 
-      <form onSubmit={onSubmit}>
+      {/*
+        Métricas hero: sólo aparecen cuando hay datos. Es el bloque que Stitch
+        pone arriba de todo — dos números de 56px y nada más compitiendo.
+      */}
+      {(distanciaNumero > 0 || tiempoSeg !== null) && (
+        <section className="flex items-start justify-center gap-gutter">
+          {distanciaNumero > 0 && (
+            <div className="flex flex-1 flex-col items-center">
+              <span className="u-hero">{formatearKm(distanciaNumero)}</span>
+              <span className="u-label mt-unit tracking-widest">Kilómetros</span>
+            </div>
+          )}
+          {tiempoSeg !== null && distanciaNumero > 0 && (
+            <div aria-hidden className="mt-3 h-16 w-px bg-border" />
+          )}
+          {tiempoSeg !== null && (
+            <div className="flex flex-1 flex-col items-center">
+              <span className="u-hero">{formatearTiempo(tiempoSeg)}</span>
+              <span className="u-label mt-unit tracking-widest">Tiempo total</span>
+            </div>
+          )}
+        </section>
+      )}
+
+      <form onSubmit={onSubmit} className="flex flex-col gap-section">
         {/* ── Importar ────────────────────────────────────────────────────── */}
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Importar del reloj</h2>
+        <section>
+          <span className="u-label">Importar del reloj</span>
           <p className="u-sub mt-1">TCX, GPX o KML. Opcional: podés cargar todo a mano.</p>
 
           <input
@@ -189,14 +208,14 @@ export default function RegistrarScreen() {
           {!actividad ? (
             <label
               htmlFor="archivo-actividad"
-              className="mt-6 flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-border py-8 text-center"
+              className="mt-component flex cursor-pointer items-center justify-center border border-dashed border-border py-8 text-center"
             >
               <span className="u-sub">
                 {parseando ? 'Leyendo el archivo…' : 'Tocá para elegir un archivo'}
               </span>
             </label>
           ) : (
-            <div className="mt-6">
+            <div className="mt-component">
               {actividad.points.length > 0 && (
                 <RouteMap track={actividad.points} heightClassName="h-48" className="mb-4" />
               )}
@@ -222,8 +241,8 @@ export default function RegistrarScreen() {
         </section>
 
         {/* ── Datos objetivos ─────────────────────────────────────────────── */}
-        <section className="u-section border-t border-border space-y-8">
-          <h2 className="u-section-title">Datos de la sesión</h2>
+        <section className="flex flex-col gap-gutter">
+          <span className="u-label">Datos de la sesión</span>
 
           <Field
             label="Fecha"
@@ -234,7 +253,7 @@ export default function RegistrarScreen() {
             onChange={(e) => setFecha(e.target.value)}
           />
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-gutter">
             <Field
               label="Distancia"
               type="text"
@@ -262,7 +281,7 @@ export default function RegistrarScreen() {
             <p className="u-sub">Pace: {formatearPaceCorto(paceCalculado)}/km</p>
           )}
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-gutter">
             <Field
               label="FC promedio"
               type="number"
@@ -288,33 +307,29 @@ export default function RegistrarScreen() {
         </section>
 
         {/* ── Percepción de esfuerzo (lo que de verdad manda) ────────────── */}
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Cómo lo sentiste</h2>
-          <p className="u-sub mt-1">
-            Esto es lo que clasifica la sesión, más que cualquier dato del reloj.
-          </p>
-
-          <div className="mt-8">
-            <div className="flex items-baseline justify-between">
-              <p className="u-label">Esfuerzo percibido (RPE)</p>
-              <span className="font-hero text-hero-sm text-accent">{rpe}</span>
+        <section className="flex flex-col gap-gutter">
+          <div className="flex flex-col gap-component">
+            <span className="u-label">Esfuerzo percibido (RPE)</span>
+            <div className="flex items-center gap-gutter">
+              <span className="u-data-sm w-4 text-center text-outline">1</span>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                step={1}
+                value={rpe}
+                onChange={(e) => setRpe(Number(e.target.value))}
+                className="h-1 w-full appearance-none bg-surface-high outline-none accent-accent"
+                aria-label="Esfuerzo percibido, de 1 a 10"
+              />
+              <span className="u-data-sm w-6 text-center text-accent">{rpe}</span>
             </div>
-            <input
-              type="range"
-              min={1}
-              max={10}
-              step={1}
-              value={rpe}
-              onChange={(e) => setRpe(Number(e.target.value))}
-              className="mt-4 w-full accent-accent"
-              aria-label="Esfuerzo percibido, de 1 a 10"
-            />
-            <p className="u-sub mt-2">{RPE_SCALE.find((r) => r.value === rpe)?.label}</p>
+            <p className="u-sub">{RPE_SCALE.find((r) => r.value === rpe)?.label}</p>
           </div>
 
-          <div className="mt-8">
-            <p className="u-label">Sensación general</p>
-            <div className="mt-4 flex justify-between gap-2">
+          <div className="flex flex-col gap-component">
+            <span className="u-label">¿Cómo te sentiste?</span>
+            <div className="flex justify-between gap-unit">
               {FEELING_SCALE.map((f) => (
                 <button
                   key={f.value}
@@ -323,8 +338,10 @@ export default function RegistrarScreen() {
                   aria-label={f.label}
                   onClick={() => setSensacion(f.value)}
                   className={cn(
-                    'flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-colors',
-                    sensacion === f.value ? 'bg-accent' : 'bg-surface',
+                    'flex h-12 w-12 items-center justify-center border text-2xl transition-colors',
+                    sensacion === f.value
+                      ? 'border-accent bg-surface-high'
+                      : 'border-transparent bg-surface hover:bg-surface-high',
                   )}
                 >
                   {CARAS_SENSACION[f.value]}
@@ -334,19 +351,39 @@ export default function RegistrarScreen() {
           </div>
         </section>
 
+        {/*
+          Comparación plan vs. real, con las barras de Stitch: el fondo marca
+          lo planificado (100%) y la barra de acento lo hecho, que puede pasarse
+          del 100%. Se ve de un vistazo si te quedaste corto o te pasaste.
+        */}
         {comparacion && (
-          <section className="u-section border-t border-border">
-            <h2 className="u-section-title">Contra lo planificado</h2>
-            <p className="u-sub mt-3">
-              Planificado {formatearKm(comparacion.kmPlanificados)} km
-              {comparacion.rpeObjetivo && ` a RPE ${comparacion.rpeObjetivo}`} · Corriste{' '}
-              {formatearKm(comparacion.kmReales)} km a RPE {comparacion.rpeReal}
-              {comparacion.diferenciaKm !== 0 &&
-                ` (${comparacion.diferenciaKm > 0 ? '+' : ''}${formatearKm(comparacion.diferenciaKm)} km)`}
-              .
-            </p>
+          <section className="flex flex-col gap-gutter">
+            <span className="u-label">Contra lo planificado</span>
+
+            <BarraComparativa
+              etiqueta="Distancia"
+              real={formatearKm(comparacion.kmReales)}
+              objetivo={`${formatearKm(comparacion.kmPlanificados)} km`}
+              fraccion={
+                comparacion.kmPlanificados > 0
+                  ? comparacion.kmReales / comparacion.kmPlanificados
+                  : 1
+              }
+            />
+
+            {comparacion.rpeObjetivo !== null && (
+              <BarraComparativa
+                etiqueta="Esfuerzo (RPE)"
+                real={String(comparacion.rpeReal)}
+                objetivo={`RPE ${comparacion.rpeObjetivo}`}
+                fraccion={comparacion.rpeReal / comparacion.rpeObjetivo}
+                // Pasarse de esfuerzo no es un logro: se marca en ámbar.
+                excesoEsMalo
+              />
+            )}
+
             {comparacion.esfuerzoPorEncimaDeLoEsperado && (
-              <Aviso className="mt-3">
+              <Aviso>
                 Se sintió bastante más duro de lo planificado. Puede valer la pena meter una
                 Recuperación antes del próximo Específico.
               </Aviso>
@@ -354,7 +391,7 @@ export default function RegistrarScreen() {
           </section>
         )}
 
-        <section className="u-section border-t border-border">
+        <section>
           <Field
             label="Notas"
             type="text"
@@ -364,13 +401,55 @@ export default function RegistrarScreen() {
           />
         </section>
 
-        <section className="u-section border-t border-border">
-          {error && <ErrorMensaje mensaje={error} className="mb-6" />}
+        <section>
+          {error && <ErrorMensaje mensaje={error} className="mb-gutter" />}
           <Button type="submit" size="block" disabled={!puedeGuardar}>
-            {enviando ? 'Guardando…' : 'Guardar sesión'}
+            {enviando ? 'Guardando…' : 'Guardar y analizar'}
           </Button>
         </section>
       </form>
     </main>
+  );
+}
+
+/**
+ * Barra de comparación entre lo planificado y lo real.
+ *
+ * El fondo gris representa el 100% de lo planificado; la barra de acento, lo
+ * que efectivamente se hizo. Puede pasar del 100% (se recorta al ancho del
+ * contenedor), que es justamente lo que hace legible "me pasé".
+ */
+function BarraComparativa({
+  etiqueta,
+  real,
+  objetivo,
+  fraccion,
+  excesoEsMalo = false,
+}: {
+  etiqueta: string;
+  real: string;
+  objetivo: string;
+  fraccion: number;
+  excesoEsMalo?: boolean;
+}) {
+  const excedido = fraccion > 1;
+  const color = excedido && excesoEsMalo ? 'bg-zone-z4' : 'bg-accent';
+
+  return (
+    <div>
+      <div className="mb-unit flex items-end justify-between">
+        <span className="u-label">{etiqueta}</span>
+        <div className="text-right">
+          <span className="u-data-sm">{real}</span>
+          <span className="u-label"> / {objetivo}</span>
+        </div>
+      </div>
+      <div className="relative h-2 w-full overflow-hidden bg-surface-high">
+        <div
+          className={cn('absolute left-0 h-full', color)}
+          style={{ width: `${Math.min(100, Math.round(fraccion * 100))}%` }}
+        />
+      </div>
+    </div>
   );
 }

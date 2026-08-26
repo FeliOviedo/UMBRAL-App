@@ -34,7 +34,7 @@ export default function SesionDetalleScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 py-section">
+      <main className="mx-auto w-full max-w-md px-edge py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -44,7 +44,7 @@ export default function SesionDetalleScreen() {
 
   if (sesion === null) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 py-section">
+      <main className="mx-auto w-full max-w-md px-edge py-section">
         <p className="u-sub">No se encontró esa sesión.</p>
         <Button asChild variant="outline" size="block" className="mt-6">
           <Link to="/plan">Volver al plan</Link>
@@ -69,12 +69,12 @@ export default function SesionDetalleScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">{formatearFechaLarga(sesion.ocurrioEn.slice(0, 10))}</p>
         <h1 className="mt-6 u-hero">
           {sesion.distanciaMetros != null ? formatearKm(sesion.distanciaMetros / 1000) : '—'}
-          <span className="ml-2 font-sans text-base font-medium text-fg-muted">km</span>
+          <span className="ml-2 u-unit">km</span>
         </h1>
         <p className="u-sub mt-2">
           {sesion.duracionSeg != null && formatearTiempo(sesion.duracionSeg)}
@@ -83,7 +83,7 @@ export default function SesionDetalleScreen() {
       </header>
 
       {sesion.avisosImportacion.length > 0 && (
-        <section className="u-section border-t border-border space-y-3">
+        <section className="u-section space-y-3">
           {sesion.avisosImportacion.map((aviso) => (
             <p key={aviso} className="text-sm text-zone-z4">
               {aviso}
@@ -93,13 +93,13 @@ export default function SesionDetalleScreen() {
       )}
 
       {sesion.track.length > 0 && (
-        <section className="u-section border-t border-border">
+        <section className="u-section">
           <RouteMap track={sesion.track} />
         </section>
       )}
 
-      <section className="u-section border-t border-border">
-        <h2 className="u-section-title">Cómo se sintió</h2>
+      <section className="u-section">
+        <h2 className="u-label">Cómo se sintió</h2>
         <div className="mt-6 flex items-baseline gap-8">
           <div>
             <p className="font-hero text-hero-sm text-accent">{sesion.rpe}</p>
@@ -116,8 +116,8 @@ export default function SesionDetalleScreen() {
       </section>
 
       {(sesion.fcPromedio != null || sesion.cadenciaSpm != null) && (
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Datos objetivos</h2>
+        <section className="u-section">
+          <h2 className="u-label">Datos objetivos</h2>
           <dl className="mt-6 space-y-3">
             {sesion.fcPromedio != null && (
               <Dato termino="FC promedio" valor={`${sesion.fcPromedio} ppm`} />
@@ -132,8 +132,8 @@ export default function SesionDetalleScreen() {
       )}
 
       {distribucion.length > 0 && (
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Distribución por zona</h2>
+        <section className="u-section">
+          <h2 className="u-label">Distribución por zona</h2>
           <p className="u-sub mt-1">Según el pace de cada km. El RPE de arriba es el que manda.</p>
           <ul className="mt-6 space-y-3">
             {distribucion.map(({ zona, segundos, fraccion }) => (
@@ -143,7 +143,7 @@ export default function SesionDetalleScreen() {
                   className="h-3 w-3 shrink-0 rounded-sm"
                   style={{ backgroundColor: zonaPorId(zona).color }}
                 />
-                <span className="u-table w-12 shrink-0">{zona}</span>
+                <span className="u-data-sm w-12 shrink-0">{zona}</span>
                 <div className="h-1.5 flex-1 overflow-hidden rounded-sm bg-surface">
                   <div
                     className="h-full"
@@ -153,7 +153,7 @@ export default function SesionDetalleScreen() {
                     }}
                   />
                 </div>
-                <span className="u-table w-14 shrink-0 text-right text-fg-muted">
+                <span className="u-data-sm w-14 shrink-0 text-right text-fg-muted">
                   {formatearTiempo(segundos)}
                 </span>
               </li>
@@ -163,9 +163,9 @@ export default function SesionDetalleScreen() {
       )}
 
       {sesion.splits.length > 0 && (
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Splits</h2>
-          <table className="u-table mt-6 w-full">
+        <section className="u-section">
+          <h2 className="u-label">Splits</h2>
+          <table className="u-data-sm mt-6 w-full">
             <thead>
               <tr className="u-label text-left">
                 <th className="pb-2 font-normal">Km</th>
@@ -186,7 +186,7 @@ export default function SesionDetalleScreen() {
         </section>
       )}
 
-      <section className="u-section border-t border-border">
+      <section className="u-section">
         <Button variant="danger" size="block" onClick={() => void onBorrar()} disabled={borrando}>
           {borrando ? 'Borrando…' : 'Borrar sesión'}
         </Button>
@@ -199,7 +199,7 @@ function Dato({ termino, valor }: { termino: string; valor: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="u-sub">{termino}</dt>
-      <dd className="u-table text-fg">{valor}</dd>
+      <dd className="u-data-sm text-fg">{valor}</dd>
     </div>
   );
 }

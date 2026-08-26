@@ -36,13 +36,13 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy}
             className={cn(
-              'w-full bg-transparent py-2 font-sans text-lg text-fg outline-none',
-              'placeholder:text-fg-muted/50',
+              'w-full bg-transparent py-2 font-mono text-data tabular-nums text-fg outline-none',
+              'placeholder:font-sans placeholder:text-body placeholder:text-outline/60',
               className,
             )}
             {...props}
           />
-          {suffix && <span className="shrink-0 text-sm text-fg-muted">{suffix}</span>}
+          {suffix && <span className="u-label shrink-0">{suffix}</span>}
         </div>
         {error ? (
           <p id={`${inputId}-error`} className="mt-2 text-sm text-zone-z5c">
@@ -94,12 +94,12 @@ export function Chips<T extends string>({
               aria-checked={selected}
               onClick={() => onChange(option.value)}
               className={cn(
-                'rounded-md px-4 py-2 font-sans text-sm transition-colors',
+                'border px-4 py-2 font-mono text-data-sm uppercase transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                 'focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
                 selected
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-surface text-fg-muted hover:text-fg',
+                  ? 'border-accent bg-accent text-accent-foreground'
+                  : 'border-transparent bg-surface text-outline hover:text-fg',
               )}
             >
               {option.label}

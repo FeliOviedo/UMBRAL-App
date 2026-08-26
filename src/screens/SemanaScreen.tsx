@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Bed, Gauge, MoreVertical } from 'lucide-react';
 import { listarSesiones, type DiaPlanificado, type Sesion } from '@/data';
-import { TRAINING_TYPE_TARGETS } from '@/domain';
+import { TRAINING_TYPE_TARGETS, zonaPorId } from '@/domain';
 import type { LoadWeek, TrainingType } from '@/domain/types';
 import { useSession } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
 import { Cargando, ErrorMensaje, Vacio } from '@/components/ui/feedback';
-import { DIAS_SEMANA, formatearKm, hoyIso, sumarDias } from '@/lib/format';
+import { formatearKm, hoyIso, sumarDias } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 const ETIQUETA_CARGA: Record<LoadWeek, string> = {
@@ -16,16 +17,36 @@ const ETIQUETA_CARGA: Record<LoadWeek, string> = {
   descarga: 'Descarga',
 };
 
-const COLOR_TIPO: Record<TrainingType, string> = {
-  F: 'border-l-accent',
-  E: 'border-l-zone-z4',
-  R: 'border-l-zone-z2',
-  D: 'border-l-border',
+/**
+ * Color del tipo de sesión: la barra vertical de la izquierda y el badge.
+ *
+ * Stitch le da el lima sólo al Específico —la sesión dura— y teal al resto.
+ * Es la regla de "un acento por vez": si todos los días fueran lima, ninguno
+ * destacaría.
+ */
+const ESTILO_TIPO: Record<TrainingType, { barra: string; badge: string; texto: string }> = {
+  F: { barra: 'bg-accent', badge: 'bg-accent text-accent-foreground', texto: 'text-accent' },
+  E: { barra: 'bg-accent', badge: 'bg-accent text-accent-foreground', texto: 'text-accent' },
+  R: {
+    barra: 'bg-zone-z2',
+    badge: 'bg-zone-z2/20 text-zone-z2 border border-zone-z2/50',
+    texto: 'text-zone-z2',
+  },
+  D: { barra: 'bg-transparent', badge: '', texto: 'text-outline' },
 };
 
+// Iniciales de los días, como en el selector de Stitch.
+const INICIALES = ['L', 'M', 'M', 'J', 'V', 'S', 'D'] as const;
+
 /**
- * Microciclo: el selector de días de la semana y, debajo, la sesión del día
- * elegido. Es la pantalla que se usa entrenando, día a día.
+ * Microciclo: cabecera con el volumen de la semana, selector de días y la
+ * lista de sesiones.
+ *
+ * Composición tomada de `design-reference/esta_semana_minimalista`: las
+ * sesiones NO son tarjetas — son filas con `border-b` y una barra de acento de
+ * 4px a la izquierda. Se muestran los siete días de una, no sólo el elegido:
+ * la pantalla sirve para ver la semana completa, y el día seleccionado sólo se
+ * resalta.
  */
 export default function SemanaScreen() {
   const { numero } = useParams<{ numero: string }>();
@@ -33,8 +54,7 @@ export default function SemanaScreen() {
   const usuario = useSession((s) => s.usuario);
   const plan = useSession((s) => s.plan);
 
-  const weekNumber = Number(numero);
-  const semana = plan?.semanas.find((s) => s.numero === weekNumber);
+  const semana = plan?.semanas.find((s) => s.numero === Number(numero));
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,18 +70,20 @@ export default function SemanaScreen() {
       hasta: sumarDias(semana.fechaInicio, 6),
     })
       .then(setSesiones)
-      .catch((err) => setError(err instanceof Error ? err.message : 'No se pudieron cargar las sesiones.'));
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : 'No se pudieron cargar las sesiones.'),
+      );
   }, [usuario, semana]);
 
   useEffect(() => {
     if (!semana) return;
-    const dentroDeLaSemana = hoy >= semana.fechaInicio && hoy <= sumarDias(semana.fechaInicio, 6);
-    setDiaSeleccionado(dentroDeLaSemana ? hoy : semana.fechaInicio);
+    const dentro = hoy >= semana.fechaInicio && hoy <= sumarDias(semana.fechaInicio, 6);
+    setDiaSeleccionado(dentro ? hoy : semana.fechaInicio);
   }, [semana, hoy]);
 
   if (!plan || !semana) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <Vacio titulo="No encontramos esa semana">
           <Button asChild variant="outline" size="block" className="mt-6">
             <Link to="/plan">Volver al plan</Link>
@@ -71,31 +93,34 @@ export default function SemanaScreen() {
     );
   }
 
-  const dia = semana.dias.find((d) => d.fecha === diaSeleccionado);
-  const sesionDelDia = dia ? sesiones?.find((s) => s.planDayId === dia.id) : undefined;
+  const kmReales =
+    (sesiones?.reduce((sum, s) => sum + (s.distanciaMetros ?? 0), 0) ?? 0) / 1000;
+  const progreso = semana.totalKm > 0 ? Math.min(1, kmReales / semana.totalKm) : 0;
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
-      <header className="u-section">
-        <p className="u-label">Microciclo {semana.numero}</p>
-        <div className="mt-6 flex items-baseline justify-between">
-          <h1 className="u-hero">
-            {formatearKm(semana.totalKm)}
-            <span className="ml-2 font-sans text-base font-medium text-fg-muted">
-              km · {ETIQUETA_CARGA[semana.carga]}
-            </span>
-          </h1>
+    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-6">
+      {/* Cabecera: nombre a la izquierda, volumen en hero a la derecha. */}
+      <section className="flex flex-col gap-unit">
+        <div className="mb-1 flex items-baseline justify-between gap-3">
+          <div>
+            <h1 className="u-title">Microciclo {semana.numero}</h1>
+            <p className="u-label mt-1">{ETIQUETA_CARGA[semana.carga]}</p>
+          </div>
+          <div className="u-hero-lg leading-none text-accent">
+            {Math.round(kmReales)}
+            <span className="u-unit">/{formatearKm(semana.totalKm)}km</span>
+          </div>
         </div>
-        <div className="mt-3 h-1 w-full overflow-hidden rounded-sm bg-surface">
-          <div className="h-full bg-accent" style={{ width: '100%' }} />
+        <div className="u-bar">
+          <div className="u-bar-fill" style={{ width: `${Math.round(progreso * 100)}%` }} />
         </div>
-      </header>
+      </section>
 
-      <section className="border-t border-border pt-6">
-        <div role="tablist" aria-label="Días de la semana" className="grid grid-cols-7 gap-1">
+      {/* Selector de días: iniciales arriba, número abajo, subrayado en el actual. */}
+      <section className="w-full border-b border-border pb-4">
+        <div role="tablist" aria-label="Días de la semana" className="flex justify-between p-1.5">
           {semana.dias.map((d, i) => {
             const seleccionado = d.fecha === diaSeleccionado;
-            const esHoy = d.fecha === hoy;
             const tieneSesion = sesiones?.some((s) => s.planDayId === d.id) ?? false;
             return (
               <button
@@ -105,25 +130,21 @@ export default function SemanaScreen() {
                 aria-selected={seleccionado}
                 onClick={() => setDiaSeleccionado(d.fecha)}
                 className={cn(
-                  'flex flex-col items-center gap-1.5 rounded-md py-2 transition-colors',
-                  seleccionado ? 'bg-surface' : 'hover:bg-surface/50',
+                  'flex w-[13%] flex-col items-center justify-center py-1.5 transition-colors',
+                  seleccionado
+                    ? 'border-b-2 border-accent text-accent'
+                    : 'text-outline hover:bg-surface',
                 )}
               >
-                <span className="u-label">{DIAS_SEMANA[i]}</span>
-                <span
-                  className={cn(
-                    'font-mono text-sm',
-                    seleccionado ? 'text-accent' : esHoy ? 'text-fg' : 'text-fg-muted',
-                  )}
-                >
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em]">
+                  {INICIALES[i]}
+                </span>
+                <span className="mt-1 font-mono text-[13px] font-medium tabular-nums">
                   {Number(d.fecha.slice(-2))}
                 </span>
                 <span
                   aria-hidden
-                  className={cn(
-                    'h-1 w-1 rounded-full',
-                    tieneSesion ? 'bg-accent' : 'bg-transparent',
-                  )}
+                  className={cn('mt-1 h-1 w-1', tieneSesion ? 'bg-accent' : 'bg-transparent')}
                 />
               </button>
             );
@@ -131,79 +152,134 @@ export default function SemanaScreen() {
         </div>
       </section>
 
-      <section className="u-section">
+      {/* Las siete sesiones de la semana. */}
+      <section className="flex flex-col">
         {error && <ErrorMensaje mensaje={error} />}
-
-        {dia && (
-          <DetalleDelDia
-            dia={dia}
-            sesion={sesionDelDia}
-            cargando={sesiones === null && !error}
-            esPasado={dia.fecha < hoy}
-            onRegistrar={() =>
-              navigate(`/registrar?dia=${dia.id}&fecha=${dia.fecha}`)
-            }
-            onVerSesion={(id) => navigate(`/sesion/${id}`)}
-          />
+        {sesiones === null && !error ? (
+          <Cargando mensaje="Cargando la semana…" />
+        ) : (
+          semana.dias.map((dia) => (
+            <FilaDeSesion
+              key={dia.id}
+              dia={dia}
+              sesion={sesiones?.find((s) => s.planDayId === dia.id)}
+              seleccionado={dia.fecha === diaSeleccionado}
+              onAbrir={() => {
+                const sesion = sesiones?.find((s) => s.planDayId === dia.id);
+                if (sesion) navigate(`/sesion/${sesion.id}`);
+                else if (dia.tipo !== 'D') navigate(`/registrar?dia=${dia.id}&fecha=${dia.fecha}`);
+              }}
+            />
+          ))
         )}
       </section>
     </main>
   );
 }
 
-function DetalleDelDia({
+function FilaDeSesion({
   dia,
   sesion,
-  cargando,
-  esPasado,
-  onRegistrar,
-  onVerSesion,
+  seleccionado,
+  onAbrir,
 }: {
   dia: DiaPlanificado;
   sesion: Sesion | undefined;
-  cargando: boolean;
-  esPasado: boolean;
-  onRegistrar: () => void;
-  onVerSesion: (id: string) => void;
+  seleccionado: boolean;
+  onAbrir: () => void;
 }) {
-  if (cargando) return <Cargando mensaje="Cargando el día…" />;
-
+  const estilo = ESTILO_TIPO[dia.tipo];
   const objetivo = TRAINING_TYPE_TARGETS[dia.tipo];
 
   if (dia.tipo === 'D') {
     return (
-      <div className={cn('border-l-2 pl-4', COLOR_TIPO.D)}>
-        <p className="u-label">Descanso</p>
-        <p className="mt-2 font-display text-lg text-fg-muted">Día de descanso pasivo.</p>
+      <div
+        className={cn(
+          'flex flex-col justify-center gap-2 border-b border-border py-4',
+          seleccionado ? 'opacity-100' : 'opacity-60',
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <Bed size={18} strokeWidth={2} className="text-outline" aria-hidden />
+          <span className="u-label tracking-widest">Descanso total</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={cn('border-l-2 pl-4', COLOR_TIPO[dia.tipo])}>
-      <p className="u-label">{objetivo.label}</p>
-      <h2 className="mt-2 font-hero text-hero-sm">
-        {formatearKm(dia.km)}
-        <span className="ml-2 font-sans text-base font-medium text-fg-muted">km</span>
-      </h2>
-      {(dia.zonaObjetivo || dia.rpeObjetivo) && (
-        <p className="u-sub mt-2">
-          {dia.zonaObjetivo && `Zona ${dia.zonaObjetivo}`}
-          {dia.zonaObjetivo && dia.rpeObjetivo && ' · '}
-          {dia.rpeObjetivo && `RPE ${dia.rpeObjetivo}`}
-        </p>
+    <button
+      type="button"
+      onClick={onAbrir}
+      className={cn(
+        'relative w-full overflow-hidden border-b border-border py-4 text-left',
+        !seleccionado && 'opacity-70',
       )}
-      {dia.notas && <p className="u-sub mt-2">{dia.notas}</p>}
+    >
+      {/* Barra de acento vertical: 4px, con halo cuando es la sesión dura. */}
+      <span
+        aria-hidden
+        className={cn(
+          'absolute bottom-0 left-0 top-0 w-1',
+          estilo.barra,
+          dia.tipo === 'E' && 'shadow-glow',
+        )}
+      />
+      <div className="flex w-full flex-col gap-1 pl-4">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                'flex h-5 w-5 items-center justify-center font-mono text-[10px] font-bold',
+                estilo.badge,
+              )}
+            >
+              {dia.tipo}
+            </span>
+            <span
+              className={cn(
+                'font-mono text-[10px] font-semibold uppercase tracking-wider',
+                estilo.texto,
+              )}
+            >
+              {objetivo.label}
+            </span>
+            {sesion && <span className="u-label text-outline">· Registrada</span>}
+          </div>
+          <MoreVertical size={20} strokeWidth={2} className="text-outline" aria-hidden />
+        </div>
 
-      {sesion ? (
-        <Button variant="outline" size="block" className="mt-8" onClick={() => onVerSesion(sesion.id)}>
-          Ver sesión registrada
-        </Button>
-      ) : (
-        <Button size="block" className="mt-8" onClick={onRegistrar}>
-          {esPasado ? 'Registrar esta sesión' : 'Registrar'}
-        </Button>
-      )}
-    </div>
+        {/*
+          Stitch le pone a cada sesión un nombre descriptivo ("Intervalos de
+          Umbral", "Rodaje Suave"). El dominio no genera nombres, pero el de la
+          zona objetivo dice exactamente lo mismo y sale de la metodología en
+          lugar de inventarse.
+
+          La cifra grande: en Stitch son minutos, porque su plan está en
+          minutos. Umbral planifica en KM, así que van los km — mismo lugar y
+          mismo peso visual, con el dato que el dominio realmente produce.
+        */}
+        <div className="mt-2 flex items-baseline justify-between gap-3">
+          <h3 className="u-title-sm leading-tight">
+            {dia.zonaObjetivo ? zonaPorId(dia.zonaObjetivo).name : objetivo.label}
+          </h3>
+          <div className="u-hero-sm text-right leading-none">
+            {formatearKm(sesion?.distanciaMetros != null ? sesion.distanciaMetros / 1000 : dia.km)}
+            <span className="font-title text-[20px] text-outline">km</span>
+          </div>
+        </div>
+
+        {(dia.zonaObjetivo || dia.rpeObjetivo) && (
+          <div className="mt-1 flex items-center gap-1.5">
+            <Gauge size={16} strokeWidth={2} className="text-outline" aria-hidden />
+            <span className={cn('font-mono text-[14px]', estilo.texto)}>
+              {dia.zonaObjetivo && `Zona ${dia.zonaObjetivo}`}
+              {dia.zonaObjetivo && dia.rpeObjetivo && ' · '}
+              {dia.rpeObjetivo && `RPE ${dia.rpeObjetivo}`}
+            </span>
+          </div>
+        )}
+      </div>
+    </button>
   );
 }

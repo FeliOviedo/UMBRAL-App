@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBRAL - This Week</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@500;600&amp;family=Inter:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "ui-accent": "#A7D626",
+                    "zone-7": "#C06C84",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1b1b1b",
+                    "zone-3": "#D1FFAD",
+                    "outline-variant": "#cfc4c5",
+                    "tertiary": "#000000",
+                    "primary": "#000000",
+                    "on-primary-fixed": "#1b1b1b",
+                    "surface-bright": "#f9f9f9",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-tertiary-fixed-variant": "#474747",
+                    "surface-variant": "#e2e2e2",
+                    "tertiary-container": "#1b1b1b",
+                    "surface": "#f9f9f9",
+                    "primary-fixed": "#e2e2e2",
+                    "secondary-fixed-dim": "#c4c6cb",
+                    "background": "#f9f9f9",
+                    "on-primary-fixed-variant": "#474747",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#eeeeee",
+                    "surface-tint": "#5e5e5e",
+                    "on-surface-variant": "#4c4546",
+                    "secondary-container": "#e0e2e7",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "secondary": "#5c5f63",
+                    "on-surface": "#1b1b1b",
+                    "on-secondary-fixed-variant": "#44474b",
+                    "on-primary-container": "#848484",
+                    "zone-5": "#FF8C42",
+                    "surface-container-low": "#f3f3f3",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "on-tertiary-container": "#848484",
+                    "surface-container-high": "#e8e8e8",
+                    "zone-6": "#FF595E",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#626569",
+                    "primary-container": "#1b1b1b",
+                    "secondary-fixed": "#e0e2e7",
+                    "surface-dim": "#dadada",
+                    "zone-2": "#86E3CE",
+                    "zone-1": "#4ECDC4",
+                    "on-secondary-fixed": "#191c1f",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#303030",
+                    "tertiary-fixed": "#e2e2e2",
+                    "zone-4": "#FFD166",
+                    "inverse-primary": "#c6c6c6",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#7e7576",
+                    "on-tertiary-fixed": "#1b1b1b",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "margin-edge": "24px",
+                    "component-gap": "12px",
+                    "section-gap": "64px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "display-hero": [
+                            "Archivo Black"
+                    ],
+                    "data-tabular-lg": [
+                            "IBM Plex Mono"
+                    ],
+                    "display-hero-mobile": [
+                            "Archivo Black"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "data-tabular-sm": [
+                            "IBM Plex Mono"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Archivo Black"
+                    ]
+            },
+            "fontSize": {
+                    "display-hero": [
+                            "80px",
+                            {
+                                    "lineHeight": "80px",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "900"
+                            }
+                    ],
+                    "data-tabular-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-hero-mobile": [
+                            "56px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.04em",
+                                    "fontWeight": "900"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.08em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-tabular-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-background w-full top-0 sticky flex justify-between items-center px-margin-edge py-gutter w-full z-50">
+<div class="flex items-center gap-component-gap">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high shrink-0">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up headshot of a focused athlete with a clean, high-contrast aesthetic. The lighting is bright and medical-grade, highlighting determination. The background is a stark white, aligning with a premium, minimalist light mode UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkQNHNqAWh7bi9dGDgQnIevfbO6fU66zkQOKuv0ibH8JgHfypTz0pIv6kph7WYJv7d3VvLLU8E6po-dL4SDyEp9IJMPRqAhZrLZV-_UNuzxYZ7aRpvjePeUMO2aJ17yENkPYI2xf312oO5ks0BtqVLB-ZjkI9AuEzbmVzf01IA2vT7hJUo82Fhn63Q-A5UKk3ubbyOPoPLKOb-xNKOgCHSoyNfXc5RvqKjpjg4Un7QZly8aizcq_RSwQ"/>
+</div>
+<h1 class="font-display-hero-mobile text-display-hero-mobile md:font-display-hero md:text-display-hero uppercase tracking-tighter text-primary dark:text-on-background">UMBRAL</h1>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex gap-margin-edge">
+<a class="font-label-caps text-label-caps text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200" href="#">DASHBOARD</a>
+<a class="font-label-caps text-label-caps text-primary dark:text-on-background border-b-2 border-ui-accent hover:text-ui-accent transition-colors duration-200" href="#">THIS WEEK</a>
+<a class="font-label-caps text-label-caps text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200" href="#">ANALYTICS</a>
+<a class="font-label-caps text-label-caps text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-200" href="#">PROFILE</a>
+</nav>
+<button class="w-10 h-10 flex items-center justify-center text-primary dark:text-on-background hover:text-ui-accent transition-colors duration-200 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="px-margin-edge py-gutter max-w-5xl mx-auto space-y-section-gap">
+<!-- Microcycle Header -->
+<section class="space-y-component-gap">
+<div class="flex flex-col md:flex-row md:justify-between md:items-end gap-gutter">
+<div>
+<h2 class="font-label-caps text-label-caps text-secondary tracking-widest uppercase">Microcycle 12</h2>
+<div class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tighter mt-2">
+                        BUILD PHASE
+                    </div>
+</div>
+<div class="text-left md:text-right">
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">
+                        42<span class="text-secondary">/55km</span>
+</div>
+<div class="font-label-caps text-label-caps text-secondary mt-1">VOLUME PROGRESS</div>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-1 bg-surface-container-high mt-unit overflow-hidden">
+<div class="h-full bg-primary" style="width: 76%;"></div>
+</div>
+</section>
+<!-- Weekly Calendar -->
+<section>
+<div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-unit pb-2">
+<!-- Day 1 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT">
+<span class="font-label-caps text-label-caps text-secondary">MON</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">12</span>
+</div>
+<!-- Day 2 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT">
+<span class="font-label-caps text-label-caps text-secondary">TUE</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">13</span>
+<div class="w-1.5 h-1.5 rounded-full bg-zone-1 mt-1"></div>
+</div>
+<!-- Day 3 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-primary text-on-primary rounded-DEFAULT relative">
+<span class="font-label-caps text-label-caps text-on-primary opacity-80">WED</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-on-primary mt-1">14</span>
+<div class="absolute -bottom-1 w-full h-0.5 bg-ui-accent"></div>
+</div>
+<!-- Day 4 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT">
+<span class="font-label-caps text-label-caps text-secondary">THU</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">15</span>
+<div class="w-1.5 h-1.5 rounded-full bg-zone-4 mt-1"></div>
+</div>
+<!-- Day 5 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT">
+<span class="font-label-caps text-label-caps text-secondary">FRI</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">16</span>
+</div>
+<!-- Day 6 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT opacity-50">
+<span class="font-label-caps text-label-caps text-secondary">SAT</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">17</span>
+<div class="w-1.5 h-1.5 rounded-full bg-zone-3 mt-1"></div>
+</div>
+<!-- Day 7 -->
+<div class="flex flex-col items-center justify-center w-12 h-16 shrink-0 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT opacity-50">
+<span class="font-label-caps text-label-caps text-secondary">SUN</span>
+<span class="font-data-tabular-sm text-data-tabular-sm text-primary mt-1">18</span>
+<div class="w-1.5 h-1.5 rounded-full bg-zone-2 mt-1"></div>
+</div>
+</div>
+</section>
+<!-- Sessions List -->
+<section class="space-y-6">
+<h3 class="font-label-caps text-label-caps text-secondary tracking-widest uppercase mb-4">Upcoming Sessions</h3>
+<div class="flex flex-col space-y-gutter">
+<!-- Session 1: Umbral Intervals -->
+<div class="bg-surface-container-lowest p-margin-edge hover:bg-surface transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-gutter">
+<div class="flex-1">
+<div class="flex items-center gap-component-gap mb-2">
+<div class="px-2 py-1 bg-zone-4 rounded-full font-label-caps text-label-caps text-on-surface">Z4</div>
+<span class="font-label-caps text-label-caps text-secondary">TODAY</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Umbral Intervals</h4>
+<p class="font-body-md text-body-md text-secondary mt-1">5x 3min @ Threshold / 90s recovery</p>
+</div>
+<div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center shrink-0">
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">45:00</div>
+<div class="font-label-caps text-label-caps text-secondary mt-1 group-hover:text-ui-accent transition-colors">START WORKOUT <span class="material-symbols-outlined align-middle text-sm" data-icon="arrow_forward">arrow_forward</span></div>
+</div>
+</div>
+<!-- Session 2: Easy Run -->
+<div class="bg-surface-container-lowest p-margin-edge hover:bg-surface transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-gutter">
+<div class="flex-1">
+<div class="flex items-center gap-component-gap mb-2">
+<div class="px-2 py-1 bg-zone-1 rounded-full font-label-caps text-label-caps text-on-surface">Z1</div>
+<span class="font-label-caps text-label-caps text-secondary">THU, AUG 15</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Easy Run</h4>
+<p class="font-body-md text-body-md text-secondary mt-1">Aerobic base maintenance</p>
+</div>
+<div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center shrink-0">
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">60:00</div>
+<div class="font-label-caps text-label-caps text-secondary mt-1 group-hover:text-ui-accent transition-colors">DETAILS <span class="material-symbols-outlined align-middle text-sm" data-icon="arrow_forward">arrow_forward</span></div>
+</div>
+</div>
+<!-- Session 3: Tempo Run -->
+<div class="bg-surface-container-lowest p-margin-edge hover:bg-surface transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-gutter">
+<div class="flex-1">
+<div class="flex items-center gap-component-gap mb-2">
+<div class="px-2 py-1 bg-zone-3 rounded-full font-label-caps text-label-caps text-on-surface">Z3</div>
+<span class="font-label-caps text-label-caps text-secondary">SAT, AUG 17</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Tempo Run</h4>
+<p class="font-body-md text-body-md text-secondary mt-1">Steady state effort</p>
+</div>
+<div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center shrink-0">
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">40:00</div>
+<div class="font-label-caps text-label-caps text-secondary mt-1 group-hover:text-ui-accent transition-colors">DETAILS <span class="material-symbols-outlined align-middle text-sm" data-icon="arrow_forward">arrow_forward</span></div>
+</div>
+</div>
+<!-- Session 4: Long Run -->
+<div class="bg-surface-container-lowest p-margin-edge hover:bg-surface transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-gutter">
+<div class="flex-1">
+<div class="flex items-center gap-component-gap mb-2">
+<div class="px-2 py-1 bg-zone-2 rounded-full font-label-caps text-label-caps text-on-surface">Z2</div>
+<span class="font-label-caps text-label-caps text-secondary">SUN, AUG 18</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Long Run</h4>
+<p class="font-body-md text-body-md text-secondary mt-1">Endurance building</p>
+</div>
+<div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center shrink-0">
+<div class="font-data-tabular-lg text-data-tabular-lg text-primary">120:00</div>
+<div class="font-label-caps text-label-caps text-secondary mt-1 group-hover:text-ui-accent transition-colors">DETAILS <span class="material-symbols-outlined align-middle text-sm" data-icon="arrow_forward">arrow_forward</span></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-background dark:bg-background fixed bottom-0 w-full z-50 h-20 border-t border-outline-variant dark:border-outline flex justify-around items-center w-full px-margin-edge">
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">DASH</span>
+</a>
+<a class="flex flex-col items-center justify-center text-ui-accent border-t-2 border-ui-accent -mt-[1px] hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_today" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-caps text-label-caps">WEEK</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps">DATA</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:text-ui-accent transition-colors duration-300 active:scale-95 transition-transform duration-150 h-full w-full" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">PROFILE</span>
+</a>
+</nav>
+</body></html>

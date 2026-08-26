@@ -77,7 +77,8 @@ Reglas que sostienen esto:
 | `src/screens/` | Pantallas. |
 | `src/lib/format.ts` | Formateo y parseo de tiempos, paces y fechas. |
 | `src/index.css` | Tokens de color del design system (variables CSS) y clases base. |
-| `tailwind.config.ts` | Tipografías, escala hero, colores de zona, radios. |
+| `tailwind.config.ts` | Tipografías, escala hero, colores de zona, radios. Medido de `design-reference/`. |
+| `design-reference/` | **Los HTML y PNG de Stitch.** La fuente de verdad del diseño. |
 
 **El barrel de dominio (`src/domain/index.ts`) NO reexporta `./import`** a
 propósito: arrastra el parser de XML, que sólo hace falta en las pantallas de
@@ -201,30 +202,67 @@ No hay features de gimnasio en el MVP, pero el modelo no las excluye:
 
 ## Identidad visual
 
-Modo oscuro por defecto, UI en español, estilo sobrio: **menos cajas, más aire**.
+**La fuente de verdad es `design-reference/`**, no este resumen ni el brief
+original. Son los HTML y los PNG que exportó Stitch. Cuando haya que decidir un
+tamaño, un espaciado o un radio, se mide del HTML correspondiente — sobre todo
+de `dashboard_minimalista`, `esta_semana_minimalista` y
+`registro_actividad_minimalista_claro`, que son las tres pantallas contra las
+que se calibró el sistema.
 
-**Colores** — fondo `#0B0E13`, superficie `#151A22`, borde `#232B36`, texto
-`#F4F6F8` / secundario `#9AA7B4`, acento lima `#CDFF4F`.
+Modo oscuro por defecto, UI en español.
+
+### Tipografías
+
+| Uso | Familia | Tamaño |
+| --- | --- | --- |
+| Números protagonistas | Archivo Black | 40 / 56 / **96** px, `-0.04em` |
+| Títulos y nombres de sesión | **Archivo Black** | 28px (`u-title`), 18px (`u-title-sm`) |
+| Wordmark y botón principal | Space Grotesk | 24px, 700, `tracking-tighter` |
+| Labels | **JetBrains Mono** | 11px, `0.1em`, 600, mayúscula |
+| Datos numéricos | JetBrains Mono | 18px / 14px, 500 |
+| Cuerpo | Inter | 14px / 16px |
+
+Dos diferencias con el brief textual de la Fase 1, tomadas del diseño real:
+
+- **Los títulos son Archivo Black, no Space Grotesk.** Space Grotesk queda para
+  el wordmark y el botón principal, nada más.
+- **La mono es JetBrains Mono, no IBM Plex Mono.** Es la que usan las dos
+  pantallas oscuras de referencia, que definen el tema por defecto.
+
+### Composición
+
+- **Casi no hay cajas.** Los bloques no llevan fondo ni borde: se separan con
+  32px de aire (`gap-section`) y 48px entre bloques grandes del dashboard
+  (`gap-block`). `u-panel` existe pero casi no se usa.
+- **Los únicos bordes** son el `border-b` que separa filas de una lista
+  (`u-row`) y el del app bar.
+- **Radio de 8px como máximo**, y buena parte de los controles no lleva radio:
+  el botón principal, los chips y los botones de sensación son rectángulos. El
+  "16px" del brief textual no coincidía con el diseño.
+- **Margen lateral de 20px** (`px-edge`).
+- **Jerarquía de dos niveles**: un dato hero grande + un texto secundario chico.
+- **Un solo acento por pantalla.** El lima siempre viene con halo
+  (`shadow-glow`): barras de progreso, la barra vertical de la sesión dura, el
+  badge del tipo de entrenamiento. Es la única decoración del sistema.
+
+### Colores
+
+Fondo `#0B0E13` · superficie `#151A22` · superficie alta `#252A33` · borde
+`#232B36` · texto `#F4F6F8` · secundario `#9AA7B4` · **outline `#8E937C`** (el
+gris verdoso de las labels) · acento `#CDFF4F` · acento apagado `#A7D626`.
+
 Zonas: Z1 `#5B6B7A` · Z2 `#2FB6C4` · Z3 `#54C48A` · Z4 `#F2B43D` ·
 Z5a `#F58A3C` · Z5b `#EF5F3C` · Z5c `#E23B4E`.
 
-**Tipografías** (Google Fonts) — `Archivo Black` para números protagonistas
-(distancia, pace, cronómetro), `Space Grotesk` para títulos de sección, `Inter`
-para cuerpo y etiquetas, `IBM Plex Mono` con números tabulares para tablas de
-datos.
+### Utilidades
 
-**Reglas de composición:**
+En `src/index.css`: `.u-hero` / `.u-hero-lg` / `.u-hero-sm`, `.u-unit`,
+`.u-title` / `.u-title-sm`, `.u-wordmark`, `.u-label`, `.u-sub`, `.u-data` /
+`.u-data-sm`, `.u-section`, `.u-row`, `.u-panel`, `.u-bar` / `.u-bar-fill`.
 
-- Jerarquía de **dos niveles**: un dato hero grande + un texto secundario chico.
-  Nunca 3-4 niveles compitiendo.
-- 1-2 datos protagonistas por pantalla; el resto va como texto secundario.
-- Separar secciones con espacio, no con bordes ni fondos de tarjeta.
-- Labels en mayúscula: chicas y discretas, nunca como títulos de sección.
-- Un solo acento de color a la vez. Iconografía outline 2px, radio 16px en los
-  pocos contenedores con fondo.
-
-Clases utilitarias en `src/index.css`: `.u-hero`, `.u-sub`, `.u-label`,
-`.u-section-title`, `.u-section`, `.u-panel`, `.u-table`.
+**Los encabezados de sección van con `.u-label`**, no con `.u-title-sm`: en
+Stitch son labels en mono mayúscula. Archivo Black queda para el dato o el
+nombre protagonista.
 
 ---
 

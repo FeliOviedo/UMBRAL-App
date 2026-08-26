@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import { listarSesiones, type DiaPlanificado, type Plan, type Sesion } from '@/data';
 import { TRAINING_TYPE_TARGETS } from '@/domain';
 import { useSession } from '@/store/session.store';
@@ -10,9 +11,11 @@ import { formatearFechaCorta, formatearKm, hoyIso, sumarDias } from '@/lib/forma
 /**
  * Dashboard: la sesión de hoy, cuánto llevás de la semana, y qué sigue.
  *
- * El anillo de progreso es SVG a mano, no Recharts: para un solo valor no vale
- * la pena cargar la librería de gráficos completa. Recharts se reserva para la
- * Caja Negra (Fase 5), que sí necesita series y dispersión.
+ * Sigue la composición de `design-reference/dashboard_minimalista`: bloques
+ * centrados sin ninguna caja, separados por 48px de aire, con el anillo como
+ * único elemento gráfico. El anillo es SVG a mano —trazo de 4 sobre un viewBox
+ * de 100, igual que el original— y no Recharts: para un solo valor no vale la
+ * pena cargar la librería de gráficos, que se reserva para la Caja Negra.
  */
 export default function DashboardScreen() {
   const navigate = useNavigate();
@@ -39,7 +42,7 @@ export default function DashboardScreen() {
 
   if (!plan || !semanaActual) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <Vacio titulo={`Hola${perfil?.nombre ? `, ${perfil.nombre}` : ''}`}>
           <p>Todavía no tenés un plan activo.</p>
           <Button asChild size="block" className="mt-8">
@@ -56,58 +59,101 @@ export default function DashboardScreen() {
     .find((d) => d.fecha > hoy && d.km > 0);
 
   const kmRealesSemana =
-    sesionesSemana?.reduce((sum, s) => sum + (s.distanciaMetros ?? 0), 0) ?? 0;
+    (sesionesSemana?.reduce((sum, s) => sum + (s.distanciaMetros ?? 0), 0) ?? 0) / 1000;
   const progreso =
-    semanaActual.totalKm > 0 ? Math.min(1, kmRealesSemana / 1000 / semanaActual.totalKm) : 0;
+    semanaActual.totalKm > 0 ? Math.min(1, kmRealesSemana / semanaActual.totalKm) : 0;
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
-      <header className="u-section">
-        <p className="u-label">
-          Objetivo de hoy
-        </p>
+    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+      {/* Objetivo de hoy: el título va en Archivo Black y en lima. */}
+      <section className="flex flex-col items-center text-center">
+        <span className="u-label">Objetivo de hoy</span>
         {diaDeHoy && diaDeHoy.tipo !== 'D' ? (
           <>
-            <h1 className="mt-3 font-display text-2xl font-semibold leading-tight text-fg">
-              {formatearKm(diaDeHoy.km)} km · {TRAINING_TYPE_TARGETS[diaDeHoy.tipo].label}
+            <h1 className="mt-unit font-title text-title uppercase text-accent">
+              {formatearKm(diaDeHoy.km)} km {TRAINING_TYPE_TARGETS[diaDeHoy.tipo].label}
               {diaDeHoy.zonaObjetivo && ` (${diaDeHoy.zonaObjetivo})`}
             </h1>
-            {diaDeHoy.notas && <p className="u-sub mt-2">{diaDeHoy.notas}</p>}
+            <p className="u-sub mt-unit">
+              {diaDeHoy.notas ??
+                (diaDeHoy.rpeObjetivo ? `Mantener un esfuerzo de RPE ${diaDeHoy.rpeObjetivo}.` : '')}
+            </p>
           </>
         ) : (
-          <h1 className="mt-3 font-display text-2xl font-semibold text-fg">Descanso</h1>
+          <>
+            <h1 className="mt-unit font-title text-title uppercase text-fg">Descanso</h1>
+            <p className="u-sub mt-unit">Hoy no se corre. La adaptación pasa descansando.</p>
+          </>
         )}
-      </header>
+      </section>
 
-      <section className="u-section flex flex-col items-center border-t border-border">
-        <AnilloProgreso progreso={progreso} />
-        <p className="mt-6 u-sub">
-          {formatearKm(kmRealesSemana / 1000)} / {formatearKm(semanaActual.totalKm)} km esta
-          semana
-        </p>
+      {/* Anillo de progreso semanal. */}
+      <section className="flex flex-col items-center">
+        <div className="relative flex h-64 w-64 items-center justify-center">
+          <AnilloProgreso progreso={progreso} />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className="u-hero-lg leading-none">{Math.round(kmRealesSemana)}</span>
+            <span className="u-label mt-2 tracking-widest">
+              km / {formatearKm(semanaActual.totalKm)}km
+            </span>
+          </div>
+        </div>
+        <div className="mt-4 text-center">
+          <span className="u-data block">{Math.round(progreso * 100)}%</span>
+          <span className="u-label block">Completo</span>
+        </div>
       </section>
 
       {proximoReto && (
-        <section className="u-section border-t border-border">
-          <p className="u-label">Próximo reto</p>
+        <section>
+          <span className="u-label mb-1 block">Próximo reto</span>
           <button
             type="button"
             onClick={() => navigate(`/plan/semana/${semanaActual.numero}`)}
-            className="mt-3 flex w-full items-baseline justify-between text-left"
+            className="group flex w-full items-center gap-2 text-left"
           >
-            <span className="font-display text-lg font-semibold">
+            <h2 className="u-data transition-colors group-hover:text-accent">
               {TRAINING_TYPE_TARGETS[proximoReto.tipo].label} {formatearKm(proximoReto.km)}km
-            </span>
-            <span className="u-sub">{formatearFechaCorta(proximoReto.fecha)}</span>
+            </h2>
+            <ArrowRight
+              size={18}
+              strokeWidth={2}
+              className="text-outline transition-colors group-hover:text-accent"
+              aria-hidden
+            />
           </button>
+          <p className="u-sub mt-1">{formatearFechaCorta(proximoReto.fecha)}</p>
         </section>
       )}
 
-      <section className="u-section border-t border-border">
+      {/* Carga semanal: una barra por día, con la de hoy resaltada. */}
+      <section>
+        <span className="u-label mb-4 block">Carga semanal</span>
+        <div className="flex h-24 w-full items-end justify-between gap-2">
+          {semanaActual.dias.map((dia) => {
+            const maxKm = Math.max(...semanaActual.dias.map((d) => d.km), 1);
+            const esHoy = dia.fecha === hoy;
+            return (
+              <div
+                key={dia.id}
+                className={
+                  esHoy ? 'w-full bg-accent shadow-glow' : 'w-full bg-accent opacity-40'
+                }
+                style={{ height: `${Math.max(2, (dia.km / maxKm) * 100)}%` }}
+                title={`${formatearKm(dia.km)} km`}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      <section>
         <Button
           size="block"
           onClick={() =>
-            navigate(diaDeHoy && diaDeHoy.tipo !== 'D' ? `/registrar?dia=${diaDeHoy.id}` : '/registrar')
+            navigate(
+              diaDeHoy && diaDeHoy.tipo !== 'D' ? `/registrar?dia=${diaDeHoy.id}` : '/registrar',
+            )
           }
         >
           Registrar sesión
@@ -123,34 +169,28 @@ function siguienteSemana(plan: Plan, numeroActual: number): DiaPlanificado[] {
 }
 
 function AnilloProgreso({ progreso }: { progreso: number }) {
-  const radio = 80;
+  const radio = 45;
   const circunferencia = 2 * Math.PI * radio;
-  const offset = circunferencia * (1 - progreso);
 
   return (
-    <svg width={200} height={200} viewBox="0 0 200 200" role="img" aria-label="Progreso semanal">
-      <circle cx={100} cy={100} r={radio} fill="none" stroke="hsl(var(--border))" strokeWidth={14} />
+    <svg
+      className="h-full w-full -rotate-90"
+      viewBox="0 0 100 100"
+      role="img"
+      aria-label={`Progreso semanal: ${Math.round(progreso * 100)}%`}
+    >
+      <circle cx={50} cy={50} r={radio} fill="none" stroke="hsl(var(--border))" strokeWidth={4} />
       <circle
-        cx={100}
-        cy={100}
+        cx={50}
+        cy={50}
         r={radio}
         fill="none"
         stroke="hsl(var(--accent))"
-        strokeWidth={14}
+        strokeWidth={4}
         strokeLinecap="round"
         strokeDasharray={circunferencia}
-        strokeDashoffset={offset}
-        transform="rotate(-90 100 100)"
+        strokeDashoffset={circunferencia * (1 - progreso)}
       />
-      <text
-        x={100}
-        y={106}
-        textAnchor="middle"
-        className="fill-fg font-hero"
-        style={{ fontSize: '2.5rem' }}
-      >
-        {Math.round(progreso * 100)}%
-      </text>
     </svg>
   );
 }

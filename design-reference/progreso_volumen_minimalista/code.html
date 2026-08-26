@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Umbral - Progreso de Volumen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#c2213a",
+                      "surface-container-high": "#252a33",
+                      "surface-variant": "#30353e",
+                      "surface-bright": "#343942",
+                      "on-secondary-fixed": "#001f23",
+                      "error-container": "#93000a",
+                      "surface-container-lowest": "#090e16",
+                      "primary-container": "#c2f344",
+                      "on-secondary-container": "#003237",
+                      "on-tertiary": "#680016",
+                      "on-tertiary-fixed-variant": "#920023",
+                      "on-primary-fixed": "#151f00",
+                      "on-surface-variant": "#c4c9af",
+                      "tertiary": "#ffffff",
+                      "inverse-surface": "#dee2ee",
+                      "background": "#0f141b",
+                      "secondary-fixed": "#8cf2ff",
+                      "surface-tint": "#a7d626",
+                      "surface-dim": "#0f141b",
+                      "tertiary-container": "#ffdad9",
+                      "tertiary-fixed": "#ffdad9",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed": "#c2f344",
+                      "secondary-container": "#00a3b0",
+                      "on-secondary": "#00363c",
+                      "on-surface": "#dee2ee",
+                      "on-error": "#690005",
+                      "outline": "#8e937c",
+                      "tertiary-fixed-dim": "#ffb3b3",
+                      "on-primary-fixed-variant": "#394d00",
+                      "inverse-on-surface": "#2c3139",
+                      "on-background": "#dee2ee",
+                      "on-primary-container": "#526d00",
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#171c24",
+                      "on-secondary-fixed-variant": "#004f56",
+                      "outline-variant": "#444935",
+                      "secondary-fixed-dim": "#5cd7e6",
+                      "surface": "#0f141b",
+                      "surface-container-highest": "#30353e",
+                      "inverse-primary": "#4d6700",
+                      "primary": "#ffffff",
+                      "secondary": "#5cd7e6",
+                      "surface-container": "#1b2028",
+                      "primary-fixed-dim": "#a7d626",
+                      "on-tertiary-fixed": "#40000a",
+                      "on-primary": "#273500"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "unit": "4px",
+                      "container-margin": "20px",
+                      "gutter": "16px",
+                      "stack-lg": "32px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "display-metrics": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "data-tabular": [
+                              "JetBrains Mono"
+                      ],
+                      "archivo-black": [
+                              "Archivo Black"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-metrics": [
+                              "64px",
+                              {
+                                      "lineHeight": "64px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-tabular": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0B0E13; /* Base layer per Style Guidance */
+            color: #dee2ee;
+        }
+        
+        .chart-area {
+            background: linear-gradient(180deg, rgba(194, 243, 68, 0.1) 0%, rgba(194, 243, 68, 0) 100%);
+            clip-path: polygon(0 40%, 10% 30%, 20% 50%, 30% 20%, 40% 60%, 50% 10%, 60% 70%, 70% 30%, 80% 80%, 90% 40%, 100% 20%, 100% 100%, 0 100%);
+        }
+        .chart-line {
+            clip-path: polygon(0 40%, 10% 30%, 20% 50%, 30% 20%, 40% 60%, 50% 10%, 60% 70%, 70% 30%, 80% 80%, 90% 40%, 100% 20%, 100% 18%, 90% 38%, 80% 78%, 70% 28%, 60% 68%, 50% 8%, 40% 58%, 30% 18%, 20% 48%, 10% 28%, 0 38%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col pt-16 pb-20 md:pb-0 md:pl-80">
+<!-- Drawer Navigation (Web) -->
+<div class="hidden md:flex flex-col p-stack-md h-full w-80 rounded-r-xl bg-surface-container border-r border-surface-variant fixed inset-y-0 left-0 z-[60] transition-all duration-200 ease-in-out shadow-none">
+<!-- Header: Profile -->
+<div class="flex items-center gap-gutter mb-stack-lg p-stack-sm rounded-lg hover:bg-surface-bright cursor-pointer">
+<div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-surface-variant flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait of a female marathon runner in technical athletic gear. The lighting is dramatic, side-lit with cool neon tones accentuating a focused expression. Deep shadows contrast with bright highlights, emphasizing a high-performance, serious athletic aesthetic against a minimalist dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPPDxewVVBD1mRR3VHaVLzJVN8oIyrsGkrCoZutbIhHLTr1cFeDT_21yEllcN0FImS0jZti_aQR86ghR5La8f1JMU7y0ydUi_hBp4UZzOKX_WkbjzOEQar-q70TghSeNlZXbJc8Ca_T0GXClzTnQJ3x9jilfZ412hJqoDQF60eRazyJ-w4FC-bDG1fW-A4YRix3SXF3_ySYMe5Wq1RBsTLhC7eSp0Fz4vq_Yohh1XakUnHqW6lxWGIdw"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-primary truncate w-full">Atleta Elite</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Maratón Sub 3h</span>
+<span class="font-label-caps text-label-caps text-primary-fixed mt-unit">Nivel 8</span>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex flex-col gap-unit">
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="tune" data-weight="regular">tune</span>
+                Ajustes del Plan
+             </a>
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month" data-weight="regular">calendar_month</span>
+                Calendario
+             </a>
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="fitness_center" data-weight="regular">fitness_center</span>
+                Actividades
+             </a>
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg bg-primary-container text-on-primary-container font-bold transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring" data-weight="fill" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+                Análisis
+             </a>
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="speed" data-weight="regular">speed</span>
+                Zonas de Entrenamiento
+             </a>
+<div class="flex-grow"></div>
+<a class="flex items-center gap-gutter p-stack-sm rounded-lg font-body-lg text-body-lg text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 mt-stack-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline" data-weight="regular">help_outline</span>
+                Soporte
+             </a>
+</nav>
+</div>
+<!-- Top App Bar (Mobile & Web) -->
+<header class="fixed top-0 w-full z-50 border-b border-surface-variant bg-background flex justify-between items-center px-container-margin h-16 max-w-7xl mx-auto md:pl-[340px]">
+<button class="md:hidden p-unit text-outline hover:bg-surface-container transition-colors duration-200 rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tighter mx-auto md:mx-0">UMBRAL</h1>
+<button class="md:hidden w-8 h-8 rounded-full overflow-hidden border border-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait of a female marathon runner in technical athletic gear. The lighting is dramatic, side-lit with cool neon tones accentuating a focused expression. Deep shadows contrast with bright highlights, emphasizing a high-performance, serious athletic aesthetic against a minimalist dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpBYp9p0Wh0iJZjjzM34BTkxoO27bkYqQP3xYbyIMh3sLQEiHfK5PnuR1wJkE6huDrQzqRmDHuCG7NY-n6bVcgrfqV8dkE-6wBTC_53zk78FjGI2u-yehs8wCPnfcTYFVRjL1tFMFB_5dupQQCnb2ApwSOOap-LrYP8RCD_YGYwcwNCA0R_UGrFHnHoDqrEzqmM6I2-B6oAYJ3bvrI_2ZAiHDRm3lRGmFZ-JiXVvDxvtvcQKu_U9EqIA"/>
+</button>
+<div class="hidden md:block w-8 h-8"></div> <!-- Spacer for web -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-container-margin md:p-stack-lg max-w-5xl mx-auto w-full">
+<div class="mb-stack-lg mt-8">
+<h2 class="font-headline-md text-headline-md text-primary mb-unit">Progreso de Volumen</h2>
+<p class="font-body-sm text-body-sm text-outline">Análisis de carga kilométrica a lo largo del tiempo.</p>
+</div>
+<!-- Metric Highlight Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-stack-lg mt-12">
+<!-- Primary Metric -->
+<div class="flex flex-col justify-center items-start md:col-span-1">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider mb-unit">Volumen Mes Actual</span>
+<div class="flex items-baseline gap-2">
+<span class="font-archivo-black text-[80px] leading-none text-primary">180</span>
+<span class="font-data-tabular text-data-tabular text-primary-fixed">km</span>
+</div>
+</div>
+<!-- Secondary Metrics -->
+<div class="grid grid-cols-2 gap-gutter md:col-span-2 mt-8 md:mt-0">
+<div class="flex flex-col justify-center items-start">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider mb-unit">Tendencia</span>
+<div class="flex items-center gap-unit text-primary-fixed">
+<span class="material-symbols-outlined text-xl" data-icon="trending_up">trending_up</span>
+<span class="font-archivo-black text-[40px] leading-none">+12%</span>
+</div>
+</div>
+<div class="flex flex-col justify-center items-start">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider mb-unit">Pico Semanal</span>
+<div class="flex items-baseline gap-unit">
+<span class="font-archivo-black text-[40px] leading-none text-primary">65</span>
+<span class="font-body-sm text-body-sm text-outline">km</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Large Area Chart Container -->
+<div class="mt-16 h-[400px] flex flex-col relative overflow-hidden">
+<div class="flex justify-between items-center mb-stack-sm z-10 relative">
+<span class="font-label-caps text-label-caps text-outline">KM Semanales</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant font-label-caps text-[10px] rounded">6 Meses</span>
+</div>
+</div>
+<!-- CSS Simulated Chart -->
+<div class="relative flex-1 w-full mt-4 border-l border-b border-surface-variant z-0">
+<!-- Y-Axis Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="w-full border-t border-surface-variant/30 h-0"></div>
+<div class="w-full border-t border-surface-variant/30 h-0"></div>
+<div class="w-full border-t border-surface-variant/30 h-0"></div>
+<div class="w-full border-t border-surface-variant/30 h-0"></div>
+<div class="w-full border-t border-surface-variant/30 h-0"></div>
+</div>
+<!-- The Area & Line -->
+<div class="absolute inset-0 chart-area bottom-0"></div>
+<div class="absolute inset-0 chart-line bg-primary-fixed bottom-0"></div>
+<!-- Unload Week Markers (Marcas de descarga) -->
+<!-- Simulating specific points on the timeline -->
+<div class="absolute bottom-0 left-[20%] w-px h-full border-l border-dashed border-outline/50">
+<span class="absolute bottom-2 -left-3 font-label-caps text-[9px] text-outline bg-background px-1">Descarga</span>
+</div>
+<div class="absolute bottom-0 left-[50%] w-px h-full border-l border-dashed border-outline/50">
+<span class="absolute bottom-2 -left-3 font-label-caps text-[9px] text-outline bg-background px-1">Descarga</span>
+</div>
+<div class="absolute bottom-0 left-[80%] w-px h-full border-l border-dashed border-outline/50">
+<span class="absolute bottom-2 -left-3 font-label-caps text-[9px] text-outline bg-background px-1">Descarga</span>
+</div>
+</div>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-4 font-label-caps text-[10px] text-outline px-2 z-10 uppercase tracking-widest opacity-60">
+<span>Ene</span>
+<span>Feb</span>
+<span>Mar</span>
+<span>Abr</span>
+<span>May</span>
+<span>Jun</span>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 bg-surface-container-low border-t border-surface-variant pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-outline px-4 py-1 hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-caps text-label-caps mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline px-4 py-1 hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-label-caps text-label-caps mt-1">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring" data-weight="fill" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+<span class="font-label-caps text-label-caps mt-1">Análisis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline px-4 py-1 hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">Perfil</span>
+</a>
+</nav>
+</body></html>

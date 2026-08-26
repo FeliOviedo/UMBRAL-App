@@ -29,7 +29,7 @@ export default function PlanScreen() {
 
   if (!plan || !objetivo) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <Vacio titulo="Todavía no tenés un plan">
           <p>Definí tu objetivo y lo armamos con tu umbral y tu volumen actual.</p>
           <Button asChild size="block" className="mt-8">
@@ -49,12 +49,12 @@ export default function PlanScreen() {
   const mesociclos = agruparPorMesociclo(plan.semanas);
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Mi plan</p>
         <h1 className="mt-6 u-hero">
           {objetivo.distancia}
-          <span className="ml-3 font-sans text-base font-medium text-fg-muted">
+          <span className="ml-3 u-unit">
             en {formatearTiempo(objetivo.tiempoObjetivoSeg)}
           </span>
         </h1>
@@ -65,14 +65,14 @@ export default function PlanScreen() {
       </header>
 
       {plan.avisos.length > 0 && (
-        <section className="u-section border-t border-border space-y-4">
+        <section className="u-section space-y-4">
           {plan.avisos.map((aviso) => (
             <Aviso key={aviso}>{aviso}</Aviso>
           ))}
         </section>
       )}
 
-      <section className="u-section border-t border-border">
+      <section className="u-section">
         <div className="flex items-baseline gap-8">
           <div>
             <p className="font-hero text-hero-sm">{formatearKm(kmPico)}</p>
@@ -91,13 +91,13 @@ export default function PlanScreen() {
       </section>
 
       {mesociclos.map(({ index, semanas }) => (
-        <section key={index} className="u-section border-t border-border">
+        <section key={index} className="u-section">
           <button
             type="button"
             onClick={() => navigate(`/plan/mesociclo/${index}`)}
             className="flex w-full items-baseline justify-between"
           >
-            <h2 className="u-section-title">Mesociclo {index}</h2>
+            <h2 className="u-label">Mesociclo {index}</h2>
             <span className="u-sub">Ver detalle →</span>
           </button>
 
@@ -151,7 +151,7 @@ function FilaSemana({
       <button type="button" onClick={onClick} className="w-full text-left">
         <div className="flex items-baseline justify-between gap-3">
           <div className="flex items-baseline gap-3">
-            <span className={esActual ? 'u-table text-accent' : 'u-table text-fg-muted'}>
+            <span className={esActual ? 'u-data-sm text-accent' : 'u-data-sm text-fg-muted'}>
               S{semana.numero}
             </span>
             <span className={esActual ? 'u-sub text-fg' : 'u-sub'}>
@@ -159,7 +159,7 @@ function FilaSemana({
               {esActual && ' · esta semana'}
             </span>
           </div>
-          <span className={esActual ? 'u-table text-fg' : 'u-table text-fg-muted'}>
+          <span className={esActual ? 'u-data-sm text-fg' : 'u-data-sm text-fg-muted'}>
             {formatearKm(semana.totalKm)} km
           </span>
         </div>

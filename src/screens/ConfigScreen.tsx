@@ -14,17 +14,17 @@ export default function ConfigScreen() {
   const ritmo = PROGRESSION_TABLE.find((r) => r.level === perfil?.ritmoBase);
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Ajustes</p>
-        <h1 className="mt-6 font-display text-2xl font-semibold">
+        <h1 className="mt-6 u-title">
           {perfil?.nombre || 'Tu cuenta'}
         </h1>
         <p className="u-sub mt-2">{usuario?.email}</p>
       </header>
 
-      <section className="u-section border-t border-border">
-        <h2 className="u-section-title">Tus datos</h2>
+      <section className="u-section">
+        <h2 className="u-label">Tus datos</h2>
         <dl className="mt-6 space-y-4">
           <Dato
             termino="Volumen semanal"
@@ -59,7 +59,7 @@ export default function ConfigScreen() {
         </div>
       </section>
 
-      <section className="u-section border-t border-border">
+      <section className="u-section">
         <Button variant="ghost" size="block" onClick={() => void cerrarSesion()}>
           Cerrar sesión
         </Button>
@@ -72,7 +72,7 @@ function Dato({ termino, valor }: { termino: string; valor: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
       <dt className="u-sub">{termino}</dt>
-      <dd className="u-table text-fg">{valor}</dd>
+      <dd className="u-data-sm text-fg">{valor}</dd>
     </div>
   );
 }

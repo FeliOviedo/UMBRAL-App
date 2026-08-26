@@ -52,7 +52,7 @@ export function Aviso({ children, className }: { children: ReactNode; className?
 export function Vacio({ titulo, children }: { titulo: string; children?: ReactNode }) {
   return (
     <div className="py-section text-center">
-      <p className="font-display text-base text-fg">{titulo}</p>
+      <p className="u-title-sm text-fg">{titulo}</p>
       {children && <div className="u-sub mx-auto mt-2 max-w-xs">{children}</div>}
     </div>
   );

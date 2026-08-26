@@ -25,7 +25,7 @@ export default function MesocicloScreen() {
 
   if (!plan || semanas.length === 0) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <Vacio titulo="No encontramos ese mesociclo">
           <Button asChild variant="outline" size="block" className="mt-6">
             <Link to="/plan">Volver al plan</Link>
@@ -40,12 +40,12 @@ export default function MesocicloScreen() {
   const esquema = MESOCYCLE_SCHEMES[plan.esquema];
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Mesociclo {mesocicloIndex}</p>
         <h1 className="mt-6 u-hero">
           {plan.esquema}
-          <span className="ml-3 font-sans text-base font-medium text-fg-muted">
+          <span className="ml-3 u-unit">
             {esquema.level}
           </span>
         </h1>
@@ -55,7 +55,7 @@ export default function MesocicloScreen() {
         </p>
       </header>
 
-      <section className="u-section border-t border-border">
+      <section className="u-section">
         <ol className="space-y-5">
           {semanas.map((semana) => {
             const proporcion = kmPico > 0 ? semana.totalKm / kmPico : 0;
@@ -71,7 +71,7 @@ export default function MesocicloScreen() {
                 >
                   <div className="flex items-baseline justify-between gap-3">
                     <div className="flex items-baseline gap-3">
-                      <span className={esActual ? 'u-table text-accent' : 'u-table text-fg-muted'}>
+                      <span className={esActual ? 'u-data-sm text-accent' : 'u-data-sm text-fg-muted'}>
                         S{semana.numero}
                       </span>
                       <span className={esActual ? 'u-sub text-fg' : 'u-sub'}>
@@ -79,7 +79,7 @@ export default function MesocicloScreen() {
                         {esActual && ' · esta semana'}
                       </span>
                     </div>
-                    <span className={esActual ? 'u-table text-fg' : 'u-table text-fg-muted'}>
+                    <span className={esActual ? 'u-data-sm text-fg' : 'u-data-sm text-fg-muted'}>
                       {formatearKm(semana.totalKm)} km
                     </span>
                   </div>

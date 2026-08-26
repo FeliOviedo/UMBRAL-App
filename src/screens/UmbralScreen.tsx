@@ -74,10 +74,10 @@ export default function UmbralScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Paso 2 de 3</p>
-        <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">Tu umbral</h1>
+        <h1 className="mt-6 u-title">Tu umbral</h1>
         <p className="u-sub mt-3">
           De este dato salen las siete zonas. Con cargar uno de los dos alcanza, pero el pace es
           el más confiable: los relojes miden mal las pulsaciones.
@@ -86,8 +86,8 @@ export default function UmbralScreen() {
 
       <form onSubmit={onSubmit}>
         {/* ── Frecuencia cardíaca ─────────────────────────────────────────── */}
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Frecuencia cardíaca</h2>
+        <section className="u-section">
+          <h2 className="u-label">Frecuencia cardíaca</h2>
           <p className="u-sub mt-1">Dato secundario. Podés saltearlo.</p>
 
           <div className="mt-6">
@@ -143,8 +143,8 @@ export default function UmbralScreen() {
         </section>
 
         {/* ── Pace ────────────────────────────────────────────────────────── */}
-        <section className="u-section border-t border-border">
-          <h2 className="u-section-title">Pace de umbral</h2>
+        <section className="u-section">
+          <h2 className="u-label">Pace de umbral</h2>
           <p className="u-sub mt-1">Recomendado. Es el ancla que no depende del reloj.</p>
 
           <div className="mt-6">
@@ -166,7 +166,7 @@ export default function UmbralScreen() {
               <p className="u-label">Tu pace de umbral</p>
               <p className="mt-3 u-hero">
                 {formatearPaceCorto(paceUmbral)}
-                <span className="ml-2 font-sans text-base font-medium text-fg-muted">/km</span>
+                <span className="ml-2 u-unit">/km</span>
               </p>
               <p className="u-sub mt-3">
                 Es el techo de la Z4: el ritmo que podrías sostener una hora. Sale de aflojar un{' '}
@@ -177,7 +177,7 @@ export default function UmbralScreen() {
           )}
         </section>
 
-        <section className="u-section border-t border-border">
+        <section className="u-section">
           {!puedeGuardar && (
             <Aviso className="mb-6">
               Cargá al menos uno de los dos para poder calcular tus zonas.

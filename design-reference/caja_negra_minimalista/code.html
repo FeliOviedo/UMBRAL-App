@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Umbral - Análisis Técnico</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-container": "#c2213a",
+                "surface-container-high": "#252a33",
+                "surface-container-low": "#171c24",
+                "on-secondary-fixed": "#001f23",
+                "on-secondary": "#00363c",
+                "error": "#ffb4ab",
+                "surface-bright": "#343942",
+                "surface-variant": "#30353e",
+                "primary": "#ffffff",
+                "tertiary-fixed-dim": "#ffb3b3",
+                "on-background": "#dee2ee",
+                "secondary": "#5cd7e6",
+                "error-container": "#93000a",
+                "tertiary-container": "#ffdad9",
+                "surface-container-highest": "#30353e",
+                "primary-container": "#c2f344",
+                "primary-fixed-dim": "#a7d626",
+                "inverse-primary": "#4d6700",
+                "on-tertiary": "#680016",
+                "on-primary-fixed": "#151f00",
+                "inverse-on-surface": "#2c3139",
+                "on-primary-fixed-variant": "#394d00",
+                "tertiary": "#ffffff",
+                "on-secondary-container": "#003237",
+                "surface-dim": "#0f141b",
+                "background": "#0f141b",
+                "on-primary-container": "#526d00",
+                "surface-container-lowest": "#090e16",
+                "surface": "#0f141b",
+                "on-secondary-fixed-variant": "#004f56",
+                "on-surface": "#dee2ee",
+                "on-error": "#690005",
+                "on-error-container": "#ffdad6",
+                "surface-tint": "#a7d626",
+                "on-tertiary-fixed": "#40000a",
+                "secondary-container": "#00a3b0",
+                "secondary-fixed": "#8cf2ff",
+                "surface-container": "#1b2028",
+                "inverse-surface": "#dee2ee",
+                "secondary-fixed-dim": "#5cd7e6",
+                "outline": "#8e937c",
+                "tertiary-fixed": "#ffdad9",
+                "on-primary": "#273500",
+                "on-tertiary-fixed-variant": "#920023",
+                "primary-fixed": "#c2f344",
+                "outline-variant": "#444935",
+                "on-surface-variant": "#c4c9af"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-lg": "32px",
+                "stack-sm": "8px",
+                "gutter": "16px",
+                "unit": "4px",
+                "container-margin": "20px",
+                "stack-md": "16px",
+                "stack-xl": "64px"
+        },
+        "fontFamily": {
+                "body-sm": ["Inter"],
+                "headline-lg-mobile": ["Space Grotesk"],
+                "label-caps": ["JetBrains Mono"],
+                "body-lg": ["Inter"],
+                "data-tabular": ["JetBrains Mono"],
+                "headline-lg": ["Space Grotesk"],
+                "headline-md": ["Space Grotesk"],
+                "display-metrics": ["JetBrains Mono"],
+                "hero-metrics": ["Archivo Black"],
+                "data-plex": ["IBM Plex Mono"]
+        },
+        "fontSize": {
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "data-tabular": ["18px", {"lineHeight": "24px", "fontWeight": "500"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "display-metrics": ["64px", {"lineHeight": "64px", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                "hero-lg": ["72px", {"lineHeight": "1", "fontWeight": "400", "letterSpacing": "-0.02em"}],
+                "hero-mobile": ["56px", {"lineHeight": "1", "fontWeight": "400", "letterSpacing": "-0.02em"}]
+        }
+},
+    },
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@600;700&amp;family=Archivo+Black&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #0B0E13;
+            color: #dee2ee;
+            padding-bottom: 96px;
+            padding-top: 64px;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #090e16; }
+        ::-webkit-scrollbar-thumb { background: #30353e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #444935; }
+
+        .chart-grid {
+            background-image: 
+                linear-gradient(to right, #1b2028 1px, transparent 1px),
+                linear-gradient(to bottom, #1b2028 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+<style>
+    body { min-height: max(884px, 100dvh); }
+  </style>
+</head>
+<body class="antialiased min-h-screen font-body-lg text-body-lg overflow-x-hidden bg-background">
+<header class="fixed top-0 w-full z-50 bg-background/90 backdrop-blur-md dark:bg-background/90 flex justify-between items-center px-container-margin h-16 max-w-7xl mx-auto md:hidden">
+<button aria-label="Menu" class="text-primary dark:text-primary p-2 rounded-full transition-colors duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary tracking-tighter">UMBRAL</h1>
+<button aria-label="Profile" class="text-primary dark:text-primary rounded-full transition-colors duration-200 overflow-hidden w-8 h-8 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</header>
+<nav class="hidden md:flex flex-col w-64 fixed h-full bg-surface-container z-40 top-0 left-0 pt-8 pb-4">
+<div class="px-container-margin mb-8">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary tracking-tighter">UMBRAL</h1>
+</div>
+<div class="flex flex-col gap-2 px-4 flex-grow">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-outline hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-lg text-body-lg font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-outline hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="font-body-lg text-body-lg font-medium">Plan</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-primary transition-colors duration-200 font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+<span class="font-body-lg text-body-lg">Análisis</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-outline hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body-lg text-body-lg font-medium">Perfil</span>
+</a>
+</div>
+</nav>
+<main class="w-full max-w-7xl mx-auto px-container-margin pt-stack-md pb-stack-lg md:ml-64 md:px-12 md:pt-12 transition-all duration-300">
+<header class="mb-stack-xl flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-primary mb-1">Caja Negra</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Análisis técnico de rendimiento</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 text-on-surface-variant font-data-plex text-sm uppercase tracking-widest flex items-center gap-2 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                    ÚLTIMOS 7 DÍAS
+                </button>
+</div>
+</header>
+<div class="flex flex-col gap-stack-xl">
+<!-- Tarjeta 1: Eficiencia Aeróbica -->
+<article class="flex flex-col gap-stack-md">
+<div class="flex flex-col md:flex-row justify-between items-start gap-4 z-10">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">FC vs Pace</h3>
+<p class="font-data-plex text-xs text-outline uppercase tracking-widest">Eficiencia Aeróbica</p>
+</div>
+<div class="flex items-start gap-3 md:max-w-md text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-sm mt-0.5">insights</span>
+<p class="font-body-sm text-xs leading-relaxed">Tu eficiencia mejoró un <strong class="text-primary font-medium">3%</strong> esta semana. A ritmos de Zona 2 (5:30/km), tu FC media disminuyó de 142 a 138 bpm.</p>
+</div>
+</div>
+<div class="h-64 w-full mt-4 relative bg-transparent overflow-hidden chart-grid flex items-center justify-center">
+<div class="absolute inset-0 flex items-center justify-center text-outline font-data-plex text-data-tabular opacity-30">
+                        [Gráfico de Dispersión]
+                    </div>
+<div class="absolute w-2 h-2 rounded-full bg-primary" style="bottom: 20%; left: 10%;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-primary" style="bottom: 30%; left: 25%;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-secondary" style="bottom: 45%; left: 40%;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-secondary" style="bottom: 60%; left: 60%;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-primary-container" style="bottom: 75%; left: 80%;"></div>
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none">
+<line class="opacity-50" stroke="#c2f344" stroke-dasharray="4" stroke-width="1.5" x1="10%" x2="90%" y1="80%" y2="20%"></line>
+</svg>
+</div>
+</article>
+<!-- Tarjeta 2: Curva de Supercompensación -->
+<article class="flex flex-col gap-stack-md">
+<div class="flex flex-col md:flex-row justify-between items-start gap-4 z-10">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Curva de Supercompensación</h3>
+<p class="font-data-plex text-xs text-outline uppercase tracking-widest">Carga Acumulada vs Fatiga</p>
+</div>
+<div class="flex items-start gap-3 md:max-w-md text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-sm mt-0.5">check_circle</span>
+<p class="font-body-sm text-xs leading-relaxed">Estado actual: <strong class="text-secondary font-medium">Óptimo</strong>. La fatiga ha disipado y tu nivel de forma está en pico (+5) para el entrenamiento de hoy.</p>
+</div>
+</div>
+<div class="h-64 w-full mt-4 relative bg-transparent overflow-hidden chart-grid flex items-end">
+<div class="absolute inset-0 flex items-center justify-center text-outline font-data-plex text-data-tabular opacity-30">
+                        [Gráfico de Línea]
+                    </div>
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,100 L0,60 Q25,30 50,70 T100,40 L100,100 Z" fill="rgba(92, 215, 230, 0.05)"></path>
+<path d="M0,60 Q25,30 50,70 T100,40" fill="none" stroke="#5cd7e6" stroke-width="2"></path>
+<path d="M0,100 L0,90 Q25,70 50,85 T100,60 L100,100 Z" fill="rgba(222, 226, 238, 0.02)"></path>
+<path d="M0,90 Q25,70 50,85 T100,60" fill="none" stroke="#8e937c" stroke-dasharray="2" stroke-width="1"></path>
+</svg>
+</div>
+</article>
+<!-- Tarjeta 3: Producción de Energía -->
+<article class="flex flex-col gap-stack-md">
+<div class="flex flex-col md:flex-row justify-between items-start gap-4 z-10">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-1">Producción de Energía</h3>
+<p class="font-data-plex text-xs text-outline uppercase tracking-widest">Curva de Potencia Crítica</p>
+</div>
+<div class="flex items-start gap-3 md:max-w-md text-on-surface-variant">
+<span class="material-symbols-outlined text-on-tertiary-container text-sm mt-0.5">trending_up</span>
+<p class="font-body-sm text-xs leading-relaxed">Mejora detectada en esfuerzos de 1-3 minutos. Tu capacidad anaeróbica (W') ha aumentado un <strong class="text-on-tertiary-container font-medium">4.5%</strong> respecto al ciclo anterior.</p>
+</div>
+</div>
+<div class="flex flex-col md:flex-row gap-8 mt-4">
+<div class="h-80 w-full md:w-3/5 relative bg-transparent overflow-hidden chart-grid flex items-end">
+<div class="absolute inset-0 flex items-center justify-center text-outline font-data-plex text-data-tabular opacity-30">
+                            [Curva de Potencia]
+                        </div>
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,20 Q10,20 20,40 T50,70 T100,90" fill="none" stroke="#444935" stroke-width="1.5"></path>
+<path d="M0,15 Q10,15 20,35 T50,65 T100,85" fill="none" stroke="#c2213a" stroke-width="2"></path>
+<rect fill="rgba(194, 33, 58, 0.1)" height="100" width="15" x="15" y="0"></rect>
+</svg>
+</div>
+<div class="w-full md:w-2/5 flex flex-col justify-center gap-12 pl-0 md:pl-8">
+<div class="flex flex-col">
+<p class="font-data-plex text-xs text-outline uppercase tracking-widest mb-2">CP (Potencia Crítica)</p>
+<p class="font-hero-metrics text-hero-mobile md:text-hero-lg text-primary">315 <span class="font-data-plex text-2xl text-outline font-normal">W</span></p>
+</div>
+<div class="flex flex-col">
+<p class="font-data-plex text-xs text-outline uppercase tracking-widest mb-2">W' (Capacidad Anaeróbica)</p>
+<p class="font-hero-metrics text-hero-mobile md:text-hero-lg text-secondary">15.2 <span class="font-data-plex text-2xl text-outline font-normal">kJ</span></p>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 bg-background/90 backdrop-blur-md dark:bg-background/90 z-50 pb-safe md:hidden">
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 hover:text-primary dark:hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span class="font-data-plex text-xs uppercase">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 hover:text-primary dark:hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">event_note</span>
+<span class="font-data-plex text-xs uppercase">Plan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary px-4 py-1 active:scale-95 transition-transform duration-150 font-bold" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+<span class="font-data-plex text-xs uppercase">Análisis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline px-4 py-1 hover:text-primary dark:hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-data-plex text-xs uppercase">Perfil</span>
+</a>
+</nav>
+</body></html>

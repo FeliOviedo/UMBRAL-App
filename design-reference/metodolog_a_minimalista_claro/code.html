@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UMBRAL - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#c2213a",
+                        "surface-container-high": "#252a33",
+                        "surface-variant": "#30353e",
+                        "surface-bright": "#343942",
+                        "on-secondary-fixed": "#001f23",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#090e16",
+                        "primary-container": "#c2f344",
+                        "on-secondary-container": "#003237",
+                        "on-tertiary": "#680016",
+                        "on-tertiary-fixed-variant": "#920023",
+                        "on-primary-fixed": "#151f00",
+                        "on-surface-variant": "#c4c9af",
+                        "tertiary": "#ffffff",
+                        "inverse-surface": "#dee2ee",
+                        "background": "#0f141b",
+                        "secondary-fixed": "#8cf2ff",
+                        "surface-tint": "#a7d626",
+                        "surface-dim": "#0f141b",
+                        "tertiary-container": "#ffdad9",
+                        "tertiary-fixed": "#ffdad9",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed": "#c2f344",
+                        "secondary-container": "#00a3b0",
+                        "on-secondary": "#00363c",
+                        "on-surface": "#dee2ee",
+                        "on-error": "#690005",
+                        "outline": "#8e937c",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "on-primary-fixed-variant": "#394d00",
+                        "inverse-on-surface": "#2c3139",
+                        "on-background": "#dee2ee",
+                        "on-primary-container": "#526d00",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#171c24",
+                        "on-secondary-fixed-variant": "#004f56",
+                        "outline-variant": "#444935",
+                        "secondary-fixed-dim": "#5cd7e6",
+                        "surface": "#0f141b",
+                        "surface-container-highest": "#30353e",
+                        "inverse-primary": "#4d6700",
+                        "primary": "#ffffff",
+                        "secondary": "#5cd7e6",
+                        "surface-container": "#1b2028",
+                        "primary-fixed-dim": "#a7d626",
+                        "on-tertiary-fixed": "#40000a",
+                        "on-primary": "#273500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "unit": "4px",
+                        "container-margin": "20px",
+                        "gutter": "16px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "display-metrics": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "body-lg": ["Inter"],
+                        "data-tabular": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-metrics": ["64px", { "lineHeight": "64px", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-tabular": ["18px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .carousel-container {
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+        }
+        .carousel-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        .carousel-slide {
+            scroll-snap-align: center;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-[#F1F5F9] text-[#0f172a] min-h-screen flex flex-col font-body-sm relative overflow-hidden">
+<!-- Ambient background layer -->
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col justify-between p-container-margin relative z-10 w-full max-w-md mx-auto">
+<!-- Header / Progress -->
+<header class="pt-stack-md flex justify-between items-center w-full">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tighter text-[#0f172a]">UMBRAL</h1>
+<button class="text-label-caps text-[#64748b] hover:text-[#0f172a] transition-colors font-body-sm">SALTAR</button>
+</header>
+<!-- Carousel -->
+<div class="flex-grow flex items-center justify-center py-stack-lg w-full">
+<div class="carousel-container flex w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory relative h-[500px]" id="onboarding-carousel">
+<!-- Slide 1 -->
+<div class="carousel-slide min-w-full flex flex-col items-center justify-center px-4" data-index="0">
+<div class="w-64 h-64 rounded-full flex items-center justify-center mb-stack-lg relative overflow-hidden mb-16">
+<!-- Abstract Heart Rate Visual -->
+<span class="material-symbols-outlined text-[120px] text-[#c2f344] relative z-10">monitor_heart</span>
+</div>
+<div class="text-center w-full max-w-sm">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-unit text-[#0f172a]" style="font-family: 'Archivo Black', sans-serif; font-size: 40px; line-height: 1.1;">Medimos tu nivel real</h2>
+<p class="font-body-lg text-body-lg text-[#334155] leading-relaxed">Conectamos con tus datos fisiológicos para establecer una línea base precisa de tu rendimiento actual.</p>
+</div>
+</div>
+<!-- Slide 2 -->
+<div class="carousel-slide min-w-full flex flex-col items-center justify-center px-4" data-index="1">
+<div class="w-64 h-64 bg-surface-container rounded-3xl border border-surface-variant flex items-center justify-center mb-stack-lg relative overflow-hidden">
+<!-- Abstract Calendar Visual -->
+<div class="grid grid-cols-4 grid-rows-4 gap-2 w-48 h-48 opacity-80">
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-primary-container/20 border border-primary-container/50 rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-primary-container/40 border border-primary-container/60 rounded-md flex items-center justify-center"><span class="material-symbols-outlined text-primary-container text-sm">directions_run</span></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-primary-container/80 border border-primary-container rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+<div class="bg-surface-variant rounded-md"></div>
+</div>
+</div>
+<div class="text-center w-full max-w-sm">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-unit text-primary">Armamos tu plan</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">Generamos una estructura de entrenamiento periodizada basada en la ciencia del umbral de lactato.</p>
+</div>
+</div>
+<!-- Slide 3 -->
+<div class="carousel-slide min-w-full flex flex-col items-center justify-center px-4" data-index="2">
+<div class="w-64 h-64 bg-surface-container rounded-xl border border-surface-variant flex flex-col items-center justify-end mb-stack-lg relative overflow-hidden p-4">
+<!-- Abstract Trend Visual -->
+<div class="w-full flex items-end justify-between h-32 gap-2 opacity-90 relative">
+<!-- Line graph simulation -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 Q25,60 50,70 T100,20 L100,100 L0,100 Z" fill="rgba(194,243,68,0.1)"></path>
+<path d="M0,80 Q25,60 50,70 T100,20" fill="none" stroke="#c2f344" stroke-width="3"></path>
+</svg>
+<div class="w-8 bg-surface-variant rounded-t-sm h-1/4 z-10"></div>
+<div class="w-8 bg-surface-variant rounded-t-sm h-2/4 z-10"></div>
+<div class="w-8 bg-primary-container/30 border-t border-l border-r border-primary-container rounded-t-sm h-3/4 z-10"></div>
+<div class="w-8 bg-primary-container rounded-t-sm h-full z-10 relative shadow-[0_0_15px_rgba(194,243,68,0.5)]"></div>
+</div>
+</div>
+<div class="text-center w-full max-w-sm">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-unit text-primary">Ajuste dinámico</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">El plan evoluciona contigo. Si te saltas una sesión o mejoras rápido, nos adaptamos al instante.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Controls -->
+<footer class="pb-safe w-full flex flex-col items-center gap-stack-md mt-auto">
+<!-- Indicators -->
+<div class="flex gap-2 mb-stack-sm" id="carousel-indicators">
+<div class="h-2 w-8 rounded-full bg-primary-container transition-all duration-300 indicator" data-target="0"></div>
+<div class="h-2 w-2 rounded-full bg-[#cbd5e1] transition-all duration-300 indicator" data-target="1"></div>
+<div class="h-2 w-2 rounded-full bg-[#cbd5e1] transition-all duration-300 indicator" data-target="2"></div>
+</div>
+<!-- Next Button -->
+<button class="w-full h-14 bg-[#c2f344] text-[#0f172a] font-headline-md text-headline-md flex items-center justify-center transition-transform active:scale-[0.98] rounded-full" id="next-btn">
+                Siguiente
+            </button>
+</footer>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('onboarding-carousel');
+            const indicators = document.querySelectorAll('.indicator');
+            const nextBtn = document.getElementById('next-btn');
+            let currentIndex = 0;
+            const totalSlides = 3;
+
+            // Update indicators based on scroll position
+            carousel.addEventListener('scroll', () => {
+                const scrollLeft = carousel.scrollLeft;
+                const slideWidth = carousel.offsetWidth;
+                const newIndex = Math.round(scrollLeft / slideWidth);
+                
+                if (newIndex !== currentIndex) {
+                    currentIndex = newIndex;
+                    updateIndicators();
+                    updateButton();
+                }
+            });
+
+            function updateIndicators() {
+                indicators.forEach((ind, index) => {
+                    if (index === currentIndex) {
+                        ind.classList.remove('w-2', 'bg-surface-variant');
+                        ind.classList.add('w-8', 'bg-primary-container');
+                    } else {
+                        ind.classList.remove('w-8', 'bg-primary-container');
+                        ind.classList.add('w-2', 'bg-surface-variant');
+                    }
+                });
+            }
+
+            function updateButton() {
+                if (currentIndex === totalSlides - 1) {
+                    nextBtn.textContent = 'Comenzar';
+                } else {
+                    nextBtn.textContent = 'Siguiente';
+                }
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < totalSlides - 1) {
+                    currentIndex++;
+                    const slideWidth = carousel.offsetWidth;
+                    carousel.scrollTo({
+                        left: currentIndex * slideWidth,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // Navigate to next app state (simulated)
+                    console.log('Onboarding Complete - Proceeding to Dashboard');
+                    nextBtn.innerHTML = '<span class="material-symbols-outlined animate-spin mr-2">sync</span> Preparando...';
+                }
+            });
+        });
+    </script>
+</body></html>

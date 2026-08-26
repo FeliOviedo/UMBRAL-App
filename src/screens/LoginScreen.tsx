@@ -47,9 +47,9 @@ export default function LoginScreen() {
 
   if (avisoConfirmacion) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge">
         <p className="u-label">Umbral</p>
-        <h1 className="mt-6 font-display text-2xl font-semibold">Revisá tu email</h1>
+        <h1 className="mt-6 u-title">Revisá tu email</h1>
         <p className="u-sub mt-3">
           Te mandamos un link de confirmación a <span className="text-fg">{email}</span>. Abrilo
           para activar tu cuenta y después volvé acá a iniciar sesión.
@@ -70,10 +70,10 @@ export default function LoginScreen() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge py-12">
       <header>
         <p className="u-label">Umbral</p>
-        <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">
+        <h1 className="mt-6 u-title">
           {modo === 'login' ? 'Entrenar con cabeza' : 'Creá tu cuenta'}
         </h1>
         <p className="u-sub mt-3">

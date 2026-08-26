@@ -114,9 +114,9 @@ export default function ObjetivoScreen() {
 
   if (faltaPerfil) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 pb-16">
+      <main className="mx-auto w-full max-w-md px-edge pb-16">
         <div className="u-section">
-          <h1 className="font-display text-2xl font-semibold">Falta un paso antes</h1>
+          <h1 className="u-title">Falta un paso antes</h1>
           <p className="u-sub mt-3">
             Para armar el plan necesitamos saber cuántos km corrés por semana y a qué ritmo.
           </p>
@@ -129,10 +129,10 @@ export default function ObjetivoScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-6 pb-16">
+    <main className="mx-auto w-full max-w-md px-edge pb-16">
       <header className="u-section">
         <p className="u-label">Paso 3 de 3</p>
-        <h1 className="mt-6 font-display text-3xl font-semibold leading-tight">Tu objetivo</h1>
+        <h1 className="mt-6 u-title">Tu objetivo</h1>
         <p className="u-sub mt-3">
           El tiempo que buscás define cuántos días por semana vas a entrenar y cómo progresa el
           volumen.
@@ -140,7 +140,7 @@ export default function ObjetivoScreen() {
       </header>
 
       <form onSubmit={onSubmit}>
-        <section className="u-section border-t border-border space-y-10">
+        <section className="u-section space-y-10">
           <Chips
             label="Distancia"
             value={distancia}
@@ -184,8 +184,8 @@ export default function ObjetivoScreen() {
         </section>
 
         {preview && (
-          <section className="u-section border-t border-border">
-            <h2 className="u-section-title">Así queda tu plan</h2>
+          <section className="u-section">
+            <h2 className="u-label">Así queda tu plan</h2>
 
             <div className="mt-8 flex items-baseline gap-6">
               <div>
@@ -219,7 +219,7 @@ export default function ObjetivoScreen() {
           </section>
         )}
 
-        <section className="u-section border-t border-border">
+        <section className="u-section">
           {error && <ErrorMensaje mensaje={error} className="mb-6" />}
           <Button type="submit" size="block" disabled={!puedeGuardar}>
             {enviando ? 'Generando tu plan…' : 'Generar mi plan'}

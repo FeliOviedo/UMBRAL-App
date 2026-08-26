@@ -61,7 +61,7 @@ function Rutas() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-6 py-section">
+      <main className="mx-auto w-full max-w-md px-edge py-section">
         <ErrorMensaje mensaje={error} onReintentar={() => void recargarDatos()} />
       </main>
     );
@@ -117,17 +117,17 @@ function destinoInicial(onboardingCompleto: boolean | undefined): string {
  */
 function FaltaConfiguracion() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge">
       <p className="u-label">Umbral</p>
-      <h1 className="mt-6 font-display text-2xl font-semibold">Falta conectar Supabase</h1>
+      <h1 className="mt-6 u-title">Falta conectar Supabase</h1>
       <p className="u-sub mt-4">
         Copiá <code className="font-mono text-fg">.env.example</code> a{' '}
         <code className="font-mono text-fg">.env</code> y completá las dos variables con los datos
         de tu proyecto:
       </p>
       <ul className="mt-4 space-y-1">
-        <li className="u-table text-fg">VITE_SUPABASE_URL</li>
-        <li className="u-table text-fg">VITE_SUPABASE_ANON_KEY</li>
+        <li className="u-data-sm text-fg">VITE_SUPABASE_URL</li>
+        <li className="u-data-sm text-fg">VITE_SUPABASE_ANON_KEY</li>
       </ul>
       <p className="u-sub mt-6">
         Los pasos completos están en el <code className="font-mono text-fg">README.md</code>.
