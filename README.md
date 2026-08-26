@@ -1,6 +1,6 @@
 # Umbral
 
-<!-- Deploy trigger: VITE_SUPABASE_ANON_KEY estaba marcada sólo para Development en Vercel; ahora está en Production, Preview y Development. Este commit fuerza el build fresco que lo confirma. -->
+<!-- Deploy trigger: se repegó VITE_SUPABASE_ANON_KEY directo desde el botón de copiar de Supabase, sin retipear. Fuerza el build fresco que lo confirma. -->
 
 App web mobile-first de entrenamiento de running inteligente y adaptable.
 Planifica hacia un objetivo, sigue los resultados reales y ajusta el plan.
