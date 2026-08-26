@@ -1,0 +1,81 @@
+/* Tipografías del design system. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Tema oscuro por defecto (es el único del MVP).
+   * Los valores son los hex de la identidad visual expresados en HSL para que
+   * Tailwind pueda componerlos con opacidad.
+   */
+  :root {
+    --bg: 218 27% 6%; /* #0B0E13 */
+    --surface: 217 24% 11%; /* #151A22 */
+    --border: 215 21% 17%; /* #232B36 */
+    --fg: 210 22% 96%; /* #F4F6F8 */
+    --fg-muted: 210 15% 65%; /* #9AA7B4 */
+    --accent: 77 100% 65%; /* #CDFF4F */
+    --accent-foreground: 218 27% 6%; /* texto sobre lima */
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    /* Mobile-first: el layout arranca en una columna angosta y crece. */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Los números nunca "bailan" al actualizarse (cronómetro, splits). */
+  .font-mono,
+  .font-hero {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-bg;
+  }
+}
+
+@layer components {
+  /* Dato protagonista: un solo número grande por bloque. */
+  .u-hero {
+    @apply font-hero text-hero text-fg;
+  }
+
+  /* Texto secundario que acompaña al dato hero (segundo y último nivel). */
+  .u-sub {
+    @apply text-sm text-fg-muted;
+  }
+
+  /* Label discreta en mayúscula. Nunca se usa como título de sección. */
+  .u-label {
+    @apply font-sans text-label uppercase text-fg-muted;
+  }
+
+  /* Título de sección. */
+  .u-section-title {
+    @apply font-display text-lg font-semibold text-fg;
+  }
+
+  /* Separación entre secciones por espacio, no por bordes. */
+  .u-section {
+    @apply py-section;
+  }
+
+  /* Contenedor con fondo: se usa con moderación. */
+  .u-panel {
+    @apply rounded-lg bg-surface p-5;
+  }
+
+  /* Tabla de datos numéricos (splits, zonas). */
+  .u-table {
+    @apply font-mono text-sm tabular-nums;
+  }
+}
