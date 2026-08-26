@@ -1,5 +1,7 @@
 # Umbral
 
+<!-- Deploy trigger: fuerza un build nuevo en Vercel para que lea las env vars actuales del dashboard, no una foto vieja. -->
+
 App web mobile-first de entrenamiento de running inteligente y adaptable.
 Planifica hacia un objetivo, sigue los resultados reales y ajusta el plan.
 
