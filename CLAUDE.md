@@ -376,9 +376,11 @@ proceso completo asumiendo que el repositorio no está conectado.
 
 **`scripts/verificar-rls.mjs`** (`npm run verify:rls`): crea dos usuarios, los
 hace escribir datos y comprueba desde uno que no puede leer, modificar, borrar
-ni suplantar al otro, en las ocho tablas y en Storage. **Nunca se ejecutó contra
-un proyecto real** —el entorno donde se escribió no tenía credenciales de
-Supabase—, así que sigue siendo el paso pendiente antes de publicar.
+ni suplantar al otro, en las ocho tablas y en Storage. **Ya se ejecutó contra un
+proyecto real y el aislamiento quedó verificado** en las ocho tablas y en
+Storage. Para correrlo hace falta "Confirm email" desactivado en
+Authentication → Providers → Email (si no, el registro de las cuentas de
+prueba choca con el rate limit de envío de Supabase).
 
 ### Lo que la Fase 4 dejó listo
 
