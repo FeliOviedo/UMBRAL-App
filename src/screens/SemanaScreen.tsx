@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Bed, Gauge } from 'lucide-react';
+import { Bed, ChevronLeft, ChevronRight, Gauge } from 'lucide-react';
 import {
   aDiasDeDominio,
   guardarPropuesta,
@@ -12,6 +12,7 @@ import { adaptarPorSesionOmitida, TRAINING_TYPE_TARGETS, zonaPorId } from '@/dom
 import type { LoadWeek, TrainingType } from '@/domain/types';
 import { useSession } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
+import DetalleDia from '@/components/DetalleDia';
 import { Cargando, ErrorMensaje, Vacio } from '@/components/ui/feedback';
 import { formatearKm, hoyIso, sumarDias } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -61,6 +62,11 @@ export default function SemanaScreen() {
   const plan = useSession((s) => s.plan);
 
   const semana = plan?.semanas.find((s) => s.numero === Number(numero));
+  const numerosOrdenados = [...(plan?.semanas ?? [])].map((s) => s.numero).sort((a, b) => a - b);
+  const posicion = numerosOrdenados.indexOf(Number(numero));
+  const semanaAnterior = posicion > 0 ? numerosOrdenados[posicion - 1]! : null;
+  const semanaSiguiente =
+    posicion >= 0 && posicion < numerosOrdenados.length - 1 ? numerosOrdenados[posicion + 1]! : null;
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -122,6 +128,8 @@ export default function SemanaScreen() {
     }
   }
 
+  const diaParaPanel = semana.dias.find((d) => d.fecha === diaSeleccionado) ?? null;
+
   const kmReales =
     (sesiones?.reduce((sum, s) => sum + (s.distanciaMetros ?? 0), 0) ?? 0) / 1000;
   const progreso = semana.totalKm > 0 ? Math.min(1, kmReales / semana.totalKm) : 0;
@@ -132,8 +140,28 @@ export default function SemanaScreen() {
       <section className="flex flex-col gap-unit">
         <div className="mb-1 flex items-baseline justify-between gap-3">
           <div>
-            <h1 className="u-title">Microciclo {semana.numero}</h1>
-            <p className="u-label mt-1">{ETIQUETA_CARGA[semana.carga]}</p>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label="Semana anterior"
+                disabled={semanaAnterior === null}
+                onClick={() => semanaAnterior !== null && navigate(`/plan/semana/${semanaAnterior}`)}
+                className="-ml-2 p-2 text-outline hover:text-fg disabled:opacity-30"
+              >
+                <ChevronLeft size={16} strokeWidth={2} aria-hidden />
+              </button>
+              <h1 className="u-title">Microciclo {semana.numero}</h1>
+              <button
+                type="button"
+                aria-label="Semana siguiente"
+                disabled={semanaSiguiente === null}
+                onClick={() => semanaSiguiente !== null && navigate(`/plan/semana/${semanaSiguiente}`)}
+                className="p-2 text-outline hover:text-fg disabled:opacity-30"
+              >
+                <ChevronRight size={16} strokeWidth={2} aria-hidden />
+              </button>
+            </div>
+            <p className="u-label ml-1 mt-1">{ETIQUETA_CARGA[semana.carga]}</p>
           </div>
           <div className="u-hero-lg leading-none text-accent">
             {Math.round(kmReales)}
@@ -145,6 +173,8 @@ export default function SemanaScreen() {
         </div>
       </section>
 
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
+      <div>
       {/* Selector de días: iniciales arriba, número abajo, subrayado en el actual. */}
       <section className="w-full border-b border-border pb-4">
         <div role="tablist" aria-label="Días de la semana" className="flex justify-between p-1.5">
@@ -207,6 +237,33 @@ export default function SemanaScreen() {
           ))
         )}
       </section>
+      </div>
+
+      {/* Panel de detalle: sólo en desktop, del día que está elegido en el
+          selector de arriba. En móvil la fila ya cumple ese rol. */}
+      {diaParaPanel && (
+        <section className="mt-section hidden lg:mt-0 lg:block">
+          <DetalleDia
+            dia={diaParaPanel}
+            sesion={sesiones?.find((s) => s.planDayId === diaParaPanel.id)}
+            onVer={() => {
+              const sesion = sesiones?.find((s) => s.planDayId === diaParaPanel.id);
+              if (sesion) navigate(`/sesion/${sesion.id}`);
+              else if (diaParaPanel.tipo !== 'D') {
+                navigate(`/registrar?dia=${diaParaPanel.id}&fecha=${diaParaPanel.fecha}`);
+              }
+            }}
+            onOmitir={
+              diaParaPanel.tipo !== 'D' &&
+              !sesiones?.some((s) => s.planDayId === diaParaPanel.id) &&
+              !omitiendo
+                ? () => void omitirSesion(diaParaPanel)
+                : undefined
+            }
+          />
+        </section>
+      )}
+      </div>
     </main>
   );
 }

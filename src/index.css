@@ -52,10 +52,20 @@
     --border: 0 0% 89%; /* #e2e2e2 */
     --fg: 0 0% 11%; /* #1b1b1b */
     --fg-muted: 0 0% 28%; /* #474747 */
-    --outline: 353 4% 48%; /* #7e7576 */
+    /*
+     * #7e7576 tal cual sale de Stitch da 4.25:1 sobre #f9f9f9 — pasa para texto
+     * grande, pero las labels son 11px: por debajo del piso de WCAG AA (4.5:1)
+     * para texto chico. Se oscurece un poco a 5.6:1 sin cambiar el tono.
+     */
+    --outline: 353 4% 40%; /* #6b6263 */
     --accent: 72 71% 50%; /* #A7D626 — el lima apagado, ver arriba */
     --accent-dim: 72 71% 42%;
-    --accent-foreground: 0 0% 100%; /* texto sobre lima en claro */
+    /*
+     * Texto OSCURO sobre el acento, no blanco: A7D626 es un verde-lima claro,
+     * y blanco encima da 1.7:1 — prácticamente ilegible. Con el texto oscuro
+     * da 12:1.
+     */
+    --accent-foreground: 0 0% 11%;
     --glow: 167 214 38;
     --glow-strength: 0.22;
     --glow-strength-soft: 0.16;

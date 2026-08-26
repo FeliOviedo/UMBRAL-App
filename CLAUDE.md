@@ -318,6 +318,31 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 
 Lo que agregó esta fase, y las decisiones que conviene no revertir sin pensarlas:
 
+**Bug de fondo: `cn()` perdía colores de texto.** `tailwind-merge` no conoce
+la escala tipográfica custom (`text-hero`, `text-title`, `text-wordmark`,
+`text-label`, `text-data`, `text-body`) porque no son ninguno de sus tamaños
+por defecto (`text-xs`…`text-9xl`); al no reconocerlos, los clasifica como
+**color de texto** — el mismo grupo que `text-accent-foreground`, `text-fg`,
+etc. Resultado: cualquier `cn(...)` que combinara un tamaño custom con un
+color de texto tiraba una de las dos clases (gana la que aparece última en la
+cadena). Así el botón principal (`bg-accent text-accent-foreground
+font-wordmark text-wordmark`) perdía silenciosamente `text-accent-foreground`
+y el texto quedaba blanco sobre lima en vez de oscuro — ilegible, y en los dos
+temas. Se arregla una sola vez en `src/lib/utils.ts`, registrando la escala
+custom en `extendTailwindMerge` para que deje de confundirla con colores. Si
+se agrega un tamaño de fuente nuevo a `tailwind.config.ts` (`fontSize`), hay
+que sumarlo también ahí — si no, vuelve el mismo bug con el nombre nuevo.
+
+**Los gráficos (`src/lib/chart.ts`) tienen que conocer el tema.** Recharts
+pinta en SVG con colores resueltos en JS, no con `var(--x)` de CSS, así que
+antes de la Fase 6 estaban hardcodeados a la paleta oscura — en tema claro,
+la Caja Negra, Volumen y el calendario mostraban ejes y celdas vacías con los
+colores oscuros originales, un fondo oscuro pegado sobre una pantalla clara.
+`chartTokens(tema)` devuelve el juego que corresponde; toda pantalla que
+dibuje un gráfico o pinte el heatmap del calendario tiene que leer el tema
+activo (`useTheme`) y pasárselo. Si se agrega un gráfico nuevo y no hace esto,
+va a verse bien en oscuro y roto en claro.
+
 **Layout de dos formas.** Móvil sigue igual (app bar + barra inferior de cuatro
 destinos). En md+ aparece una sidebar fija y el contenido se suelta hasta
 1280px. El ancho de página vive en **una sola clase**, `.u-page`: cambiarlo es

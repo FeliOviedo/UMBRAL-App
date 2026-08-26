@@ -1,26 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { MESOCYCLE_SCHEMES } from '@/domain';
-import type { LoadWeek } from '@/domain/types';
 import { useSession } from '@/store/session.store';
 import type { SemanaPlanificada } from '@/data';
 import { Button } from '@/components/ui/button';
 import { Aviso, Vacio } from '@/components/ui/feedback';
-import { formatearFechaLarga, formatearKm, formatearTiempo, hoyIso, sumarDias } from '@/lib/format';
+import { formatearFechaCorta, formatearFechaLarga, formatearKm, formatearTiempo, hoyIso, sumarDias } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
-const ETIQUETA_CARGA: Record<LoadWeek, string> = {
-  carga: 'Carga',
-  'carga+': 'Carga +',
-  'carga++': 'Carga ++',
-  descarga: 'Descarga',
-};
-
 /**
- * El macrociclo: resumen del plan y sus mesociclos.
+ * El macrociclo: de un vistazo, todos los mesociclos del plan.
  *
- * Es la vista más alta del plan — un vistazo al conjunto, no al detalle día a
- * día. Cada mesociclo lleva un resumen y sus semanas, que llevan a la vista de
- * microciclo (`/plan/semana/:numero`), que es donde se entrena de verdad.
+ * Antes esta pantalla listaba las semanas de TODOS los mesociclos, una abajo
+ * de la otra — para un plan de 28 semanas eran 28 filas antes de llegar al
+ * final. Ahora los mesociclos son tarjetas: cada una resume su rango de
+ * volumen con mini-barras, y "ver todo el plan" es hojear la grilla en vez de
+ * scrollear un listado plano. El detalle semana a semana sigue en
+ * `/plan/mesociclo/:index`, que es donde de verdad hace falta.
  */
 export default function PlanScreen() {
   const navigate = useNavigate();
@@ -45,7 +40,6 @@ export default function PlanScreen() {
     (s) => hoy >= s.fechaInicio && hoy < sumarDias(s.fechaInicio, 7),
   );
   const kmPico = Math.max(...plan.semanas.map((s) => s.totalKm), 0);
-
   const mesociclos = agruparPorMesociclo(plan.semanas);
 
   return (
@@ -54,9 +48,7 @@ export default function PlanScreen() {
         <p className="u-label">Mi plan</p>
         <h1 className="mt-6 u-hero">
           {objetivo.distancia}
-          <span className="ml-3 u-unit">
-            en {formatearTiempo(objetivo.tiempoObjetivoSeg)}
-          </span>
+          <span className="ml-3 u-unit">en {formatearTiempo(objetivo.tiempoObjetivoSeg)}</span>
         </h1>
         <p className="u-sub mt-2">
           {formatearFechaLarga(objetivo.fechaCarrera)} · {plan.semanasTotales} semanas ·{' '}
@@ -88,32 +80,34 @@ export default function PlanScreen() {
           {plan.esquema} ({MESOCYCLE_SCHEMES[plan.esquema].level}). El volumen sube en las semanas
           de carga y baja en las de descarga.
         </p>
+        {semanaActual && (
+          <Button
+            variant="outline"
+            size="block"
+            className="mt-6"
+            onClick={() => navigate(`/plan/semana/${semanaActual.numero}`)}
+          >
+            Ir a esta semana (S{semanaActual.numero})
+          </Button>
+        )}
       </section>
 
-      {mesociclos.map(({ index, semanas }) => (
-        <section key={index} className="u-section">
-          <button
-            type="button"
-            onClick={() => navigate(`/plan/mesociclo/${index}`)}
-            className="flex w-full items-baseline justify-between"
-          >
-            <h2 className="u-label">Mesociclo {index}</h2>
-            <span className="u-sub">Ver detalle →</span>
-          </button>
-
-          <ol className="mt-6 space-y-5">
-            {semanas.map((semana) => (
-              <FilaSemana
-                key={semana.id}
-                semana={semana}
-                esActual={semana.id === semanaActual?.id}
-                kmPico={kmPico}
-                onClick={() => navigate(`/plan/semana/${semana.numero}`)}
-              />
-            ))}
-          </ol>
-        </section>
-      ))}
+      <section className="u-section">
+        <h2 className="u-label">Todos los mesociclos</h2>
+        <div className="mt-6 u-grid">
+          {mesociclos.map(({ index, semanas }) => (
+            <TarjetaMesociclo
+              key={index}
+              index={index}
+              semanas={semanas}
+              kmPico={kmPico}
+              semanaActualId={semanaActual?.id}
+              esquemaLevel={MESOCYCLE_SCHEMES[plan.esquema].level}
+              onClick={() => navigate(`/plan/mesociclo/${index}`)}
+            />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }
@@ -132,49 +126,71 @@ function agruparPorMesociclo(
     .map(([index, semanas]) => ({ index, semanas }));
 }
 
-function FilaSemana({
-  semana,
-  esActual,
+/**
+ * Una tarjeta por mesociclo: rango de semanas, mini-barras de volumen y si
+ * "esta semana" cae adentro. Reemplaza la lista plana de semanas — acá el
+ * conjunto se lee de un vistazo, y el detalle día a día vive un click después.
+ */
+function TarjetaMesociclo({
+  index,
+  semanas,
   kmPico,
+  semanaActualId,
+  esquemaLevel,
   onClick,
 }: {
-  semana: SemanaPlanificada;
-  esActual: boolean;
+  index: number;
+  semanas: SemanaPlanificada[];
   kmPico: number;
+  semanaActualId: string | undefined;
+  esquemaLevel: string;
   onClick: () => void;
 }) {
-  const proporcion = kmPico > 0 ? semana.totalKm / kmPico : 0;
-  const esDescarga = semana.carga === 'descarga';
+  const contieneActual = semanas.some((s) => s.id === semanaActualId);
+  const kmMesociclo = Math.round(semanas.reduce((sum, s) => sum + s.totalKm, 0));
 
   return (
-    <li>
-      <button type="button" onClick={onClick} className="w-full text-left">
-        <div className="flex items-baseline justify-between gap-3">
-          <div className="flex items-baseline gap-3">
-            <span className={esActual ? 'u-data-sm text-accent' : 'u-data-sm text-fg-muted'}>
-              S{semana.numero}
-            </span>
-            <span className={esActual ? 'u-sub text-fg' : 'u-sub'}>
-              {ETIQUETA_CARGA[semana.carga]}
-              {esActual && ' · esta semana'}
-            </span>
-          </div>
-          <span className={esActual ? 'u-data-sm text-fg' : 'u-data-sm text-fg-muted'}>
-            {formatearKm(semana.totalKm)} km
-          </span>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex flex-col gap-4 border p-5 text-left transition-colors',
+        contieneActual ? 'border-accent' : 'border-border hover:border-outline',
+      )}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <p className="u-label">Mesociclo {index}</p>
+          <p className="u-title-sm mt-1">{esquemaLevel}</p>
         </div>
+        {contieneActual && <span className="u-label text-accent">Esta semana</span>}
+      </div>
 
-        {/* Barra de volumen: el perfil en escalera del plan se lee de un vistazo. */}
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-sm bg-surface">
-          <div
-            className={cn(
-              'h-full',
-              esDescarga ? 'bg-zone-z1' : esActual ? 'bg-accent' : 'bg-zone-z2',
-            )}
-            style={{ width: `${Math.round(proporcion * 100)}%` }}
-          />
-        </div>
-      </button>
-    </li>
+      {/* Mini-barras: el perfil de carga del mesociclo, sin necesitar la lista completa. */}
+      <div className="flex h-12 items-end gap-1">
+        {semanas.map((semana) => {
+          const proporcion = kmPico > 0 ? semana.totalKm / kmPico : 0;
+          const esDescarga = semana.carga === 'descarga';
+          const esActual = semana.id === semanaActualId;
+          return (
+            <div
+              key={semana.id}
+              className={cn(
+                'flex-1 rounded-t-sm',
+                esDescarga ? 'bg-zone-z1' : esActual ? 'bg-accent' : 'bg-zone-z2',
+              )}
+              style={{ height: `${Math.max(8, Math.round(proporcion * 100))}%` }}
+            />
+          );
+        })}
+      </div>
+
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="u-sub">
+          {semanas.length} semanas · {formatearFechaCorta(semanas[0]!.fechaInicio)}
+        </p>
+        <p className="u-data-sm text-fg-muted">{formatearKm(kmMesociclo)} km</p>
+      </div>
+    </button>
   );
 }
