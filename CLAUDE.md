@@ -69,6 +69,7 @@ Reglas que sostienen esto:
 | `src/domain/progression.ts` | Tabla 7: `calcularIncrementoSemanal`, `aplicarProgresion`, `proyectarVolumen`. |
 | `src/domain/planner.ts` | `generarMacrociclo`, `generarMesociclo`, `generarMicrociclo`, `nivelPorObjetivo`, `feasibilidadObjetivo`. |
 | `src/domain/calendar.ts` | `calendarizarPlan`: aterriza la numeración abstracta del plan en fechas reales. |
+| `src/domain/sessionAnalysis.ts` | Carga metabólica, distribución por zona y comparación plan vs. real. |
 | `src/domain/import/` | Parsers TCX/GPX/KML, Haversine, splits, cadencia, reconciliación de distancia. |
 | `supabase/schema.sql` | Tablas, tipos, RLS, trigger de alta de perfil y bucket de Storage. |
 | `src/data/` | Repositorios hacia Supabase. Traducen filas ↔ dominio y los errores al español. |
@@ -80,8 +81,31 @@ Reglas que sostienen esto:
 
 **El barrel de dominio (`src/domain/index.ts`) NO reexporta `./import`** a
 propósito: arrastra el parser de XML, que sólo hace falta en las pantallas de
-importación. Quien lo necesite importa de `@/domain/import` y el bundler lo
-separa solo (son ~87 kB de diferencia en el bundle principal).
+importación. Quien lo necesite importa de `@/domain/import`.
+
+Por la misma razón, **`RegistrarScreen` y `SesionDetalleScreen` se cargan con
+`lazy()`** en el router: son las dos que arrastran el parser de XML y Leaflet.
+Entre las dos cosas son ~275 kB que no tienen por qué estar en el arranque
+(bundle principal: 757 kB si se importan directo, 495 kB con el corte).
+
+### Pantallas y rutas
+
+| Ruta | Pantalla | Qué hace |
+| --- | --- | --- |
+| `/hoy` | Dashboard | Sesión de hoy, anillo de progreso semanal, próximo reto. |
+| `/plan` | Macrociclo | El plan completo, agrupado por mesociclo. |
+| `/plan/mesociclo/:index` | Mesociclo | Las semanas de un mesociclo con su carga. |
+| `/plan/semana/:numero` | Microciclo | Los 7 días de la semana; se usa entrenando. |
+| `/registrar` | Registro | Importar TCX/GPX/KML o cargar a mano. RPE protagonista. |
+| `/sesion/:id` | Detalle | Mapa, splits, cadencia, distribución por zona. |
+| `/zonas` | Mis Zonas | Las 7 zonas con RPE, pace y FC. |
+| `/umbral` | Umbral | Test o carga directa. |
+| `/objetivo` | Objetivo | Definir objetivo y generar el plan. |
+| `/onboarding`, `/config` | Perfil | Datos del corredor. |
+
+La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan, Zonas,
+Perfil): en mobile, una barra con más de cuatro íconos se vuelve imposible de
+acertar con el pulgar.
 
 ---
 
@@ -234,7 +258,7 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 ```bash
 npm install
 npm run dev         # servidor de desarrollo
-npm test            # 229 tests (dominio + utilidades)
+npm test            # 253 tests (dominio + utilidades)
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build de producción
 ```
@@ -247,9 +271,37 @@ npm run build       # typecheck + build de producción
 | --- | --- | --- |
 | **1** | Scaffolding + design system + `config.ts` con todas las tablas + módulos de dominio (zones, import, planner, rules, progression) + tests | ✅ **Completa** |
 | **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ✅ **Completa** |
-| **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ⬜ Pendiente |
+| **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ✅ **Completa** |
 | **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ⬜ Pendiente |
 | **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ⬜ Pendiente |
+
+### Lo que la Fase 3 dejó listo
+
+- **Importación real** de TCX/GPX/KML desde la pantalla de registro: el archivo
+  autocompleta distancia, tiempo, FC media y cadencia, y guarda la traza.
+- **Mapa Leaflet** (`RouteMap`) sobre OpenStreetMap, sin API key.
+- **Registro de sesión** con el RPE como slider protagonista y la sensación en
+  caritas. El archivo sólo llena los campos objetivos: el RPE y la sensación los
+  escribe siempre la persona.
+- **Detalle de sesión**: mapa, RPE/sensación primero, datos objetivos después,
+  distribución por zona y tabla de splits.
+- **Navegación del plan** en tres niveles: macrociclo (`/plan`) → mesociclo
+  (`/plan/mesociclo/:index`) → microciclo (`/plan/semana/:numero`).
+- **Dashboard** (`/hoy`): sesión de hoy, anillo de progreso semanal y próximo reto.
+- `sessionAnalysis.ts`: carga metabólica, distribución por zona y comparación
+  plan vs. real.
+- **253 tests.** Los 24 nuevos cubren `zonaPorPace`, `sessionAnalysis` y un test
+  de integración del pipeline completo (importar → derivar → analizar) sobre el
+  TCX real de Xiaomi, que es donde aparecen los desajustes de unidades que
+  ningún test unitario ve.
+
+Verificado en navegador con Playwright: las siete pantallas renderizan sin
+errores JS, y subir el TCX real autocompleta los cinco campos y dibuja la ruta.
+
+### Lo que la Fase 3 NO incluye (a propósito)
+
+Motor de adaptación, re-calibración, actividades complementarias, carga por
+imagen, Caja Negra, calendario heatmap y deploy. Fases 4 y 5.
 
 ### Lo que la Fase 2 dejó listo
 
@@ -293,8 +345,9 @@ en la Fase 2. Siguen pendientes Recharts, Leaflet, `vercel.json`, el deploy,
 
 ### Módulos de dominio todavía por escribir
 
-- `analysis.ts` (Fase 4) — `cajaNegra`, `estadoSupercompensacion`. `feasibilidadObjetivo`
-  ya está, en `planner.ts`.
+- `analysis.ts` (Fase 4/5) — `cajaNegra`, `estadoSupercompensacion`.
+  `feasibilidadObjetivo` ya está en `planner.ts`, y la carga metabólica y la
+  distribución por zona en `sessionAnalysis.ts`.
 - `adaptation.ts` (Fase 4) — los 7 casos del motor de adaptación. Sus umbrales ya
   están en `ADAPTATION_CONFIG`.
 - `vision.ts` (Fase 4) — interfaz para el modelo de visión que lee la captura del

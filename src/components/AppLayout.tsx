@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Activity, CalendarRange, Gauge, Settings } from 'lucide-react';
+import { CalendarRange, Gauge, LayoutGrid, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
@@ -10,10 +10,10 @@ import { cn } from '@/lib/utils';
  * usan este layout — ahí la única salida es hacia adelante.
  */
 const DESTINOS = [
+  { to: '/hoy', label: 'Hoy', Icon: LayoutGrid },
   { to: '/plan', label: 'Plan', Icon: CalendarRange },
   { to: '/zonas', label: 'Zonas', Icon: Gauge },
-  { to: '/umbral', label: 'Umbral', Icon: Activity },
-  { to: '/config', label: 'Ajustes', Icon: Settings },
+  { to: '/config', label: 'Perfil', Icon: User },
 ] as const;
 
 export default function AppLayout() {

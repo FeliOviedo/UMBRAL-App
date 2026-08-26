@@ -8,6 +8,7 @@ import {
   generarZonasPace,
   zonaPorFC,
   zonaPorId,
+  zonaPorPace,
   zonaPorRPE,
 } from '@/domain/zones';
 
@@ -167,6 +168,49 @@ describe('definiciones de zona', () => {
   it('busca una zona por id', () => {
     expect(zonaPorId('Z5b').name).toBe('Capacidad aeróbica');
     expect(() => zonaPorId('Z9' as never)).toThrow();
+  });
+});
+
+describe('clasificación por pace (camino secundario, más confiable que la FC)', () => {
+  const paceUmbral = 300; // 5:00 /km
+  const zones = generarZonasPace(paceUmbral);
+
+  it('ubica un pace claramente dentro de cada zona', () => {
+    expect(zonaPorPace(450, zones).id).toBe('Z1'); // 7:30, muy lento
+    expect(zonaPorPace(360, zones).id).toBe('Z2'); // 6:00
+    expect(zonaPorPace(330, zones).id).toBe('Z3'); // 5:30
+    expect(zonaPorPace(310, zones).id).toBe('Z4'); // 5:10
+    expect(zonaPorPace(295, zones).id).toBe('Z5a'); // 4:55
+    expect(zonaPorPace(280, zones).id).toBe('Z5b'); // 4:40
+    expect(zonaPorPace(200, zones).id).toBe('Z5c'); // 3:20, muy rápido
+  });
+
+  it('el pace umbral exacto ya es Z5a: Z4 es SUB-umbral', () => {
+    // Simétrico a la FC: pct=100% de LTHR cae en Z5a, no en Z4.
+    expect(zonaPorPace(paceUmbral, zones).id).toBe('Z5a');
+  });
+
+  it('en el borde exacto, el pace cae en la zona más exigente', () => {
+    // El "fast" de Z2 y el "slow" de Z3 son el mismo valor por construcción.
+    const z3 = zones.find((z) => z.id === 'Z3')!;
+    expect(zonaPorPace(z3.secPerKmSlow!, zones).id).toBe('Z3');
+  });
+
+  it('clasifica cualquier pace entre 2:30 y 10:00 sin dejar huecos', () => {
+    for (let sec = 150; sec <= 600; sec++) {
+      expect(() => zonaPorPace(sec, zones)).not.toThrow();
+    }
+  });
+
+  it('no hay dos zonas contiguas que reclamen el mismo valor', () => {
+    for (let sec = 150; sec <= 600; sec++) {
+      const matches = zones.filter(
+        (z) =>
+          (z.secPerKmFast === null || sec > z.secPerKmFast) &&
+          (z.secPerKmSlow === null || sec <= z.secPerKmSlow),
+      );
+      expect(matches).toHaveLength(1);
+    }
   });
 });
 

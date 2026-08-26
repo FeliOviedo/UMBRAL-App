@@ -189,15 +189,15 @@ export default function ObjetivoScreen() {
 
             <div className="mt-8 flex items-baseline gap-6">
               <div>
-                <p className="u-hero-sm font-hero">{preview.macrociclo.totalWeeks}</p>
+                <p className="font-hero text-hero-sm">{preview.macrociclo.totalWeeks}</p>
                 <p className="u-label mt-2">Semanas</p>
               </div>
               <div>
-                <p className="u-hero-sm font-hero">{preview.nivel.diasRecomendados}</p>
+                <p className="font-hero text-hero-sm">{preview.nivel.diasRecomendados}</p>
                 <p className="u-label mt-2">Días/semana</p>
               </div>
               <div>
-                <p className="u-hero-sm font-hero">{preview.macrociclo.baseWeeks}</p>
+                <p className="font-hero text-hero-sm">{preview.macrociclo.baseWeeks}</p>
                 <p className="u-label mt-2">De base</p>
               </div>
             </div>

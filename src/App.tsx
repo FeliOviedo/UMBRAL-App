@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { supabaseConfigurado } from '@/lib/supabase';
 import { useSession } from '@/store/session.store';
@@ -10,7 +10,19 @@ import UmbralScreen from '@/screens/UmbralScreen';
 import ZonasScreen from '@/screens/ZonasScreen';
 import ObjetivoScreen from '@/screens/ObjetivoScreen';
 import PlanScreen from '@/screens/PlanScreen';
+import MesocicloScreen from '@/screens/MesocicloScreen';
+import SemanaScreen from '@/screens/SemanaScreen';
+import DashboardScreen from '@/screens/DashboardScreen';
 import ConfigScreen from '@/screens/ConfigScreen';
+
+/**
+ * Estas dos pantallas se cargan bajo demanda porque arrastran las dependencias
+ * pesadas del proyecto: el parser de XML (importar archivos) y Leaflet (el
+ * mapa). Son ~275 kB que no tienen por qué estar en el arranque, cuando la
+ * mayoría de las visitas van al dashboard o al plan.
+ */
+const RegistrarScreen = lazy(() => import('@/screens/RegistrarScreen'));
+const SesionDetalleScreen = lazy(() => import('@/screens/SesionDetalleScreen'));
 
 export default function App() {
   const inicializar = useSession((s) => s.inicializar);
@@ -61,10 +73,29 @@ function Rutas() {
       <Route path="/onboarding" element={<OnboardingScreen />} />
 
       <Route element={<AppLayout />}>
+        <Route path="/hoy" element={<DashboardScreen />} />
         <Route path="/umbral" element={<UmbralScreen />} />
         <Route path="/zonas" element={<ZonasScreen />} />
         <Route path="/objetivo" element={<ObjetivoScreen />} />
         <Route path="/plan" element={<PlanScreen />} />
+        <Route path="/plan/mesociclo/:index" element={<MesocicloScreen />} />
+        <Route path="/plan/semana/:numero" element={<SemanaScreen />} />
+        <Route
+          path="/registrar"
+          element={
+            <Suspense fallback={<Cargando mensaje="Abriendo el registro…" />}>
+              <RegistrarScreen />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/sesion/:id"
+          element={
+            <Suspense fallback={<Cargando mensaje="Cargando sesión…" />}>
+              <SesionDetalleScreen />
+            </Suspense>
+          }
+        />
         <Route path="/config" element={<ConfigScreen />} />
       </Route>
 
@@ -73,9 +104,9 @@ function Rutas() {
   );
 }
 
-/** A dónde mandar a alguien que entra sin ruta: al onboarding o al plan. */
+/** A dónde mandar a alguien que entra sin ruta: al onboarding o al día de hoy. */
 function destinoInicial(onboardingCompleto: boolean | undefined): string {
-  return onboardingCompleto ? '/plan' : '/onboarding';
+  return onboardingCompleto ? '/hoy' : '/onboarding';
 }
 
 /**

@@ -88,6 +88,8 @@ src/
 │   ├── rules.ts      Reglas R1-R4 del microciclo: validar y reparar.
 │   ├── progression.ts Progresión de volumen semanal.
 │   ├── planner.ts    Macrociclo, mesociclo, microciclo.
+│   ├── calendar.ts   El plan aterrizado en fechas reales.
+│   ├── sessionAnalysis.ts  Carga metabólica, zonas, plan vs. real.
 │   └── import/       Parsers TCX, GPX y KML.
 ├── data/         Repositorios hacia Supabase. Traducen filas ↔ dominio.
 ├── store/        Estado de sesión (Zustand).
