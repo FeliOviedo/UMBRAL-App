@@ -107,12 +107,12 @@ console.log('Cada usuario escribió una sesión propia.\n');
 
 console.log('LECTURA — A no tiene que ver nada de B');
 for (const tabla of TABLAS) {
-  const { data, error } = await a.cliente.from(tabla).select('user_id, id');
+  const columna = tabla === 'profiles' ? 'id' : 'user_id';
+  const { data, error } = await a.cliente.from(tabla).select(columna);
   if (error) {
     chequear(`${tabla}`, false, `error inesperado al leer: ${error.message}`);
     continue;
   }
-  const columna = tabla === 'profiles' ? 'id' : 'user_id';
   const ajenas = data.filter((fila) => fila[columna] !== a.id);
   chequear(
     `${tabla}: ${data.length} fila(s) visible(s), 0 ajenas`,
