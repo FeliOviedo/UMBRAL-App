@@ -24,9 +24,10 @@ import {
   type SesionAnalizable,
 } from '@/domain';
 import { useSession } from '@/store/session.store';
+import { useTheme } from '@/store/theme.store';
 import { Button } from '@/components/ui/button';
 import { Cargando, ErrorMensaje, Vacio } from '@/components/ui/feedback';
-import { CHART, EJE_PROPS, numero, regresionLineal, TOOLTIP_PROPS } from '@/lib/chart';
+import { chartTokens, ejeProps, numero, regresionLineal, tooltipProps, type Tema } from '@/lib/chart';
 import { formatearPaceCorto } from '@/lib/format';
 
 /**
@@ -45,6 +46,8 @@ export default function CajaNegraScreen() {
   const usuario = useSession((s) => s.usuario);
   const umbral = useSession((s) => s.umbral);
   const perfil = useSession((s) => s.perfil);
+  const tema = useTheme((s) => s.tema);
+  const chart = chartTokens(tema);
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +89,7 @@ export default function CajaNegraScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -96,7 +99,7 @@ export default function CajaNegraScreen() {
 
   if (sesiones.length < 3) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16 pt-8">
+      <main className="u-page pb-16 pt-8">
         <Vacio titulo="Todavía no hay suficiente historia">
           <p>
             La Caja Negra compara tus sesiones entre sí para ver si el mismo ritmo te va costando
@@ -115,7 +118,7 @@ export default function CajaNegraScreen() {
   const estado = explicarEstado(homeostasis.estado);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-block pb-16 pt-8">
       <header>
         <span className="u-label">Caja negra</span>
         <h1 className="u-title mt-unit">
@@ -133,6 +136,7 @@ export default function CajaNegraScreen() {
       {/* ── Pace vs RPE: EL gráfico. ─────────────────────────────────────── */}
       {paceReferencia !== null && (
         <DispersionEsfuerzo
+          tema={tema}
           titulo="Esfuerzo a lo largo del tiempo"
           subtitulo="Cuánto te costó cada sesión, al ritmo que corriste. Si la línea baja, estás mejorando."
           datos={analizables
@@ -147,6 +151,7 @@ export default function CajaNegraScreen() {
       {/* ── Pace vs FC: secundario, y se dice por qué. ───────────────────── */}
       {analizables.some((s) => s.fcPromedio !== null) && (
         <DispersionEsfuerzo
+          tema={tema}
           titulo="Frecuencia cardíaca"
           subtitulo="Dato de apoyo. Sólo confía en esta curva si tu reloj te da números coherentes: si contradice al RPE de arriba, gana el RPE."
           datos={analizables
@@ -174,27 +179,27 @@ export default function CajaNegraScreen() {
             >
               <defs>
                 <linearGradient id="gradBalance" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={CHART.acento} stopOpacity={0.35} />
-                  <stop offset="100%" stopColor={CHART.acento} stopOpacity={0} />
+                  <stop offset="0%" stopColor={chart.acento} stopOpacity={0.35} />
+                  <stop offset="100%" stopColor={chart.acento} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke={CHART.grid} vertical={false} />
+              <CartesianGrid stroke={chart.grid} vertical={false} />
               <XAxis
                 dataKey="dias"
-                {...EJE_PROPS}
+                {...ejeProps(tema)}
                 tickFormatter={(v: number) => (v === 0 ? 'hoy' : `${v}d`)}
               />
-              <YAxis {...EJE_PROPS} width={44} />
-              <ReferenceLine y={0} stroke={CHART.axis} strokeDasharray="3 3" />
+              <YAxis {...ejeProps(tema)} width={44} />
+              <ReferenceLine y={0} stroke={chart.axis} strokeDasharray="3 3" />
               <Tooltip
-                {...TOOLTIP_PROPS}
+                {...tooltipProps(tema)}
                 formatter={(v) => [numero(v), 'Balance']}
                 labelFormatter={(v) => (numero(v) === 0 ? 'Hoy' : `Hace ${-numero(v)} días`)}
               />
               <Area
                 type="monotone"
                 dataKey="balance"
-                stroke={CHART.acento}
+                stroke={chart.acento}
                 strokeWidth={2}
                 fill="url(#gradBalance)"
                 dot={false}
@@ -209,10 +214,10 @@ export default function CajaNegraScreen() {
       </section>
 
       {/* ── Producción de energía ────────────────────────────────────────── */}
-      <ProduccionDeEnergia sesiones={analizables} />
+      <ProduccionDeEnergia sesiones={analizables} tema={tema} />
 
       {/* ── Volumen vs rendimiento ───────────────────────────────────────── */}
-      <VolumenVsRendimiento sesiones={analizables} />
+      <VolumenVsRendimiento sesiones={analizables} tema={tema} />
 
       <section className="flex flex-col gap-3">
         <Button asChild variant="outline" size="block">
@@ -240,6 +245,7 @@ export default function CajaNegraScreen() {
  * puntos son el dato y la recta es la lectura.
  */
 function DispersionEsfuerzo({
+  tema,
   titulo,
   subtitulo,
   datos,
@@ -248,6 +254,7 @@ function DispersionEsfuerzo({
   principal = false,
   secundario = false,
 }: {
+  tema: Tema;
   titulo: string;
   subtitulo: string;
   datos: { x: number; y: number; pace: number }[];
@@ -258,7 +265,8 @@ function DispersionEsfuerzo({
 }) {
   if (datos.length < 3) return null;
 
-  const color = secundario ? CHART.contexto : CHART.acento;
+  const chart = chartTokens(tema);
+  const color = secundario ? chart.contexto : chart.acento;
   const tendencia = regresionLineal(datos);
 
   // La recta se dibuja de extremo a extremo del rango observado.
@@ -285,20 +293,20 @@ function DispersionEsfuerzo({
       <div className={principal ? 'mt-4 h-64 w-full' : 'mt-4 h-48 w-full'}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
-            <CartesianGrid stroke={CHART.grid} vertical={false} />
+            <CartesianGrid stroke={chart.grid} vertical={false} />
             <XAxis
               type="number"
               dataKey="x"
               reversed
               domain={['dataMin', 'dataMax']}
-              {...EJE_PROPS}
+              {...ejeProps(tema)}
               tickFormatter={(v: number) => (v === 0 ? 'hoy' : `${v}d`)}
             />
             <YAxis
               type="number"
               dataKey="y"
               domain={dominioY ?? ['dataMin - 5', 'dataMax + 5']}
-              {...EJE_PROPS}
+              {...ejeProps(tema)}
               // Las pulsaciones son de tres dígitos y el dominio es angosto: sin
               // ancho suficiente y sin forzar enteros, Recharts repite el mismo
               // tick redondeado y además lo recorta.
@@ -307,8 +315,8 @@ function DispersionEsfuerzo({
               tickFormatter={(v: number) => String(Math.round(v))}
             />
             <Tooltip
-              {...TOOLTIP_PROPS}
-              cursor={{ stroke: CHART.axis, strokeDasharray: '3 3' }}
+              {...tooltipProps(tema)}
+              cursor={{ stroke: chart.axis, strokeDasharray: '3 3' }}
               formatter={(valor, nombre) =>
                 nombre === 'pace'
                   ? [`${formatearPaceCorto(numero(valor))}/km`, 'Pace']
@@ -343,7 +351,14 @@ function DispersionEsfuerzo({
  * es la forma de la curva —dónde acumulaste y dónde aflojaste—, no los valores
  * absolutos, que dependen de cuán bien calibrado tengas el RPE.
  */
-function ProduccionDeEnergia({ sesiones }: { sesiones: readonly SesionAnalizable[] }) {
+function ProduccionDeEnergia({
+  sesiones,
+  tema,
+}: {
+  sesiones: readonly SesionAnalizable[];
+  tema: Tema;
+}) {
+  const chart = chartTokens(tema);
   const porSemana = useMemo(() => {
     const semanas = new Map<number, number>();
     for (const s of sesiones) {
@@ -369,26 +384,26 @@ function ProduccionDeEnergia({ sesiones }: { sesiones: readonly SesionAnalizable
           <AreaChart data={porSemana} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <defs>
               <linearGradient id="gradEnergia" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={CHART.acentoDim} stopOpacity={0.4} />
-                <stop offset="100%" stopColor={CHART.acentoDim} stopOpacity={0} />
+                <stop offset="0%" stopColor={chart.acentoDim} stopOpacity={0.4} />
+                <stop offset="100%" stopColor={chart.acentoDim} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke={CHART.grid} vertical={false} />
+            <CartesianGrid stroke={chart.grid} vertical={false} />
             <XAxis
               dataKey="semana"
-              {...EJE_PROPS}
+              {...ejeProps(tema)}
               tickFormatter={(v: number) => (v === 0 ? 'esta' : `${v}`)}
             />
-            <YAxis {...EJE_PROPS} width={44} />
+            <YAxis {...ejeProps(tema)} width={44} />
             <Tooltip
-              {...TOOLTIP_PROPS}
+              {...tooltipProps(tema)}
               formatter={(v) => [numero(v), 'Carga']}
               labelFormatter={(v) => (numero(v) === 0 ? 'Esta semana' : `Hace ${-numero(v)} semanas`)}
             />
             <Area
               type="monotone"
               dataKey="carga"
-              stroke={CHART.acentoDim}
+              stroke={chart.acentoDim}
               strokeWidth={2}
               fill="url(#gradEnergia)"
               dot={false}
@@ -407,7 +422,14 @@ function ProduccionDeEnergia({ sesiones }: { sesiones: readonly SesionAnalizable
  * Si los puntos de la derecha (más km) no están más arriba (más RPE), la
  * respuesta es que sí.
  */
-function VolumenVsRendimiento({ sesiones }: { sesiones: readonly SesionAnalizable[] }) {
+function VolumenVsRendimiento({
+  sesiones,
+  tema,
+}: {
+  sesiones: readonly SesionAnalizable[];
+  tema: Tema;
+}) {
+  const chart = chartTokens(tema);
   const puntos = useMemo(() => {
     const semanas = new Map<number, { carga: number; rpes: number[] }>();
     for (const s of sesiones) {
@@ -439,18 +461,18 @@ function VolumenVsRendimiento({ sesiones }: { sesiones: readonly SesionAnalizabl
       <div className="mt-4 h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
-            <CartesianGrid stroke={CHART.grid} vertical={false} />
-            <XAxis type="number" dataKey="x" name="Carga" {...EJE_PROPS} />
-            <YAxis type="number" dataKey="y" name="RPE medio" domain={[1, 10]} {...EJE_PROPS} width={44} />
+            <CartesianGrid stroke={chart.grid} vertical={false} />
+            <XAxis type="number" dataKey="x" name="Carga" {...ejeProps(tema)} />
+            <YAxis type="number" dataKey="y" name="RPE medio" domain={[1, 10]} {...ejeProps(tema)} width={44} />
             <Tooltip
-              {...TOOLTIP_PROPS}
-              cursor={{ stroke: CHART.axis, strokeDasharray: '3 3' }}
+              {...tooltipProps(tema)}
+              cursor={{ stroke: chart.axis, strokeDasharray: '3 3' }}
               formatter={(v, nombre) => [numero(v), String(nombre)]}
               labelFormatter={() => ''}
             />
             <Scatter data={puntos} dataKey="y" r={5}>
               {puntos.map((p, i) => (
-                <Cell key={i} fill={p.reciente ? CHART.acento : CHART.contexto} />
+                <Cell key={i} fill={p.reciente ? chart.acento : chart.contexto} />
               ))}
             </Scatter>
           </ScatterChart>

@@ -34,7 +34,7 @@ export default function SesionDetalleScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -44,7 +44,7 @@ export default function SesionDetalleScreen() {
 
   if (sesion === null) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <p className="u-sub">No se encontró esa sesión.</p>
         <Button asChild variant="outline" size="block" className="mt-6">
           <Link to="/plan">Volver al plan</Link>
@@ -69,7 +69,7 @@ export default function SesionDetalleScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-edge pb-16">
+    <main className="u-page pb-16">
       <header className="u-section">
         <p className="u-label">{formatearFechaLarga(sesion.ocurrioEn.slice(0, 10))}</p>
         <h1 className="mt-6 u-hero">

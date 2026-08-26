@@ -9,6 +9,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { calendarizarPlan } from '@/domain/calendar';
+import type { MovimientoDia, SaltoDePlan } from '@/domain/planEdit';
 import { sumarDias } from '@/lib/format';
 import type {
   BasePaceLevel,
@@ -53,6 +54,8 @@ export interface Plan {
   objetivoId: string;
   esquema: MesocycleScheme;
   diasPorSemana: number;
+  /** Días de la semana elegidos para entrenar (0 = lunes). */
+  diasEntrenamiento: number[];
   ritmoBase: BasePaceLevel;
   volumenInicialKm: number;
   semanasBase: number;
@@ -86,6 +89,7 @@ export async function guardarPlan(
   parametros: {
     esquema: MesocycleScheme;
     diasPorSemana: number;
+    diasEntrenamiento?: readonly number[];
     ritmoBase: BasePaceLevel;
     volumenInicialKm: number;
   },
@@ -99,6 +103,7 @@ export async function guardarPlan(
       goal_id: objetivoId,
       scheme: parametros.esquema,
       days_per_week: parametros.diasPorSemana,
+      training_days: [...(parametros.diasEntrenamiento ?? [])],
       base_pace_level: parametros.ritmoBase,
       initial_weekly_km: parametros.volumenInicialKm,
       base_weeks: macrociclo.baseWeeks,
@@ -232,6 +237,7 @@ function armarPlan(plan: PlanRow, weeks: PlanWeekRow[], days: PlanDayRow[]): Pla
     objetivoId: plan.goal_id,
     esquema: plan.scheme,
     diasPorSemana: plan.days_per_week,
+    diasEntrenamiento: plan.training_days ?? [],
     ritmoBase: plan.base_pace_level,
     volumenInicialKm: Number(plan.initial_weekly_km),
     semanasBase: plan.base_weeks,
@@ -345,4 +351,94 @@ export function aDiasDeDominio(dias: readonly DiaPlanificado[]): PlannedDay[] {
     ...(d.rpeObjetivo !== null ? { targetRpe: d.rpeObjetivo } : {}),
     ...(d.notas ? { notes: d.notas } : {}),
   }));
+}
+
+/**
+ * Persiste el movimiento de uno o dos días del plan.
+ *
+ * Recibe los movimientos ya calculados y validados por el dominio
+ * (`planearMovimiento`): acá sólo se escriben. Se actualiza fila por fila y no
+ * en lote porque son como mucho dos, y un upsert masivo obligaría a mandar
+ * todas las columnas de cada día.
+ *
+ * Los totales de las semanas afectadas se recalculan al final: si la sesión
+ * cruzó de semana, los km se fueron con ella.
+ */
+export async function moverDiasDelPlan(
+  movimientos: readonly MovimientoDia[],
+  semanasAfectadas: readonly string[],
+): Promise<void> {
+  for (const mov of movimientos) {
+    const { error } = await supabase
+      .from('plan_days')
+      .update({
+        plan_week_id: mov.semanaId,
+        day_index: mov.diaIndex,
+        scheduled_on: mov.fecha,
+      })
+      .eq('id', mov.id);
+
+    if (error) throw traducirError(error, 'mover la sesión');
+  }
+
+  await recalcularTotales(semanasAfectadas);
+}
+
+/** Vuelve a sumar los km de cada semana desde sus días. */
+async function recalcularTotales(semanaIds: readonly string[]): Promise<void> {
+  for (const semanaId of semanaIds) {
+    const { data, error } = await supabase
+      .from('plan_days')
+      .select('km')
+      .eq('plan_week_id', semanaId);
+
+    if (error) throw traducirError(error, 'recalcular el volumen de la semana');
+
+    const totalKm = Math.round((data ?? []).reduce((sum, d) => sum + Number(d.km), 0) * 10) / 10;
+
+    const { error: errorTotal } = await supabase
+      .from('plan_weeks')
+      .update({ total_km: totalKm })
+      .eq('id', semanaId);
+
+    if (errorTotal) throw traducirError(errorTotal, 'actualizar el volumen de la semana');
+  }
+}
+
+/**
+ * Aplica un salto de mesociclo: borra las semanas salteadas y adelanta el resto.
+ *
+ * El orden importa. Primero se recalendariza lo que se queda y recién después
+ * se borra lo salteado: si el proceso se corta en el medio, el plan queda con
+ * semanas de más (visibles y corregibles) en vez de con un agujero de fechas.
+ *
+ * Los días caen por `on delete cascade` al borrar su semana.
+ */
+export async function aplicarSaltoDeMesociclo(salto: SaltoDePlan): Promise<void> {
+  for (const semana of salto.semanasRecalendarizadas) {
+    const { error } = await supabase
+      .from('plan_weeks')
+      .update({ starts_on: semana.fechaInicio })
+      .eq('id', semana.id);
+
+    if (error) throw traducirError(error, 'adelantar las semanas del plan');
+  }
+
+  for (const dia of salto.diasRecalendarizados) {
+    const { error } = await supabase
+      .from('plan_days')
+      .update({ scheduled_on: dia.fecha })
+      .eq('id', dia.id);
+
+    if (error) throw traducirError(error, 'adelantar los días del plan');
+  }
+
+  if (salto.semanasEliminadas.length > 0) {
+    const { error } = await supabase
+      .from('plan_weeks')
+      .delete()
+      .in('id', salto.semanasEliminadas);
+
+    if (error) throw traducirError(error, 'saltear las semanas del mesociclo');
+  }
 }

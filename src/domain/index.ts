@@ -9,6 +9,8 @@ export * from './zones';
 export * from './rules';
 export * from './progression';
 export * from './planner';
+export * from './trainingDays';
+export * from './planEdit';
 export * from './calendar';
 export * from './sessionAnalysis';
 export * from './homeostasis';

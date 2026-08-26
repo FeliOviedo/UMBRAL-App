@@ -1,16 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { listarSesiones, type Sesion } from '@/data';
-import { TRAINING_TYPE_TARGETS } from '@/domain';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import {
+  aDiasDeDominio,
+  listarSesiones,
+  moverDiasDelPlan,
+  reemplazarDiasDeSemana,
+  type Sesion,
+} from '@/data';
+import {
+  adaptarPorSesionOmitida,
+  planearMovimiento,
+  type Adaptacion,
+  type ResultadoMovimiento,
+  type SemanaMovible,
+} from '@/domain';
 import type { TrainingType } from '@/domain/types';
 import { useSession } from '@/store/session.store';
+import { useTheme } from '@/store/theme.store';
+import { Button } from '@/components/ui/button';
+import DetalleDia from '@/components/DetalleDia';
 import { Cargando, ErrorMensaje } from '@/components/ui/feedback';
-import { CHART, colorPorTipo, INTENSIDAD } from '@/lib/chart';
+import { chartTokens, colorPorTipo, intensidad } from '@/lib/chart';
 import { DIAS_SEMANA, formatearKm, hoyIso } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 /**
- * Calendario mensual: qué hiciste cada día.
+ * Calendario mensual: qué hiciste cada día y qué tenés por delante.
  *
  * Es un heatmap, así que el color codifica MAGNITUD con una rampa de un solo
  * hue (validada: hue spread 3°, luminosidad monótona). La identidad del tipo la
@@ -18,16 +34,38 @@ import { cn } from '@/lib/utils';
  * canales tiene que hacer los dos trabajos, y la escala sigue leyéndose bajo
  * cualquier tipo de daltonismo.
  *
- * Los días planificados pero no hechos se dibujan con el borde punteado: el
- * hueco es información.
+ * La celda en sí es deliberadamente austera —sólo número y letra—: cualquier
+ * acción (ver, registrar, saltear) vive en el panel de detalle del día
+ * elegido, no apilada como iconitos sobre la celda. En desktop el panel es una
+ * columna fija a la derecha (`.u-cols`); en móvil aparece debajo de la grilla
+ * al tocar un día.
+ *
+ * Además se puede REORGANIZAR el plan desde acá: arrastrar una sesión a otro
+ * día la mueve, y si el destino está ocupado las dos se intercambian, así la
+ * semana nunca cambia de carga por accidente. Quien decide si el movimiento es
+ * legal es el dominio (`planearMovimiento`), no esta pantalla.
  */
 export default function CalendarioScreen() {
+  const navigate = useNavigate();
   const usuario = useSession((s) => s.usuario);
   const plan = useSession((s) => s.plan);
+  const recargarDatos = useSession((s) => s.recargarDatos);
+  const tema = useTheme((s) => s.tema);
+  const chart = chartTokens(tema);
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mesOffset, setMesOffset] = useState(0);
+  const hoy = hoyIso();
+  const [fechaElegida, setFechaElegida] = useState<string>(hoy);
+
+  const [arrastrando, setArrastrando] = useState<string | null>(null);
+  const [sobre, setSobre] = useState<string | null>(null);
+  const [propuesta, setPropuesta] = useState<ResultadoMovimiento | null>(null);
+  const [guardando, setGuardando] = useState(false);
+  // Saltear una sesión: el día elegido y lo que el motor propone hacer con la
+  // semana que queda.
+  const [salteo, setSalteo] = useState<{ diaId: string; adaptacion: Adaptacion } | null>(null);
 
   useEffect(() => {
     if (!usuario) return;
@@ -38,9 +76,25 @@ export default function CalendarioScreen() {
       );
   }, [usuario]);
 
-  const hoy = hoyIso();
   const base = new Date(`${hoy}T00:00:00Z`);
   const mes = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth() + mesOffset, 1));
+
+  /** El plan en la forma mínima que el dominio necesita para mover días. */
+  const semanasMovibles: SemanaMovible[] = useMemo(
+    () =>
+      (plan?.semanas ?? []).map((s) => ({
+        id: s.id,
+        fechaInicio: s.fechaInicio,
+        dias: s.dias.map((d) => ({
+          id: d.id,
+          semanaId: s.id,
+          diaIndex: d.diaIndex,
+          fecha: d.fecha,
+          tipo: d.tipo,
+        })),
+      })),
+    [plan],
+  );
 
   const celdas = useMemo(() => {
     const anio = mes.getUTCFullYear();
@@ -73,9 +127,81 @@ export default function CalendarioScreen() {
     return { celdas: resultado, planPorFecha, sesionPorFecha };
   }, [mes, plan, sesiones]);
 
-  if (error) {
+  function alSoltar(fechaDestino: string) {
+    setSobre(null);
+    const diaId = arrastrando;
+    setArrastrando(null);
+    if (!diaId) return;
+
+    const resultado = planearMovimiento(semanasMovibles, diaId, fechaDestino);
+    if (!resultado) {
+      setError('Esa fecha queda fuera del plan: no se puede mover la sesión ahí.');
+      return;
+    }
+    // "Ya estaba ahí": no hay nada que confirmar ni que guardar.
+    if (resultado.movimientos.length === 0) return;
+
+    setError(null);
+    setPropuesta(resultado);
+  }
+
+  /**
+   * Saltear la sesión de un día.
+   *
+   * No se inventa nada acá: es el caso "sesión omitida" del motor de
+   * adaptación, que reordena lo que queda de la semana usando los R como
+   * comodines. El motor puede decir que no hay reordenamiento legal, y en ese
+   * caso se muestra su explicación en lugar de forzar la semana.
+   */
+  function proponerSalteo(diaId: string) {
+    const semana = plan?.semanas.find((s) => s.dias.some((d) => d.id === diaId));
+    const dia = semana?.dias.find((d) => d.id === diaId);
+    if (!semana || !dia) return;
+
+    setError(null);
+    setPropuesta(null);
+    setSalteo({
+      diaId,
+      adaptacion: adaptarPorSesionOmitida(aDiasDeDominio(semana.dias), dia.diaIndex),
+    });
+  }
+
+  async function confirmarSalteo() {
+    if (!salteo || !usuario || !salteo.adaptacion.semanaPropuesta) return;
+    const semana = plan?.semanas.find((s) => s.dias.some((d) => d.id === salteo.diaId));
+    if (!semana) return;
+
+    setGuardando(true);
+    try {
+      await reemplazarDiasDeSemana(usuario.id, semana.id, salteo.adaptacion.semanaPropuesta);
+      await recargarDatos();
+      setSalteo(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo saltear la sesión.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function confirmarMovimiento() {
+    if (!propuesta) return;
+    setGuardando(true);
+    try {
+      await moverDiasDelPlan(propuesta.movimientos, propuesta.semanasAfectadas);
+      await recargarDatos();
+      setPropuesta(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo mover la sesión.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  // El error de carga inicial deja la pantalla sin nada que mostrar; los de
+  // movimiento se muestran arriba del calendario, que sigue estando.
+  if (error && sesiones === null) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -95,13 +221,16 @@ export default function CalendarioScreen() {
   });
   const kmDelMes = delMes.reduce((sum, s) => sum + (s.distanciaMetros ?? 0), 0) / 1000;
 
+  const diaElegido = celdas.planPorFecha.get(fechaElegida);
+  const sesionElegida = celdas.sesionPorFecha.get(fechaElegida)?.[0];
+
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-section pb-16 pt-8 lg:h-dvh lg:gap-6 lg:overflow-hidden lg:pb-6">
       <header>
         <span className="u-label">Calendario</span>
         <div className="mt-unit flex items-center justify-between gap-3">
-          <h1 className="u-title first-letter:uppercase">{nombreMes}</h1>
-          <div className="flex shrink-0 gap-1">
+          <h1 className="u-title first-letter:uppercase lg:text-hero">{nombreMes}</h1>
+          <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
               aria-label="Mes anterior"
@@ -110,12 +239,22 @@ export default function CalendarioScreen() {
             >
               <ChevronLeft size={20} strokeWidth={2} aria-hidden />
             </button>
+            {/* Se puede navegar hacia adelante sin tope: el plan vive en el
+                futuro, y antes el calendario no dejaba verlo. */}
+            {mesOffset !== 0 && (
+              <button
+                type="button"
+                onClick={() => setMesOffset(0)}
+                className="u-label px-2 hover:text-fg"
+              >
+                Hoy
+              </button>
+            )}
             <button
               type="button"
               aria-label="Mes siguiente"
-              disabled={mesOffset >= 0}
               onClick={() => setMesOffset((m) => m + 1)}
-              className="p-2 text-outline hover:text-fg disabled:opacity-30"
+              className="p-2 text-outline hover:text-fg"
             >
               <ChevronRight size={20} strokeWidth={2} aria-hidden />
             </button>
@@ -127,102 +266,205 @@ export default function CalendarioScreen() {
         </p>
       </header>
 
-      <section>
-        <div className="grid grid-cols-7 gap-1">
-          {DIAS_SEMANA.map((d) => (
-            <span key={d} className="u-label pb-2 text-center text-[10px]">
-              {d.slice(0, 1)}
-            </span>
-          ))}
+      {error && <ErrorMensaje mensaje={error} />}
 
-          {celdas.celdas.map((celda, i) => {
-            if (!celda) return <span key={`hueco-${i}`} aria-hidden />;
+      {/* Confirmación del movimiento. Nunca se mueve nada en silencio, y si el
+          movimiento rompe una regla se dice cuál ANTES de aplicarlo. */}
+      {propuesta && (
+        <section
+          className={cn(
+            'border p-4',
+            propuesta.violaciones.length > 0 ? 'border-zone-z4' : 'border-accent',
+          )}
+        >
+          <h2 className="u-label">
+            {propuesta.violaciones.length > 0 ? 'Rompe una regla' : 'Confirmá el cambio'}
+          </h2>
+          <p className="u-sub mt-3 text-fg">{propuesta.mensaje}</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button onClick={confirmarMovimiento} disabled={guardando}>
+              {guardando ? 'Moviendo…' : propuesta.violaciones.length > 0 ? 'Mover igual' : 'Mover'}
+            </Button>
+            <Button variant="outline" onClick={() => setPropuesta(null)} disabled={guardando}>
+              Cancelar
+            </Button>
+          </div>
+        </section>
+      )}
 
-            const planificado = celdas.planPorFecha.get(celda.fecha);
-            const hechas = celdas.sesionPorFecha.get(celda.fecha) ?? [];
-            const tipo = (hechas[0]?.trainingType ?? planificado?.tipo ?? null) as
-              | TrainingType
-              | null;
-            const seHizo = hechas.length > 0;
-            const esFuturo = celda.fecha > hoy;
-            const esHoy = celda.fecha === hoy;
+      {/* Saltear una sesión: se muestra qué va a pasar con el resto de la
+          semana antes de tocar nada. Si el motor no encontró un reordenamiento
+          legal, `aplicable` es false y sólo se explica. */}
+      {salteo && (
+        <section
+          className={cn(
+            'border p-4',
+            salteo.adaptacion.aplicable ? 'border-accent' : 'border-zone-z4',
+          )}
+        >
+          <h2 className="u-label">{salteo.adaptacion.titulo}</h2>
+          <p className="u-sub mt-3 text-fg">{salteo.adaptacion.explicacion}</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {salteo.adaptacion.aplicable && (
+              <Button onClick={confirmarSalteo} disabled={guardando}>
+                {guardando ? 'Salteando…' : 'Saltear y reordenar'}
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => setSalteo(null)} disabled={guardando}>
+              {salteo.adaptacion.aplicable ? 'Cancelar' : 'Entendido'}
+            </Button>
+          </div>
+        </section>
+      )}
 
-            // Un día planificado que ya pasó y no se hizo: el hueco importa.
-            const faltante =
-              !seHizo && !esFuturo && planificado != null && planificado.tipo !== 'D';
+      {/*
+        Grilla + panel de detalle. En desktop van lado a lado (`.u-cols`); en
+        móvil el panel aparece después de la grilla, debajo. En desktop el mes
+        entra ENTERO, sin scroll: la grilla toma la altura que queda de
+        viewport y reparte seis filas iguales, en vez de celdas de proporción
+        fija que cortaban la última semana.
+      */}
+      <div className="lg:grid lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
+        <section className="lg:flex lg:min-h-0 lg:flex-col">
+          <div className="grid grid-cols-7 gap-1 lg:min-h-0 lg:flex-1 lg:grid-rows-[auto_repeat(6,minmax(0,1fr))] lg:gap-2">
+            {DIAS_SEMANA.map((d) => (
+              <span key={d} className="u-label pb-2 text-center text-[10px] lg:text-label">
+                <span className="lg:hidden">{d.slice(0, 1)}</span>
+                <span className="hidden lg:inline">{d.slice(0, 3)}</span>
+              </span>
+            ))}
 
-            const km = hechas.reduce((s, x) => s + (x.distanciaMetros ?? 0), 0) / 1000;
-            const etiqueta = [
-              celda.fecha,
-              tipo ? TRAINING_TYPE_TARGETS[tipo].label : 'Sin sesión',
-              seHizo ? `${formatearKm(Math.round(km * 10) / 10)} km` : null,
-              faltante ? 'no realizada' : null,
-            ]
-              .filter(Boolean)
-              .join(' · ');
+            {celdas.celdas.map((celda, i) => {
+              if (!celda) return <span key={`hueco-${i}`} aria-hidden />;
 
-            return (
-              <div
-                key={celda.fecha}
-                title={etiqueta}
-                aria-label={etiqueta}
-                className={cn(
-                  'flex aspect-square flex-col items-center justify-center gap-0.5',
-                  faltante && 'border border-dashed border-zone-z4/50',
-                  esHoy && 'ring-1 ring-accent',
-                )}
-                style={{
-                  backgroundColor: seHizo ? colorPorTipo(tipo) : CHART.superficie,
-                  opacity: esFuturo ? 0.35 : 1,
-                }}
-              >
-                <span
+              const planificado = celdas.planPorFecha.get(celda.fecha);
+              const hechas = celdas.sesionPorFecha.get(celda.fecha) ?? [];
+              const tipo = (hechas[0]?.trainingType ?? planificado?.tipo ?? null) as
+                | TrainingType
+                | null;
+              const seHizo = hechas.length > 0;
+              const esFuturo = celda.fecha > hoy;
+              const esHoy = celda.fecha === hoy;
+              const esElegido = celda.fecha === fechaElegida;
+
+              // Un día planificado que ya pasó y no se hizo: el hueco importa.
+              const faltante =
+                !seHizo && !esFuturo && planificado != null && planificado.tipo !== 'D';
+
+              // Sólo se arrastra lo planificado que todavía no se hizo: mover
+              // una sesión ya registrada sería reescribir la historia.
+              const movible = planificado != null && !seHizo;
+
+              return (
+                <button
+                  type="button"
+                  key={celda.fecha}
+                  aria-label={celda.fecha}
+                  aria-pressed={esElegido}
+                  onClick={() => setFechaElegida(celda.fecha)}
+                  draggable={movible}
+                  onDragStart={() => movible && setArrastrando(planificado.id)}
+                  onDragEnd={() => {
+                    setArrastrando(null);
+                    setSobre(null);
+                  }}
+                  onDragOver={(e) => {
+                    if (!arrastrando) return;
+                    e.preventDefault();
+                    setSobre(celda.fecha);
+                  }}
+                  onDragLeave={() => setSobre((f) => (f === celda.fecha ? null : f))}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    alSoltar(celda.fecha);
+                  }}
                   className={cn(
-                    'font-mono text-[10px] tabular-nums',
-                    seHizo && tipo === 'E' ? 'text-accent-foreground' : 'text-outline',
+                    'group relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-sm lg:aspect-auto lg:h-full',
+                    faltante && 'ring-1 ring-inset ring-zone-z4/40',
+                    esHoy && !esElegido && 'ring-1 ring-inset ring-accent/60',
+                    esElegido && 'ring-2 ring-accent',
+                    movible && 'cursor-grab active:cursor-grabbing',
+                    arrastrando === planificado?.id && 'opacity-40',
+                    sobre === celda.fecha && 'ring-2 ring-accent',
                   )}
+                  style={{
+                    backgroundColor: seHizo ? colorPorTipo(tipo, tema) : chart.superficie,
+                    opacity: esFuturo && sobre !== celda.fecha ? 0.6 : 1,
+                  }}
                 >
-                  {celda.dia}
-                </span>
-                {tipo && tipo !== 'D' && (
                   <span
                     className={cn(
-                      'font-mono text-[9px] font-bold',
-                      seHizo && tipo === 'E' ? 'text-accent-foreground' : 'text-fg',
+                      'font-mono text-[10px] tabular-nums lg:text-data-sm',
+                      seHizo && tipo === 'E' ? 'text-accent-foreground' : 'text-outline',
                     )}
                   >
-                    {tipo}
+                    {celda.dia}
                   </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                  {tipo && tipo !== 'D' && (
+                    <span
+                      className={cn(
+                        'font-mono text-[9px] font-bold lg:text-data-sm',
+                        seHizo && tipo === 'E' ? 'text-accent-foreground' : 'text-fg',
+                      )}
+                    >
+                      {tipo}
+                    </span>
+                  )}
+                  {movible && (
+                    <GripVertical
+                      size={12}
+                      aria-hidden
+                      className="absolute right-1 top-1 text-outline opacity-0 transition-opacity group-hover:opacity-100"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Panel de detalle: el día elegido, con sus acciones. */}
+        <section className="mt-section lg:mt-0 lg:overflow-y-auto">
+          {diaElegido ? (
+            <DetalleDia
+              dia={diaElegido}
+              sesion={sesionElegida}
+              onVer={() => {
+                if (sesionElegida) navigate(`/sesion/${sesionElegida.id}`);
+                else navigate(`/registrar?dia=${diaElegido.id}&fecha=${diaElegido.fecha}`);
+              }}
+              onOmitir={
+                diaElegido.tipo !== 'D' && !sesionElegida
+                  ? () => proponerSalteo(diaElegido.id)
+                  : undefined
+              }
+            />
+          ) : (
+            <div className="u-panel">
+              <p className="u-label">{fechaElegida}</p>
+              <p className="u-sub mt-3">Ese día está fuera del plan actual.</p>
+            </div>
+          )}
+        </section>
+      </div>
 
       {/* La escala se explica: el color es intensidad, la letra es el tipo. */}
       <section>
         <h2 className="u-label">Cómo leerlo</h2>
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3 flex items-center gap-2 lg:max-w-md">
           <span className="u-label">Suave</span>
           <div className="flex flex-1 gap-0.5">
-            {INTENSIDAD.map((color) => (
+            {intensidad(tema).map((color) => (
               <span key={color} className="h-3 flex-1" style={{ backgroundColor: color }} />
             ))}
           </div>
           <span className="u-label">Duro</span>
         </div>
         <p className="u-sub mt-3">
-          El color es la intensidad de la sesión; la letra dice de qué tipo fue. Los días con borde
-          punteado estaban planificados y no se registraron.
+          El color es la intensidad de la sesión; la letra dice de qué tipo fue. Tocá un día para
+          ver su detalle. Arrastrá una sesión planificada a otro día para moverla — si el destino ya
+          tiene algo, las dos se intercambian, así la semana conserva la misma carga.
         </p>
-        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-          {(['E', 'F', 'R', 'D'] as const).map((t) => (
-            <li key={t} className="u-sub">
-              <span className="font-mono text-fg">{t}</span> {TRAINING_TYPE_TARGETS[t].label}
-            </li>
-          ))}
-        </ul>
       </section>
     </main>
   );

@@ -61,7 +61,7 @@ export default function DashboardScreen() {
 
   if (!plan || !semanaActual) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16">
+      <main className="u-page pb-16">
         <Vacio titulo={`Hola${perfil?.nombre ? `, ${perfil.nombre}` : ''}`}>
           <p>Todavía no tenés un plan activo.</p>
           <Button asChild size="block" className="mt-8">
@@ -83,7 +83,7 @@ export default function DashboardScreen() {
     semanaActual.totalKm > 0 ? Math.min(1, kmRealesSemana / semanaActual.totalKm) : 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-block pb-16 pt-8">
       {/* Objetivo de hoy: el título va en Archivo Black y en lima. */}
       <section className="flex flex-col items-center text-center">
         <span className="u-label">Objetivo de hoy</span>

@@ -56,7 +56,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-edge pb-16">
+    <main className="u-page pb-16">
       <header className="u-section">
         <p className="u-label">Paso 1 de 3</p>
         <h1 className="mt-6 u-title">

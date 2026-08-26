@@ -7,6 +7,28 @@ import { ErrorMensaje } from '@/components/ui/feedback';
 type Modo = 'login' | 'registro';
 
 /**
+ * El logo de Umbral: SÓLO esto, en todos lados.
+ *
+ * Tomado tal cual de `design-reference/bienvenida_minimalista` — la pantalla
+ * de splash es la única fuente de verdad del wordmark. Es Archivo Black (no
+ * Space Grotesk), con el halo lima en oscuro que en claro se apaga solo porque
+ * `shadow-glow` ya usa `--glow-strength` del tema.
+ */
+function LogoUmbral() {
+  return (
+    <div>
+      <p
+        className="font-hero text-[40px] uppercase leading-none tracking-tighter text-fg"
+        style={{ textShadow: '0 0 40px rgb(var(--glow) / var(--glow-strength))' }}
+      >
+        Umbral
+      </p>
+      <p className="u-label mt-3 tracking-[0.3em] opacity-60">Corré con método</p>
+    </div>
+  );
+}
+
+/**
  * Login y registro en una sola pantalla.
  *
  * Se alterna entre los dos modos con un enlace en vez de con tabs: son la misma
@@ -48,8 +70,8 @@ export default function LoginScreen() {
   if (avisoConfirmacion) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge">
-        <p className="u-label">Umbral</p>
-        <h1 className="mt-6 u-title">Revisá tu email</h1>
+        <LogoUmbral />
+        <h1 className="mt-10 u-title">Revisá tu email</h1>
         <p className="u-sub mt-3">
           Te mandamos un link de confirmación a <span className="text-fg">{email}</span>. Abrilo
           para activar tu cuenta y después volvé acá a iniciar sesión.
@@ -72,8 +94,8 @@ export default function LoginScreen() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge py-12">
       <header>
-        <p className="u-label">Umbral</p>
-        <h1 className="mt-6 u-title">
+        <LogoUmbral />
+        <h1 className="mt-10 u-title">
           {modo === 'login' ? 'Entrenar con cabeza' : 'Creá tu cuenta'}
         </h1>
         <p className="u-sub mt-3">

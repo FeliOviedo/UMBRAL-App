@@ -13,9 +13,10 @@ import {
 } from 'recharts';
 import { listarSesiones, type Sesion } from '@/data';
 import { useSession } from '@/store/session.store';
+import { useTheme } from '@/store/theme.store';
 import { Button } from '@/components/ui/button';
 import { Cargando, ErrorMensaje, Vacio } from '@/components/ui/feedback';
-import { CHART, EJE_PROPS, numero, regresionLineal, TOOLTIP_PROPS } from '@/lib/chart';
+import { chartTokens, ejeProps, numero, regresionLineal, tooltipProps } from '@/lib/chart';
 import { formatearKm, sumarDias } from '@/lib/format';
 
 /**
@@ -32,6 +33,8 @@ import { formatearKm, sumarDias } from '@/lib/format';
 export default function VolumenScreen() {
   const usuario = useSession((s) => s.usuario);
   const plan = useSession((s) => s.plan);
+  const tema = useTheme((s) => s.tema);
+  const chart = chartTokens(tema);
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +68,7 @@ export default function VolumenScreen() {
 
   if (error) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge py-section">
+      <main className="u-page py-section">
         <ErrorMensaje mensaje={error} />
       </main>
     );
@@ -75,7 +78,7 @@ export default function VolumenScreen() {
 
   if (!plan) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16 pt-8">
+      <main className="u-page pb-16 pt-8">
         <Vacio titulo="Todavía no tenés un plan">
           <p>El progreso de volumen compara lo que corriste contra lo que estaba planificado.</p>
           <Button asChild size="block" className="mt-8">
@@ -97,7 +100,7 @@ export default function VolumenScreen() {
   const descargas = datos.filter((d) => d.esDescarga && d.real !== null);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-block px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-block pb-16 pt-8">
       <header>
         <span className="u-label">Progreso de volumen</span>
         <h1 className="mt-unit u-hero">
@@ -128,15 +131,15 @@ export default function VolumenScreen() {
                 <ComposedChart data={datos} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
                   <defs>
                     <linearGradient id="gradVolumen" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={CHART.acento} stopOpacity={0.35} />
-                      <stop offset="100%" stopColor={CHART.acento} stopOpacity={0} />
+                      <stop offset="0%" stopColor={chart.acento} stopOpacity={0.35} />
+                      <stop offset="100%" stopColor={chart.acento} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke={CHART.grid} vertical={false} />
-                  <XAxis dataKey="semana" {...EJE_PROPS} tickFormatter={(v: number) => `S${v}`} />
-                  <YAxis {...EJE_PROPS} width={44} />
+                  <CartesianGrid stroke={chart.grid} vertical={false} />
+                  <XAxis dataKey="semana" {...ejeProps(tema)} tickFormatter={(v: number) => `S${v}`} />
+                  <YAxis {...ejeProps(tema)} width={44} />
                   <Tooltip
-                    {...TOOLTIP_PROPS}
+                    {...tooltipProps(tema)}
                     formatter={(v, nombre) => [
                       v == null ? '—' : `${numero(v)} km`,
                       nombre === 'real' ? 'Corrido' : 'Planificado',
@@ -147,7 +150,7 @@ export default function VolumenScreen() {
                   <Line
                     type="monotone"
                     dataKey="planificado"
-                    stroke={CHART.contexto}
+                    stroke={chart.contexto}
                     strokeWidth={2}
                     strokeDasharray="4 4"
                     dot={false}
@@ -156,7 +159,7 @@ export default function VolumenScreen() {
                   <Area
                     type="monotone"
                     dataKey="real"
-                    stroke={CHART.acento}
+                    stroke={chart.acento}
                     strokeWidth={2}
                     fill="url(#gradVolumen)"
                     connectNulls={false}
@@ -170,8 +173,8 @@ export default function VolumenScreen() {
                       x={d.semana}
                       y={d.real!}
                       r={5}
-                      fill={CHART.fondo}
-                      stroke={CHART.acento}
+                      fill={chart.fondo}
+                      stroke={chart.acento}
                       strokeWidth={2}
                     />
                   ))}
@@ -180,9 +183,9 @@ export default function VolumenScreen() {
             </div>
 
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-              <Leyenda color={CHART.acento} texto="Corrido" />
-              <Leyenda color={CHART.contexto} texto="Planificado" punteada />
-              <Leyenda color={CHART.acento} texto="Semana de descarga" anillo />
+              <Leyenda color={chart.acento} fondo={chart.fondo} texto="Corrido" />
+              <Leyenda color={chart.contexto} fondo={chart.fondo} texto="Planificado" punteada />
+              <Leyenda color={chart.acento} fondo={chart.fondo} texto="Semana de descarga" anillo />
             </div>
           </section>
 
@@ -209,11 +212,13 @@ export default function VolumenScreen() {
 
 function Leyenda({
   color,
+  fondo,
   texto,
   punteada = false,
   anillo = false,
 }: {
   color: string;
+  fondo: string;
   texto: string;
   punteada?: boolean;
   anillo?: boolean;
@@ -224,7 +229,7 @@ function Leyenda({
         <span
           aria-hidden
           className="h-2.5 w-2.5 rounded-full border-2"
-          style={{ borderColor: color, backgroundColor: CHART.fondo }}
+          style={{ borderColor: color, backgroundColor: fondo }}
         />
       ) : (
         <span

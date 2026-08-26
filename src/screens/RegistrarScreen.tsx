@@ -183,7 +183,7 @@ export default function RegistrarScreen() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-section pb-16 pt-8">
       <header className="flex flex-col items-center text-center">
         <span className="u-label">
           {diaPlanificado ? TRAINING_TYPE_TARGETS[diaPlanificado.tipo].label : 'Nueva sesión'}

@@ -18,7 +18,7 @@ export default function ZonasScreen() {
 
   if (!umbral) {
     return (
-      <main className="mx-auto w-full max-w-md px-edge pb-16">
+      <main className="u-page pb-16">
         <Vacio titulo="Todavía no cargaste tu umbral">
           <p>Las zonas se derivan de él. Es un dato y sale en un test de 20 minutos.</p>
           <Button asChild size="block" className="mt-8">
@@ -33,7 +33,7 @@ export default function ZonasScreen() {
   const zonasPace = umbral.pacePorKm !== null ? generarZonasPace(umbral.pacePorKm) : null;
 
   return (
-    <main className="mx-auto w-full max-w-md px-edge pb-16">
+    <main className="u-page pb-16">
       <header className="u-section">
         <p className="u-label">Mis zonas</p>
         {umbral.pacePorKm !== null ? (

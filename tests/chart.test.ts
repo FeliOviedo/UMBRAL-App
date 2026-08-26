@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { colorPorTipo, INTENSIDAD, NIVEL_INTENSIDAD, regresionLineal } from '@/lib/chart';
+import {
+  chartTokens,
+  colorPorTipo,
+  INTENSIDAD_CLARA,
+  INTENSIDAD_OSCURA,
+  intensidad,
+  NIVEL_INTENSIDAD,
+  regresionLineal,
+} from '@/lib/chart';
 
 describe('regresión lineal', () => {
   it('encuentra la recta exacta cuando los puntos son colineales', () => {
@@ -64,24 +72,40 @@ describe('regresión lineal', () => {
   });
 });
 
-describe('rampa de intensidad', () => {
+describe.each([
+  ['dark', INTENSIDAD_OSCURA] as const,
+  ['light', INTENSIDAD_CLARA] as const,
+])('rampa de intensidad (%s)', (tema, rampa) => {
   it('tiene un color por nivel de la escala', () => {
-    expect(INTENSIDAD).toHaveLength(4);
+    expect(intensidad(tema)).toHaveLength(4);
+    expect(intensidad(tema)).toEqual(rampa);
   });
 
   it('el descanso queda fuera de la rampa: no tiene carga que representar', () => {
     expect(NIVEL_INTENSIDAD.D).toBeLessThan(0);
-    expect(colorPorTipo('D')).not.toBe(INTENSIDAD[0]);
+    expect(colorPorTipo('D', tema)).not.toBe(rampa[0]);
   });
 
   it('a más intensidad, un paso más alto de la rampa', () => {
     expect(NIVEL_INTENSIDAD.R!).toBeLessThan(NIVEL_INTENSIDAD.F!);
     expect(NIVEL_INTENSIDAD.F!).toBeLessThan(NIVEL_INTENSIDAD.E!);
-    expect(colorPorTipo('E')).toBe(INTENSIDAD[3]);
+    expect(colorPorTipo('E', tema)).toBe(rampa[3]);
   });
 
-  it('un día sin sesión usa la superficie, no un color de la rampa', () => {
-    expect(colorPorTipo(null)).toBe('#151A22');
-    expect(colorPorTipo('desconocido')).toBe('#151A22');
+  it('un día sin sesión usa la superficie del tema, no un color de la rampa', () => {
+    const superficie = chartTokens(tema).superficie;
+    expect(colorPorTipo(null, tema)).toBe(superficie);
+    expect(colorPorTipo('desconocido', tema)).toBe(superficie);
+  });
+});
+
+describe('chartTokens', () => {
+  it('dark y light son juegos de colores distintos', () => {
+    expect(chartTokens('dark')).not.toEqual(chartTokens('light'));
+  });
+
+  it('el acento claro es el lima apagado, no el brillante', () => {
+    expect(chartTokens('light').acento).toBe('#A7D626');
+    expect(chartTokens('dark').acento).toBe('#CDFF4F');
   });
 });

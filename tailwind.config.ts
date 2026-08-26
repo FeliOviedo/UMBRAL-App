@@ -69,6 +69,9 @@ export default {
         'hero-sm': ['40px', { lineHeight: '40px', letterSpacing: '-0.03em' }],
         hero: ['56px', { lineHeight: '56px', letterSpacing: '-0.04em' }],
         'hero-lg': ['96px', { lineHeight: '96px', letterSpacing: '-0.04em' }],
+        // Sólo desktop: el dato protagonista crece cuando hay pantalla para
+        // sostenerlo. En móvil, 128px desbordaría la columna.
+        'hero-xl': ['128px', { lineHeight: '116px', letterSpacing: '-0.045em' }],
         // Títulos: Archivo Black 28px.
         title: ['28px', { lineHeight: '32px', letterSpacing: '-0.01em' }],
         'title-sm': ['18px', { lineHeight: '24px', letterSpacing: '-0.01em' }],
@@ -108,8 +111,11 @@ export default {
       boxShadow: {
         // El acento lima siempre viene con halo en Stitch. Es la única
         // "decoración" del sistema y es lo que le da el aire de app premium.
-        glow: '0 0 8px rgba(205, 255, 79, 0.5)',
-        'glow-soft': '0 0 8px rgba(205, 255, 79, 0.4)',
+        // El color y la intensidad salen de variables porque el halo tiene que
+        // bajar mucho en el tema claro: sobre blanco, un halo lima al 50% se
+        // lee como una mancha en vez de como brillo.
+        glow: '0 0 8px rgb(var(--glow) / var(--glow-strength))',
+        'glow-soft': '0 0 8px rgb(var(--glow) / var(--glow-strength-soft))',
       },
     },
   },

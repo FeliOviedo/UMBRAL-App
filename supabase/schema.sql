@@ -98,6 +98,10 @@ create table if not exists profiles (
   base_pace_level base_pace_level,
   -- Volumen semanal actual en km: el punto de partida de la progresión.
   current_weekly_km numeric(6, 2) check (current_weekly_km >= 0),
+  -- Días que el corredor suele tener libres para entrenar (0 = lunes). Es la
+  -- preferencia por defecto con la que se precarga el selector al armar un
+  -- plan nuevo; el plan guarda su propia copia.
+  training_days smallint[] not null default '{}',
   onboarding_completed boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -198,6 +202,11 @@ create table if not exists plans (
   -- Parámetros de entrada del generador.
   scheme mesocycle_scheme not null default '3:1',
   days_per_week integer not null check (days_per_week between 3 and 6),
+  -- Días de la semana que el corredor eligió para entrenar (0 = lunes).
+  -- Se guarda junto al resto de los parámetros de entrada porque regenerar el
+  -- plan sin esto daría un plan distinto: los días son parte de la entrada,
+  -- no una decoración de la UI.
+  training_days smallint[] not null default '{}',
   base_pace_level base_pace_level not null,
   initial_weekly_km numeric(6, 2) not null check (initial_weekly_km > 0),
   -- Resultado del generador (Tabla 6).
@@ -565,3 +574,18 @@ create policy "session-images: borrar lo propio" on storage.objects
   for delete using (
     bucket_id = 'session-images' and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Migraciones sobre bases ya creadas
+--
+-- `create table if not exists` no agrega columnas nuevas a una tabla que ya
+-- existe, así que las columnas incorporadas después del primer despliegue van
+-- acá. Son idempotentes: correr schema.sql de nuevo sobre una base al día no
+-- cambia nada, y sobre una base vieja la pone al día.
+-- ───────────────────────────────────────────────────────────────────────────
+
+alter table profiles
+  add column if not exists training_days smallint[] not null default '{}';
+
+alter table plans
+  add column if not exists training_days smallint[] not null default '{}';

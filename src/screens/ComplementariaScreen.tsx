@@ -107,7 +107,7 @@ export default function ComplementariaScreen() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-section px-edge pb-16 pt-8">
+    <main className="u-page flex flex-col gap-section pb-16 pt-8">
       <header>
         <span className="u-label">Actividad complementaria</span>
         <h1 className="u-title mt-unit">¿Qué hiciste?</h1>
