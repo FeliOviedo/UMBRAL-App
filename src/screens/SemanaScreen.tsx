@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Bed, Gauge, MoreVertical } from 'lucide-react';
-import { listarSesiones, type DiaPlanificado, type Sesion } from '@/data';
-import { TRAINING_TYPE_TARGETS, zonaPorId } from '@/domain';
+import { Bed, Gauge } from 'lucide-react';
+import {
+  aDiasDeDominio,
+  guardarPropuesta,
+  listarSesiones,
+  type DiaPlanificado,
+  type Sesion,
+} from '@/data';
+import { adaptarPorSesionOmitida, TRAINING_TYPE_TARGETS, zonaPorId } from '@/domain';
 import type { LoadWeek, TrainingType } from '@/domain/types';
 import { useSession } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
@@ -58,6 +64,7 @@ export default function SemanaScreen() {
 
   const [sesiones, setSesiones] = useState<Sesion[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [omitiendo, setOmitiendo] = useState(false);
   const hoy = hoyIso();
   const [diaSeleccionado, setDiaSeleccionado] = useState<string>(hoy);
 
@@ -91,6 +98,28 @@ export default function SemanaScreen() {
         </Vacio>
       </main>
     );
+  }
+
+  /**
+   * "No la hice": el motor reordena lo que queda de la semana y deja la
+   * propuesta para que el usuario la revise antes de aplicarla.
+   */
+  async function omitirSesion(dia: DiaPlanificado) {
+    if (!usuario || !semana) return;
+    setOmitiendo(true);
+    setError(null);
+    try {
+      const dias = aDiasDeDominio(semana.dias);
+      const adaptacion = adaptarPorSesionOmitida(dias, dia.diaIndex);
+      await guardarPropuesta(usuario.id, adaptacion, {
+        planWeekId: semana.id,
+        semanaOriginal: dias,
+      });
+      navigate('/ajustes');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo registrar la sesión omitida.');
+      setOmitiendo(false);
+    }
   }
 
   const kmReales =
@@ -169,6 +198,11 @@ export default function SemanaScreen() {
                 if (sesion) navigate(`/sesion/${sesion.id}`);
                 else if (dia.tipo !== 'D') navigate(`/registrar?dia=${dia.id}&fecha=${dia.fecha}`);
               }}
+              onOmitir={
+                dia.tipo !== 'D' && !sesiones?.some((s) => s.planDayId === dia.id) && !omitiendo
+                  ? () => void omitirSesion(dia)
+                  : undefined
+              }
             />
           ))
         )}
@@ -182,11 +216,13 @@ function FilaDeSesion({
   sesion,
   seleccionado,
   onAbrir,
+  onOmitir,
 }: {
   dia: DiaPlanificado;
   sesion: Sesion | undefined;
   seleccionado: boolean;
   onAbrir: () => void;
+  onOmitir?: (() => void) | undefined;
 }) {
   const estilo = ESTILO_TIPO[dia.tipo];
   const objetivo = TRAINING_TYPE_TARGETS[dia.tipo];
@@ -208,11 +244,9 @@ function FilaDeSesion({
   }
 
   return (
-    <button
-      type="button"
-      onClick={onAbrir}
+    <div
       className={cn(
-        'relative w-full overflow-hidden border-b border-border py-4 text-left',
+        'relative overflow-hidden border-b border-border py-4',
         !seleccionado && 'opacity-70',
       )}
     >
@@ -246,40 +280,55 @@ function FilaDeSesion({
             </span>
             {sesion && <span className="u-label text-outline">· Registrada</span>}
           </div>
-          <MoreVertical size={20} strokeWidth={2} className="text-outline" aria-hidden />
+
+          {/*
+            Va fuera del botón principal, no anidado: dos botones uno dentro de
+            otro no son HTML válido y rompen la navegación por teclado.
+          */}
+          {onOmitir && (
+            <button
+              type="button"
+              onClick={onOmitir}
+              className="font-mono text-[10px] uppercase tracking-widest text-outline hover:text-zone-z4"
+            >
+              No la hice
+            </button>
+          )}
         </div>
 
-        {/*
-          Stitch le pone a cada sesión un nombre descriptivo ("Intervalos de
-          Umbral", "Rodaje Suave"). El dominio no genera nombres, pero el de la
-          zona objetivo dice exactamente lo mismo y sale de la metodología en
-          lugar de inventarse.
+        <button type="button" onClick={onAbrir} className="w-full text-left">
+          {/*
+            Stitch le pone a cada sesión un nombre descriptivo ("Intervalos de
+            Umbral", "Rodaje Suave"). El dominio no genera nombres, pero el de la
+            zona objetivo dice exactamente lo mismo y sale de la metodología en
+            lugar de inventarse.
 
-          La cifra grande: en Stitch son minutos, porque su plan está en
-          minutos. Umbral planifica en KM, así que van los km — mismo lugar y
-          mismo peso visual, con el dato que el dominio realmente produce.
-        */}
-        <div className="mt-2 flex items-baseline justify-between gap-3">
-          <h3 className="u-title-sm leading-tight">
-            {dia.zonaObjetivo ? zonaPorId(dia.zonaObjetivo).name : objetivo.label}
-          </h3>
-          <div className="u-hero-sm text-right leading-none">
-            {formatearKm(sesion?.distanciaMetros != null ? sesion.distanciaMetros / 1000 : dia.km)}
-            <span className="font-title text-[20px] text-outline">km</span>
+            La cifra grande: en Stitch son minutos, porque su plan está en
+            minutos. Umbral planifica en KM, así que van los km — mismo lugar y
+            mismo peso visual, con el dato que el dominio realmente produce.
+          */}
+          <div className="mt-2 flex items-baseline justify-between gap-3">
+            <h3 className="u-title-sm leading-tight">
+              {dia.zonaObjetivo ? zonaPorId(dia.zonaObjetivo).name : objetivo.label}
+            </h3>
+            <div className="u-hero-sm text-right leading-none">
+              {formatearKm(sesion?.distanciaMetros != null ? sesion.distanciaMetros / 1000 : dia.km)}
+              <span className="font-title text-[20px] text-outline">km</span>
+            </div>
           </div>
-        </div>
 
-        {(dia.zonaObjetivo || dia.rpeObjetivo) && (
-          <div className="mt-1 flex items-center gap-1.5">
-            <Gauge size={16} strokeWidth={2} className="text-outline" aria-hidden />
-            <span className={cn('font-mono text-[14px]', estilo.texto)}>
-              {dia.zonaObjetivo && `Zona ${dia.zonaObjetivo}`}
-              {dia.zonaObjetivo && dia.rpeObjetivo && ' · '}
-              {dia.rpeObjetivo && `RPE ${dia.rpeObjetivo}`}
-            </span>
-          </div>
-        )}
+          {(dia.zonaObjetivo || dia.rpeObjetivo) && (
+            <div className="mt-1 flex items-center gap-1.5">
+              <Gauge size={16} strokeWidth={2} className="text-outline" aria-hidden />
+              <span className={cn('font-mono text-[14px]', estilo.texto)}>
+                {dia.zonaObjetivo && `Zona ${dia.zonaObjetivo}`}
+                {dia.zonaObjetivo && dia.rpeObjetivo && ' · '}
+                {dia.rpeObjetivo && `RPE ${dia.rpeObjetivo}`}
+              </span>
+            </div>
+          )}
+        </button>
       </div>
-    </button>
+    </div>
   );
 }

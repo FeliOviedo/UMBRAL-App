@@ -1,7 +1,13 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { crearSesion, type NuevaSesion } from '@/data';
-import { FEELING_SCALE, RPE_SCALE, compararPlanReal, TRAINING_TYPE_TARGETS } from '@/domain';
+import { aDiasDeDominio, crearSesion, guardarPropuesta, type NuevaSesion } from '@/data';
+import {
+  adaptarPorFeedbackPobre,
+  compararPlanReal,
+  FEELING_SCALE,
+  RPE_SCALE,
+  TRAINING_TYPE_TARGETS,
+} from '@/domain';
 import { paceMedio, parseActivityFile } from '@/domain/import';
 import type { ImportedActivity } from '@/domain/types';
 import { useSession } from '@/store/session.store';
@@ -145,6 +151,30 @@ export default function RegistrarScreen() {
       };
 
       const sesion = await crearSesion(usuario.id, payload);
+
+      // El motor mira el feedback: si costó mucho más de lo planificado, deja
+      // una propuesta para revisar antes del próximo Específico.
+      const semana = plan?.semanas.find((s) => s.dias.some((d) => d.id === diaPlanificado?.id));
+      if (semana && diaPlanificado?.rpeObjetivo != null) {
+        const dias = aDiasDeDominio(semana.dias);
+        const adaptacion = adaptarPorFeedbackPobre(dias, {
+          diaSesion: diaPlanificado.diaIndex,
+          rpeReal: rpe,
+          rpePlanificado: diaPlanificado.rpeObjetivo,
+          sensacion,
+        });
+
+        if (adaptacion.accion !== 'ninguna') {
+          await guardarPropuesta(usuario.id, adaptacion, {
+            planWeekId: semana.id,
+            semanaOriginal: dias,
+            sesionDisparadora: sesion.id,
+          });
+          navigate('/ajustes');
+          return;
+        }
+      }
+
       navigate(`/sesion/${sesion.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo guardar la sesión.');

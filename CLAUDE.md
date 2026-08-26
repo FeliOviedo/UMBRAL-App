@@ -70,6 +70,10 @@ Reglas que sostienen esto:
 | `src/domain/planner.ts` | `generarMacrociclo`, `generarMesociclo`, `generarMicrociclo`, `nivelPorObjetivo`, `feasibilidadObjetivo`. |
 | `src/domain/calendar.ts` | `calendarizarPlan`: aterriza la numeración abstracta del plan en fechas reales. |
 | `src/domain/sessionAnalysis.ts` | Carga metabólica, distribución por zona y comparación plan vs. real. |
+| `src/domain/homeostasis.ts` | Modelo de fatiga/forma y estado de supercompensación. |
+| `src/domain/analysis.ts` | Caja negra (progreso a igual pace) y serie de balance. |
+| `src/domain/adaptation.ts` | **Motor de adaptación.** Los casos de la metodología, con su explicación. |
+| `src/domain/vision.ts` | Interfaz conectable para leer capturas del reloj. |
 | `src/domain/import/` | Parsers TCX/GPX/KML, Haversine, splits, cadencia, reconciliación de distancia. |
 | `supabase/schema.sql` | Tablas, tipos, RLS, trigger de alta de perfil y bucket de Storage. |
 | `src/data/` | Repositorios hacia Supabase. Traducen filas ↔ dominio y los errores al español. |
@@ -102,6 +106,9 @@ Entre las dos cosas son ~275 kB que no tienen por qué estar en el arranque
 | `/zonas` | Mis Zonas | Las 7 zonas con RPE, pace y FC. |
 | `/umbral` | Umbral | Test o carga directa. |
 | `/objetivo` | Objetivo | Definir objetivo y generar el plan. |
+| `/ajustes` | Re-calibración | Los ajustes del motor, con el diff antes/después. |
+| `/complementaria` | Complementaria | Fuerza, fútbol, bici: carga que no es correr. |
+| `/sesion/:id/imagen` | Captura | Adjuntar la foto del reloj y confirmar lo detectado. |
 | `/onboarding`, `/config` | Perfil | Datos del corredor. |
 
 La navegación inferior tiene **cuatro destinos como máximo** (Hoy, Plan, Zonas,
@@ -126,6 +133,9 @@ Todas en `src/domain/config.ts`.
 | Tabla 7 | `PROGRESSION_TABLE` | Km a sumar por semana según ritmo base y distancia. |
 | RPE / sensación | `RPE_SCALE`, `FEELING_SCALE` | Escalas 1-10 y 1-5. |
 | Calibración | `RPE_CALIBRATION_PROTOCOL` | Bloques guiados de sensibilización de RPE. |
+| Adaptación | `ADAPTATION_CONFIG` | Umbrales que disparan cada caso del motor. |
+| Homeostasis | `HOMEOSTASIS_CONFIG` | Constantes de fatiga y forma, y umbrales de estado. |
+| Complementarias | `COMPLEMENTARY_ACTIVITIES` | Actividades y su factor de carga. |
 
 ### Reglas inquebrantables del microciclo (`rules.ts`)
 
@@ -168,6 +178,7 @@ Siete tablas en `supabase/schema.sql`, todas con Row Level Security:
 | `plan_weeks` | Microciclos, con su lunes en `starts_on`. |
 | `plan_days` | Días planificados, con su fecha en `scheduled_on`. |
 | `sessions` | **Lo que realmente pasó.** Genérica, con `discipline`. |
+| `adaptations` | Decisiones del motor, con el antes y el después de la semana. |
 
 Decisiones que conviene no revertir sin pensarlo:
 
@@ -296,7 +307,7 @@ difieren más del 5%, gana la del dispositivo y se avisa al usuario.
 ```bash
 npm install
 npm run dev         # servidor de desarrollo
-npm test            # 253 tests (dominio + utilidades)
+npm test            # 323 tests (dominio + utilidades)
 npm run typecheck   # tsc --noEmit
 npm run build       # typecheck + build de producción
 ```
@@ -310,8 +321,58 @@ npm run build       # typecheck + build de producción
 | **1** | Scaffolding + design system + `config.ts` con todas las tablas + módulos de dominio (zones, import, planner, rules, progression) + tests | ✅ **Completa** |
 | **2** | Supabase (`schema.sql` con sesión genérica + `discipline` + RLS + Auth) + repositorios + onboarding + umbral/zonas + objetivo + generación de plan | ✅ **Completa** |
 | **3** | Importación de archivos + análisis con mapa + registro de sesión (RPE primario) + vistas macro/meso/micro + dashboard | ✅ **Completa** |
-| **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ⬜ Pendiente |
+| **4** | Motor de adaptación + re-calibración + actividades complementarias + carga por imagen (`vision.ts` conectable) | ✅ **Completa** |
 | **5** | Caja Negra (gráficos) + progreso de volumen + calendario + deploy Vercel + README + pulido | ⬜ Pendiente |
+
+### Lo que la Fase 4 dejó listo
+
+**Motor de adaptación** (`adaptation.ts`) con los casos de la metodología. Dos
+invariantes que no se pueden romper y están cubiertos por tests:
+
+1. **Toda semana propuesta pasa por `validarMicrociclo`.** Si una adaptación
+   dejara la semana violando R1-R4, se descarta y se explica por qué en lugar de
+   aplicarla.
+2. **Toda decisión viene con su explicación en español.** El motor nunca cambia
+   el plan en silencio, ni siquiera cuando decide no cambiar nada.
+
+| Caso | Qué hace |
+| --- | --- |
+| Sesión omitida | Reordena lo que queda usando los R como comodines. No comprime el calendario: si se perdió un día, se perdió. |
+| Carga externa | Degrada la sesión exigente que caiga dentro de la ventana de recuperación (E/F → R, nunca a D). |
+| Feedback pobre | Mete una Recuperación antes del próximo Específico. |
+| Buena adaptación | Confirma el progreso **sin tocar el plan**. |
+| Re-test de mesociclo | Avisa que las zonas quedaron viejas. |
+
+**Modelo de homeostasis** (`homeostasis.ts`): dos exponenciales tipo Banister —
+fatiga corta, forma larga— y su diferencia normalizada por la carga media, para
+que el estado no dependa del volumen absoluto del corredor. La carga externa
+entra por la misma puerta que cualquier sesión: no hay parámetro aparte para
+las complementarias, y eso es la característica.
+
+**Caja negra** (`analysis.ts`): compara el RPE a igual pace entre las sesiones
+antiguas y las recientes. La FC entra sólo como confirmación; si contradice al
+RPE, se ignora.
+
+**`vision.ts`**: interfaz conectable con tres reglas — lo detectado nunca se
+guarda solo, cada campo trae su confianza, y la app funciona sin proveedor
+configurado. Hoy el proveedor por defecto es "no configurado" y falla con un
+mensaje que ofrece cargar a mano.
+
+**Pantallas nuevas**: `/ajustes` (re-calibración con el diff antes/después),
+`/complementaria` (actividades que no son correr) y `/sesion/:id/imagen`
+(captura del reloj con campos editables). El dashboard suma el estado de
+recuperación y el aviso de ajustes pendientes.
+
+**323 tests.** Los nuevos incluyen un test de integración que corre los tres
+casos que tocan el plan sobre **todas** las semanas que produce el generador,
+para cada día posible: es donde aparecen las combinaciones que uno no pensó al
+escribir el caso.
+
+### Lo que la Fase 4 NO incluye (a propósito)
+
+Caja Negra como pantalla con gráficos, progreso de volumen, calendario heatmap y
+deploy. Fase 5. Un proveedor de visión real: la interfaz está, la
+implementación se enchufa cuando haya una API configurada.
 
 ### Lo que la Fase 3 dejó listo
 

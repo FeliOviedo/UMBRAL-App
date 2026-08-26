@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { listarSesiones, type DiaPlanificado, type Plan, type Sesion } from '@/data';
-import { TRAINING_TYPE_TARGETS } from '@/domain';
+import { ArrowRight, Heart, SlidersHorizontal } from 'lucide-react';
+import {
+  listarPropuestasPendientes,
+  listarSesiones,
+  type DiaPlanificado,
+  type Plan,
+  type Sesion,
+} from '@/data';
+import { estadoSupercompensacion, explicarEstado, TRAINING_TYPE_TARGETS } from '@/domain';
 import { useSession } from '@/store/session.store';
 import { Button } from '@/components/ui/button';
 import { Vacio } from '@/components/ui/feedback';
 import { formatearFechaCorta, formatearKm, hoyIso, sumarDias } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
 /**
  * Dashboard: la sesión de hoy, cuánto llevás de la semana, y qué sigue.
@@ -24,6 +31,10 @@ export default function DashboardScreen() {
   const plan = useSession((s) => s.plan);
 
   const [sesionesSemana, setSesionesSemana] = useState<Sesion[] | null>(null);
+  // Para el estado de recuperación hace falta el historial largo, no sólo la
+  // semana: el modelo mira seis semanas hacia atrás.
+  const [historial, setHistorial] = useState<Sesion[] | null>(null);
+  const [ajustesPendientes, setAjustesPendientes] = useState(0);
 
   const hoy = hoyIso();
   const semanaActual = plan?.semanas.find(
@@ -39,6 +50,14 @@ export default function DashboardScreen() {
       .then(setSesionesSemana)
       .catch(() => setSesionesSemana([]));
   }, [usuario, semanaActual]);
+
+  useEffect(() => {
+    if (!usuario) return;
+    listarSesiones(usuario.id).then(setHistorial).catch(() => setHistorial([]));
+    listarPropuestasPendientes(usuario.id)
+      .then((p) => setAjustesPendientes(p.length))
+      .catch(() => setAjustesPendientes(0));
+  }, [usuario]);
 
   if (!plan || !semanaActual) {
     return (
@@ -104,6 +123,32 @@ export default function DashboardScreen() {
         </div>
       </section>
 
+      {/*
+        Estado de recuperación. Incluye las actividades complementarias sin
+        distinguirlas: la carga metabólica es unificada.
+      */}
+      {historial && historial.length > 0 && (
+        <EstadoRecuperacion sesiones={historial} />
+      )}
+
+      {ajustesPendientes > 0 && (
+        <section>
+          <button
+            type="button"
+            onClick={() => navigate('/ajustes')}
+            className="flex w-full items-center gap-3 border-b border-border pb-4 text-left"
+          >
+            <SlidersHorizontal size={20} strokeWidth={2} className="shrink-0 text-accent" aria-hidden />
+            <span className="u-data-sm flex-1">
+              {ajustesPendientes === 1
+                ? 'Hay un ajuste esperando tu OK'
+                : `Hay ${ajustesPendientes} ajustes esperando tu OK`}
+            </span>
+            <ArrowRight size={18} strokeWidth={2} className="shrink-0 text-outline" aria-hidden />
+          </button>
+        </section>
+      )}
+
       {proximoReto && (
         <section>
           <span className="u-label mb-1 block">Próximo reto</span>
@@ -158,8 +203,55 @@ export default function DashboardScreen() {
         >
           Registrar sesión
         </Button>
+        <Button variant="ghost" size="block" className="mt-3" onClick={() => navigate('/complementaria')}>
+          Registrar otra actividad
+        </Button>
       </section>
     </main>
+  );
+}
+
+/**
+ * Estado de carga y recuperación, con su explicación.
+ *
+ * Es la lectura que Stitch muestra como "Supercompensación": un ícono, el
+ * estado y nada más compitiendo. El detalle va debajo, en texto secundario.
+ */
+function EstadoRecuperacion({ sesiones }: { sesiones: readonly Sesion[] }) {
+  const ahora = Date.now();
+  const homeostasis = estadoSupercompensacion(
+    sesiones.map((s) => ({
+      diasAtras: Math.floor((ahora - Date.parse(s.ocurrioEn)) / 86_400_000),
+      paceSecPerKm: s.paceSegPorKm,
+      rpe: s.rpe,
+      fcPromedio: s.fcPromedio,
+      cargaMetabolica: s.cargaMetabolica ?? 0,
+    })),
+  );
+  const { titulo, detalle } = explicarEstado(homeostasis.estado);
+  const enPico = homeostasis.estado === 'pico';
+
+  return (
+    <section>
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className={cn(
+            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+            enPico ? 'bg-accent' : 'bg-surface-high',
+          )}
+        >
+          <Heart
+            size={16}
+            strokeWidth={2}
+            className={enPico ? 'text-accent-foreground' : 'text-outline'}
+            fill={enPico ? 'currentColor' : 'none'}
+          />
+        </span>
+        <h2 className="u-data">{titulo}</h2>
+      </div>
+      <p className="u-sub mt-2">{detalle}</p>
+    </section>
   );
 }
 

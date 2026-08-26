@@ -9,6 +9,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { calendarizarPlan } from '@/domain/calendar';
+import { sumarDias } from '@/lib/format';
 import type {
   BasePaceLevel,
   LoadWeek,
@@ -266,4 +267,82 @@ function armarPlan(plan: PlanRow, weeks: PlanWeekRow[], days: PlanDayRow[]): Pla
 export async function borrarPlan(planId: string): Promise<void> {
   const { error } = await supabase.from('plans').delete().eq('id', planId);
   if (error) throw traducirError(error, 'borrar el plan');
+}
+
+/**
+ * Reemplaza los días de una semana por los de una adaptación.
+ *
+ * Se borra e inserta en lugar de actualizar día por día porque una adaptación
+ * puede cambiar la CANTIDAD de días (una sesión omitida deja seis), y hacer
+ * coincidir siete filas viejas con seis nuevas por índice es más frágil que
+ * rehacer la semana entera.
+ *
+ * El `scheduled_on` se recalcula desde el lunes de la semana: si la adaptación
+ * reordenó los días, sus fechas tienen que seguir el orden nuevo.
+ */
+export async function reemplazarDiasDeSemana(
+  userId: string,
+  planWeekId: string,
+  dias: readonly PlannedDay[],
+): Promise<void> {
+  const { data: semana, error: errorSemana } = await supabase
+    .from('plan_weeks')
+    .select('starts_on')
+    .eq('id', planWeekId)
+    .single();
+
+  if (errorSemana) throw traducirError(errorSemana, 'buscar la semana a modificar');
+
+  const { error: errorBorrado } = await supabase
+    .from('plan_days')
+    .delete()
+    .eq('plan_week_id', planWeekId);
+
+  if (errorBorrado) throw traducirError(errorBorrado, 'limpiar los días de la semana');
+
+  const { error: errorInsercion } = await supabase.from('plan_days').insert(
+    dias.map((dia) => ({
+      user_id: userId,
+      plan_week_id: planWeekId,
+      day_index: dia.dayIndex,
+      type: dia.type,
+      discipline: dia.discipline,
+      km: dia.km,
+      target_zone: dia.targetZone ?? null,
+      target_rpe: dia.targetRpe ?? null,
+      notes: dia.notes ?? null,
+      scheduled_on: sumarDias(semana.starts_on, dia.dayIndex),
+    })),
+  );
+
+  if (errorInsercion) throw traducirError(errorInsercion, 'guardar los días ajustados');
+
+  // El volumen de la semana cambió: se recalcula desde los días.
+  const totalKm = Math.round(dias.reduce((sum, d) => sum + d.km, 0) * 10) / 10;
+  const { error: errorTotal } = await supabase
+    .from('plan_weeks')
+    .update({ total_km: totalKm })
+    .eq('id', planWeekId);
+
+  if (errorTotal) throw traducirError(errorTotal, 'actualizar el volumen de la semana');
+}
+
+/**
+ * Traduce los días de una semana guardada a los tipos del dominio.
+ *
+ * Hace falta cada vez que la UI le pasa una semana al motor de adaptación: el
+ * dominio trabaja con `PlannedDay` (campos en inglés, sin ids) y la capa de
+ * datos con `DiaPlanificado`. Vive acá, del lado de datos, porque traducir de
+ * la base al dominio es exactamente la responsabilidad de esta capa.
+ */
+export function aDiasDeDominio(dias: readonly DiaPlanificado[]): PlannedDay[] {
+  return dias.map((d) => ({
+    dayIndex: d.diaIndex,
+    type: d.tipo,
+    discipline: d.disciplina,
+    km: d.km,
+    ...(d.zonaObjetivo ? { targetZone: d.zonaObjetivo } : {}),
+    ...(d.rpeObjetivo !== null ? { targetRpe: d.rpeObjetivo } : {}),
+    ...(d.notas ? { notes: d.notas } : {}),
+  }));
 }

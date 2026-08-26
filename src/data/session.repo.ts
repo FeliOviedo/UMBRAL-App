@@ -201,3 +201,31 @@ export async function borrarSesion(sessionId: string): Promise<void> {
   const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
   if (error) throw traducirError(error, 'borrar la sesión');
 }
+
+/**
+ * Actualiza los campos que la persona confirmó después de revisar la imagen.
+ *
+ * Sólo se pasan los campos que efectivamente se quieren tocar: pasar
+ * `undefined` deja el valor como estaba. Es lo que permite guardar la revisión
+ * de la imagen sin pisar lo que ya vino del archivo.
+ */
+export async function actualizarSesion(
+  sessionId: string,
+  datos: {
+    fcMaxima?: number | null;
+    cadenciaSpm?: number | null;
+    imagenPath?: string | null;
+    notas?: string | null;
+  },
+): Promise<void> {
+  const patch: Partial<SessionRow> = {};
+  if (datos.fcMaxima !== undefined) patch.max_hr = datos.fcMaxima;
+  if (datos.cadenciaSpm !== undefined) patch.cadence_spm = datos.cadenciaSpm;
+  if (datos.imagenPath !== undefined) patch.image_path = datos.imagenPath;
+  if (datos.notas !== undefined) patch.notes = datos.notas;
+
+  if (Object.keys(patch).length === 0) return;
+
+  const { error } = await supabase.from('sessions').update(patch).eq('id', sessionId);
+  if (error) throw traducirError(error, 'guardar los cambios de la sesión');
+}

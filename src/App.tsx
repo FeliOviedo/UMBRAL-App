@@ -14,6 +14,8 @@ import MesocicloScreen from '@/screens/MesocicloScreen';
 import SemanaScreen from '@/screens/SemanaScreen';
 import DashboardScreen from '@/screens/DashboardScreen';
 import ConfigScreen from '@/screens/ConfigScreen';
+import AjustesPlanScreen from '@/screens/AjustesPlanScreen';
+import ComplementariaScreen from '@/screens/ComplementariaScreen';
 
 /**
  * Estas dos pantallas se cargan bajo demanda porque arrastran las dependencias
@@ -23,6 +25,7 @@ import ConfigScreen from '@/screens/ConfigScreen';
  */
 const RegistrarScreen = lazy(() => import('@/screens/RegistrarScreen'));
 const SesionDetalleScreen = lazy(() => import('@/screens/SesionDetalleScreen'));
+const RevisarImagenScreen = lazy(() => import('@/screens/RevisarImagenScreen'));
 
 export default function App() {
   const inicializar = useSession((s) => s.inicializar);
@@ -93,6 +96,16 @@ function Rutas() {
           element={
             <Suspense fallback={<Cargando mensaje="Cargando sesión…" />}>
               <SesionDetalleScreen />
+            </Suspense>
+          }
+        />
+        <Route path="/ajustes" element={<AjustesPlanScreen />} />
+        <Route path="/complementaria" element={<ComplementariaScreen />} />
+        <Route
+          path="/sesion/:id/imagen"
+          element={
+            <Suspense fallback={<Cargando mensaje="Abriendo la captura…" />}>
+              <RevisarImagenScreen />
             </Suspense>
           }
         />

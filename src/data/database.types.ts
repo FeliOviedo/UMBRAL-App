@@ -11,10 +11,15 @@
  */
 
 import type {
+  AccionAdaptacion,
+  MotivoAdaptacion,
+} from '@/domain/adaptation';
+import type {
   BasePaceLevel,
   Discipline,
   LoadWeek,
   MesocycleScheme,
+  PlannedDay,
   RaceDistance,
   TrainingType,
   ZoneId,
@@ -135,6 +140,22 @@ export type SessionRow = {
   updated_at: string;
 };
 
+export type AdaptationRow = {
+  id: string;
+  user_id: string;
+  plan_week_id: string | null;
+  reason: MotivoAdaptacion;
+  action: AccionAdaptacion;
+  title: string;
+  explanation: string;
+  snapshot_antes: PlannedDay[] | null;
+  snapshot_despues: PlannedDay[] | null;
+  trigger_session_id: string | null;
+  applied: boolean;
+  applied_at: string | null;
+  created_at: string;
+};
+
 /** Fila lista para insertar: sin las columnas que pone la base sola. */
 type Insertable<T, Required extends keyof T> = Pick<T, Required> &
   Partial<Omit<T, 'id' | 'created_at' | 'updated_at' | Required>>;
@@ -198,6 +219,10 @@ export interface Database {
         Insertable<PlanDayRow, 'user_id' | 'plan_week_id' | 'day_index' | 'type' | 'scheduled_on'>
       >;
       sessions: Table<SessionRow, Insertable<SessionRow, 'user_id' | 'rpe'>>;
+      adaptations: Table<
+        AdaptationRow,
+        Insertable<AdaptationRow, 'user_id' | 'reason' | 'action' | 'title' | 'explanation'>
+      >;
     };
     Views: Vacio;
     Functions: Vacio;

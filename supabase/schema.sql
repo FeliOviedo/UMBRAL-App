@@ -382,6 +382,59 @@ create trigger sessions_set_updated_at
 -- con las mismas políticas RLS que el resto. No hace falta tocar sessions.
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- adaptations — historial de decisiones del motor
+--
+-- Cada vez que el motor propone un cambio se guarda acá, con la semana antes y
+-- después. Sirve para tres cosas:
+--
+-- 1. Mostrar el diff en la pantalla de re-calibración ANTES de aplicar.
+-- 2. Poder deshacer: `snapshot_antes` tiene el plan original.
+-- 3. Dejar rastro de por qué el plan es como es. Un plan que cambió solo, sin
+--    registro del motivo, es indistinguible de un bug.
+-- ───────────────────────────────────────────────────────────────────────────
+
+do $$ begin
+  create type adaptation_reason as enum (
+    'sesion-omitida', 'carga-externa', 'feedback-pobre',
+    'buena-adaptacion', 'retest-mesociclo', 'progresion-volumen',
+    'feasibilidad-objetivo'
+  );
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type adaptation_action as enum (
+    'reordenar', 'degradar-sesion', 'insertar-recuperacion', 'ninguna'
+  );
+exception when duplicate_object then null; end $$;
+
+create table if not exists adaptations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  plan_week_id uuid references plan_weeks (id) on delete cascade,
+  reason adaptation_reason not null,
+  action adaptation_action not null,
+  title text not null,
+  -- La explicación en lenguaje de entrenador, tal como se le mostró al usuario.
+  explanation text not null,
+  -- Los días de la semana antes y después. Permiten mostrar el diff y deshacer.
+  snapshot_antes jsonb,
+  snapshot_despues jsonb,
+  -- La sesión o actividad que disparó la adaptación, si hubo una.
+  trigger_session_id uuid references sessions (id) on delete set null,
+  -- false mientras está propuesta; true cuando el usuario la confirmó.
+  applied boolean not null default false,
+  applied_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+comment on table adaptations is
+  'Decisiones del motor de adaptación. Nunca se aplica nada sin dejar registro del motivo.';
+
+create index if not exists adaptations_user_created_idx
+  on adaptations (user_id, created_at desc);
+create index if not exists adaptations_week_idx on adaptations (plan_week_id);
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- Row Level Security
 --
 -- Sin esto, cualquiera con la anon key podría leer los datos de todos. La anon
@@ -395,6 +448,7 @@ alter table plans       enable row level security;
 alter table plan_weeks  enable row level security;
 alter table plan_days   enable row level security;
 alter table sessions    enable row level security;
+alter table adaptations enable row level security;
 
 -- profiles: la fila la crea el trigger, así que no hay política de insert.
 -- El usuario sólo puede ver y editar la suya.
@@ -413,7 +467,7 @@ do $$
 declare
   t text;
 begin
-  foreach t in array array['thresholds', 'goals', 'plans', 'plan_weeks', 'plan_days', 'sessions']
+  foreach t in array array['thresholds', 'goals', 'plans', 'plan_weeks', 'plan_days', 'sessions', 'adaptations']
   loop
     execute format('drop policy if exists "%1$s: leer lo propio" on %1$I', t);
     execute format(

@@ -22,8 +22,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-accent text-accent-foreground font-wordmark uppercase tracking-tighter ' +
-          'hover:opacity-90',
+          'bg-accent text-accent-foreground font-wordmark text-wordmark uppercase ' +
+          'tracking-tighter hover:opacity-90',
         outline:
           'border-b border-fg font-mono text-label uppercase tracking-widest text-fg ' +
           'hover:border-accent hover:text-accent',
@@ -32,12 +32,16 @@ const buttonVariants = cva(
           'border-b border-zone-z5c font-mono text-label uppercase tracking-widest ' +
           'text-zone-z5c hover:opacity-80',
       },
+      // `size` controla sólo el espaciado y el ancho. El tamaño de fuente lo
+      // fija el variant: el principal es un bloque de 24px, los secundarios son
+      // texto de 11px. Si `size` lo pisara, un "Dejar el plan como está" saldría
+      // en 24px y se partiría en dos líneas.
       size: {
-        sm: 'px-3 py-2 text-label',
+        sm: 'px-3 py-2',
         md: 'px-5 py-component',
-        lg: 'px-edge py-gutter text-wordmark',
+        lg: 'px-edge py-gutter',
         // Ancho completo: el patrón de la acción principal en mobile.
-        block: 'w-full px-edge py-gutter text-wordmark',
+        block: 'w-full px-edge py-gutter',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },

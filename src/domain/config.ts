@@ -502,3 +502,69 @@ export const ADAPTATION_CONFIG = {
   /** Sensación por debajo de esto se toma como señal de fatiga. */
   poorFeelingThreshold: 2,
 } as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Modelo de homeostasis y supercompensación
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Parámetros del modelo de carga y recuperación.
+ *
+ * Es un modelo de dos exponenciales —fatiga y forma— del tipo Banister: cada
+ * sesión suma un impulso a las dos, la fatiga sube más pero decae más rápido, y
+ * la diferencia entre ambas es lo que se lee como "estado".
+ *
+ * Los valores son deliberadamente conservadores y redondos: no salen de un
+ * estudio, salen de que un corredor recreativo se recupera de una sesión dura
+ * en 2-3 días y consolida la adaptación en 3-6 semanas. Recalibrarlos es tocar
+ * este bloque, y sólo este bloque.
+ */
+export const HOMEOSTASIS_CONFIG = {
+  /** Constante de decaimiento de la fatiga, en días. Corto: se va rápido. */
+  fatigaTauDias: 7,
+  /** Constante de decaimiento de la forma, en días. Largo: cuesta ganarla y perderla. */
+  formaTauDias: 42,
+  /**
+   * Cuánto pesa una unidad de carga en la fatiga frente a la forma.
+   *
+   * Mayor a 1 porque, en lo inmediato, una sesión cansa más de lo que mejora:
+   * la ganancia aparece cuando la fatiga ya se fue.
+   */
+  factorFatiga: 2,
+  /** Ventana de días hacia atrás que mira el modelo. Más allá el aporte es ruido. */
+  ventanaDias: 42,
+  /**
+   * Umbrales del estado, sobre el balance (forma − fatiga) normalizado por la
+   * carga media de las últimas semanas.
+   */
+  umbralFatigado: -0.35,
+  umbralPico: 0.25,
+  umbralSobreDescansado: 0.8,
+  /**
+   * Carga metabólica por debajo de la cual una semana se considera vacía. Sirve
+   * para no dividir por cero al normalizar en las primeras semanas.
+   */
+  cargaMinimaSignificativa: 50,
+} as const;
+
+/**
+ * Actividades complementarias: cuánta carga metabólica aporta cada una por
+ * minuto y a RPE 1.
+ *
+ * La carga se calcula igual que en running —minutos × RPE— porque la carga
+ * metabólica es un concepto UNIFICADO. El factor sólo corrige que una hora de
+ * fuerza no cansa igual que una hora de fútbol al mismo RPE percibido.
+ */
+export const COMPLEMENTARY_ACTIVITIES: readonly {
+  id: string;
+  label: string;
+  discipline: import('./types').Discipline;
+  /** Multiplicador sobre la carga base (minutos × RPE). */
+  factorCarga: number;
+}[] = [
+  { id: 'fuerza', label: 'Gimnasio / fuerza', discipline: 'strength', factorCarga: 1.0 },
+  { id: 'futbol', label: 'Fútbol', discipline: 'other', factorCarga: 1.2 },
+  { id: 'ciclismo', label: 'Bici', discipline: 'other', factorCarga: 0.7 },
+  { id: 'natacion', label: 'Natación', discipline: 'other', factorCarga: 0.8 },
+  { id: 'otro', label: 'Otra actividad', discipline: 'other', factorCarga: 1.0 },
+] as const;

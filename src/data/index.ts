@@ -12,4 +12,6 @@ export * from './threshold.repo';
 export * from './goal.repo';
 export * from './plan.repo';
 export * from './session.repo';
+export * from './adaptation.repo';
+export * from './image.repo';
 export type { GoalStatus, SessionSource, ThresholdSource } from './database.types';
