@@ -236,4 +236,10 @@ cualquiera se registra con un mail que no le pertenece.
 2. Registrate, confirmá el mail y completá el onboarding.
 3. Entrá directo a `https://tu-proyecto.vercel.app/analisis` (verifica el
    rewrite de SPA).
-4. Corré `npm run verify:rls` apuntando al mismo proyecto de Supabase.
+4. Corré `npm run verify:rls` apuntando al mismo proyecto de Supabase. El
+   script necesita **Confirm email desactivado** para poder loguear a sus dos
+   usuarios de prueba (si no, el registro queda pendiente y choca con el rate
+   limit de envío de Supabase de Confirm email). Si ya hiciste el paso 6,
+   desactivalo de nuevo en **Authentication** → **Sign In / Providers** →
+   **Email**, corré el script y volvé a activarlo apenas termine — no dejes
+   producción con Confirm email desactivado.
